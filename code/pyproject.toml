@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xai-faas"
+version = "0.1.0"
+description = "XAI pour la prédiction de charge FaaS — mémoire M2 Université de Dschang"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "(à compléter)" }]
+
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.0",
+    "scikit-learn>=1.4",
+    "torch>=2.2",
+    "transformers>=4.40",
+    "matplotlib>=3.8",
+    "seaborn>=0.13",
+    "pyyaml>=6.0",
+    "tqdm>=4.66",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.4",
+    "ipykernel>=6.29",
+    "jupyter>=1.0",
+]
+xai = [
+    "captum>=0.7",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,114 @@
+# ---------------------------------------------------------------------------
+# Fichiers Claude Code (jamais commités — choix projet)
+# ---------------------------------------------------------------------------
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+memory/
+.mcp.json
+
+# ---------------------------------------------------------------------------
+# Secrets & environnements
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+
+# ---------------------------------------------------------------------------
+# Python / code
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+.venv/
+venv/
+env/
+.python-version
+
+# Notebooks
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ---------------------------------------------------------------------------
+# Données volumineuses (06-datasets)
+# ---------------------------------------------------------------------------
+memoire/06-datasets/raw/**
+memoire/06-datasets/processed/**
+!memoire/06-datasets/raw/.gitkeep
+!memoire/06-datasets/processed/.gitkeep
+*.parquet
+*.feather
+*.h5
+*.hdf5
+# CSV : autorise les petits, ignore les gros (à arbitrer manuellement)
+# *.csv
+
+# Modèles entraînés
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+code/experiments/runs/**
+!code/experiments/runs/.gitkeep
+
+# ---------------------------------------------------------------------------
+# LaTeX (build artifacts)
+# ---------------------------------------------------------------------------
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.nav
+*.snm
+*.vrb
+*.idx
+*.ilg
+*.ind
+*.dvi
+*.ps
+_build/
+_minted-*/
+*.pdf.bak
+
+# Conserver les PDFs finaux uniquement à la racine de redaction/ et presentations/<nom>/build/
+# Ignorer par défaut, lever au cas par cas
+# *.pdf
+
+# ---------------------------------------------------------------------------
+# OS & éditeurs
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*~
+
+# ---------------------------------------------------------------------------
+# Logs HPC
+# ---------------------------------------------------------------------------
+hpc/logs/**
+!hpc/logs/.gitkeep
+slurm-*.out
+*.err
