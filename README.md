@@ -2,20 +2,35 @@
 
 **Titre** : Prédiction des charges de travail et atténuation du cold start dans les architectures FaaS : approches basées sur le Deep Learning et l'explicabilité
 
-**Étudiant** : *(à compléter)*
+**Étudiant** : *FOSSO TIOFOUET Jospin Cabrel*
 **Université** : Université de Dschang
 **Année universitaire** : 2025-2026
-**Encadrant** : *(à compléter)*
+**Encadrant** : *Pr KENGNE TCHENDJI Vianney*
 
 ---
 
 ## Résumé
 
-Ce projet étend les travaux baseline (FAYAM) sur la prédiction de charge FaaS en ajoutant des mécanismes d'explicabilité (XAI) au modèle Transformer. L'objectif est de rendre les prédictions interprétables sans dégrader les performances, via l'analyse des poids d'attention et leur évaluation par faithfulness (comprehensiveness + sufficiency), avec une lecture différentielle par cluster DBSCAN.
+Ce projet étend les travaux baseline (FAYAM, Université de Dschang, 2024) sur la prédiction de charge FaaS en ajoutant une couche d'**explicabilité (XAI)** au modèle Transformer utilisé pour l'atténuation du cold start. L'objectif est de rendre les prédictions **interprétables sans dégrader les performances**, en privilégiant — autant que possible — une **interprétabilité intrinsèque** (le modèle explique sa décision en un seul forward pass, plutôt qu'a posteriori).
 
-## Hypothèse principale (H1)
+## Hypothèses de recherche
 
-XAI par attention weights sur le Transformer HuggingFace de FAYAM — extraction, visualisation par cluster DBSCAN, évaluation faithfulness.
+Les trois pistes ci-dessous forment un **continuum d'ambition décroissante**. Si la première bloque, la suivante prend le relais.
+
+### H1 — *prioritaire* — XAI intrinsèque par modification architecturale
+
+Adapter le principe **SoftCAM** (Djoumessi & Berens, arXiv:2505.17748, 2025) au `TimeSeriesTransformer` HuggingFace de FAYAM : remplacer la projection finale du décodeur par une opération qui produit nativement une *carte d'évidence temporelle*, régularisée par ElasticNet. Les auteurs SoftCAM mentionnent l'extension à ViT comme perspective ouverte ; nous proposons la **première transposition à un Transformer de séries temporelles** appliqué aux charges FaaS.
+
+### H2 — *repli méthodologique* — XAI post-hoc fondée sur Shapley
+
+Si H1 bute sur un verrou conceptuel ou technique, basculer sur des approches **SHAP-based** (TimeSHAP, KernelSHAP), conçues pour les séries temporelles et théoriquement bien fondées.
+
+### H3 — *dernier recours* — XAI par poids d'attention
+
+Si H1 et H2 échouent, étudier directement les **poids d'attention** du Transformer (`output_attentions=True`), avec analyse différentielle par cluster DBSCAN et évaluation par *comprehensiveness/sufficiency*. Cette piste, moins ambitieuse, peut aussi servir d'**outil de validation** de H1.
+
+### Hypothèse abandonnée
+Implémentation CNN-LSTM en PyTorch (Modèle 1 de FAYAM) : coût d'apprentissage trop élevé pour le calendrier (< 3 mois).
 
 ## Structure du dépôt
 
