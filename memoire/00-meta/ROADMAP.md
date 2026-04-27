@@ -63,13 +63,12 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-04-27 (session 3)
+### Dernière session : 2026-04-27 (session 9)
 
-- **Phase actuelle** : pré-phase 1 — archivage des présentations encadreurs en cours.
+- **Phase actuelle** : transition pré-phase 1 → phase 1. Archivage des présentations terminé (9 archivées).
 - **Avancée récente** :
-  - Présentation #2 (25/10/2025, "De la Prédiction à la Confiance par l'Explicabilité") archivée dans `presentations/2025-10-25-series-temporelles-explicabilite/`.
-  - 2 présentations archivées sur le total à récupérer.
-  - Action items cumulés des 2 séances : références IEEE, figures, dataset concret, tableau comparatif XAI, types de sorties d'un modèle.
-- **Bloquants** : mêmes qu'avant — code FAYAM, hyperparamètres Transformer, accès SoftCAM, template LaTeX Dschang.
-- **Prochain pas concret** : archiver les présentations restantes, puis démarrer la **phase 1**.
-- **Décisions du jour** : aucune nouvelle décision méthodologique.
+  - Présentation #9 (25/04/2026, SoftCAM) archivée — jugée incomplète par Dr LACMOU, à recompléter avec comparaison post-hoc + lien FAYAM.
+  - Toutes les présentations encadreurs sont maintenant archivées dans `presentations/`.
+- **Bloquants** : présentation SoftCAM à compléter ; code FAYAM non encore récupéré ; dataset non agrégé/documenté ; notebooks Colab janv. 2026 à retrouver.
+- **Prochain pas concret** : démarrer la **phase 1** — récupérer le code FAYAM, agréger le dataset, faire l'EDA, entraîner le modèle, ressortir les métriques.
+- **Décisions du jour** : archivage des présentations complet — on passe à la phase active.
