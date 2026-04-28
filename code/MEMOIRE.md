@@ -40,3 +40,4 @@
 - `code/notebooks/README.md` créé : guide complet du notebook (données attendues, dépendances, exécution locale/Colab, structure du JSON produit, résultats attendus par cluster).
 - `code/experiments/eda/REGISTER.md` enrichi : pointeurs vers JSON, HTML et README.
 - `code/STEPS.md` mis à jour : 4 étapes Phase 1 cochées (code FAYAM, hyperparamètres, CSV, EDA), prochaine étape = lancer `tsf_transf.py`.
+- `src/baseline/fayam/dataToHub.py` : token HuggingFace hardcodé redacté (`<HF_TOKEN_REDACTED>`) avant push GitHub.

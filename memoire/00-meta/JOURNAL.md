@@ -186,6 +186,7 @@
 - `code/MEMOIRE.md` mis à jour en conséquence (session 14).
 - Cellule rappel export HTML ajoutée en fin de notebook (48 cellules au total). Stratégie archivage finalisée : JSON auto + HTML manuel dans `code/experiments/eda/`.
 - Documentation EDA complétée : `code/notebooks/README.md` créé (guide autonome pour utilisateur externe ou Claude futur), `STEPS.md` mis à jour (4 étapes Phase 1 cochées), `REGISTER.md` enrichi avec pointeurs.
+- Push GitHub effectué (commit `4b8b4bb`) — token HF redacté dans `dataToHub.py` avant commit.
 
 ## 2026-04-27 — Complément DEBRIEF présentation #4
 
