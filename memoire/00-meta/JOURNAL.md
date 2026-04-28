@@ -156,6 +156,37 @@
 - **Bloquants restants** : KernelSHAP n'a pas d'article PDF archivé (présent dans la présentation via les fiches déjà lues) ; métriques FAYAM dans le slide 2.3 sont des placeholders `\textit{(valeur)}` à compléter après phase 1.
 - **Prochaine session** : démarrer la **phase 1** — récupérer le code FAYAM, reproduire les résultats Transformer.
 
+## 2026-04-28 — Phase 1 amorcée : datasets + baseline FAYAM
+
+- **Durée** : ~1h
+- **Fait** :
+  - 4 clusters CSV reçus (clusters 0, 4, 6, 8 — 19 fonctions × 20 160 min, Azure Functions Trace 2019, fréquence minute) → déposés dans `memoire/06-datasets/raw/` + `DATA-CARD.md` rédigée.
+  - Code FAYAM (`transformer_m2-main.zip`) analysé et intégré dans `code/src/baseline/fayam/` (référence immuable). Hyperparamètres Transformer retrouvés : `prediction_length=120`, `context_length=240`, `freq="1T"`, `encoder_layers=4`, `decoder_layers=4`, `d_model=32`. Dataset sur HuggingFace Hub : `FaalSa/dataME`.
+  - Discordance DBSCAN/HDBSCAN détectée (mémoire FAYAM dit DBSCAN, le code utilise `hdbscan`) — à éclaircir avec l'encadreur.
+- **Prochaine session** : lancer `tsf_transf.py` sur les 4 clusters et reproduire les métriques FAYAM (sMAPE, RMSE, R², Spearman).
+
+## 2026-04-28 — EDA complète des 4 clusters (notebook)
+
+- **Durée** : ~30 min (fin de session 13, suite directe de la phase 1)
+- **Fait** :
+  - `code/notebooks/EDA_clusters.ipynb` créé — 39 cellules, 11 sections couvrant l'analyse **par fonction** (19 séries) ET **par cluster** (0, 4, 6, 8).
+  - Sections : vue d'ensemble → statistiques descriptives → séries temporelles (14 j + zoom 3 j + heatmap 14×1440 + profil journalier) → analyse des zéros (taux + runs consécutifs) → distributions (KDE, boxplot, skewness/kurtosis) → périodicité (ACF 2880 lags + FFT + top périodes) → stationnarité (ADF + diff(1) si non-stationnaire) → cohérence intra-cluster (Pearson + Spearman + distance euclidienne normalisée) → comparaison inter-cluster (CV, burstiness B=(σ-μ)/(σ+μ), profils normalisés overlay) → synthèse & recommandations prétraitement.
+  - Recommandations clés documentées : ordre d'entraînement C0→C4→C8→C6, conserver les zéros natifs pour les clusters 6 et 8, normaliser par fonction, activer `output_attentions=True` dès le premier run.
+- **Prochaine session** : exécuter le notebook pour vérifier les graphiques, puis lancer `tsf_transf.py` sur les 4 clusters.
+- `code/MEMOIRE.md` mis à jour en conséquence.
+
+## 2026-04-29 — Registre de résultats EDA (session 14)
+
+- **Durée** : ~20 min
+- **Fait** :
+  - `code/experiments/eda/REGISTER.md` créé — tableau cumulatif mis à jour automatiquement à chaque run.
+  - `EDA_clusters.ipynb` étendu à 47 cellules : cellule de détection Colab/Drive (index 3), 4 cellules de capture (overview, zéros, FFT top périodes, ADF stationnarité), section 12 (sauvegarde JSON Drive + REGISTER.md + `files.download()`).
+  - Compatible local et Colab : le chemin de sauvegarde s'adapte automatiquement.
+- **Prochaine session** : exécuter le notebook sur Colab, vérifier le JSON produit, puis lancer `tsf_transf.py`.
+- `code/MEMOIRE.md` mis à jour en conséquence (session 14).
+- Cellule rappel export HTML ajoutée en fin de notebook (48 cellules au total). Stratégie archivage finalisée : JSON auto + HTML manuel dans `code/experiments/eda/`.
+- Documentation EDA complétée : `code/notebooks/README.md` créé (guide autonome pour utilisateur externe ou Claude futur), `STEPS.md` mis à jour (4 étapes Phase 1 cochées), `REGISTER.md` enrichi avec pointeurs.
+
 ## 2026-04-27 — Complément DEBRIEF présentation #4
 
 - Article *Foundation Models for Time Series: A Survey* (recommandé par Dr DJOUMESSI Kerol) ajouté dans le DEBRIEF de la présentation #4.

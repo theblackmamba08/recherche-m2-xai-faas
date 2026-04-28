@@ -63,14 +63,20 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-04-28 (session 12 — finalisée)
+### Dernière session : 2026-04-29 (session 14)
+
+- **Phase actuelle** : **Phase 1 amorcée** — EDA notebook finalisé avec registre de résultats.
+- **Avancée récente** : `EDA_clusters.ipynb` finalisé à 48 cellules — détection Colab/Drive, captures métriques (overview, zéros, FFT, ADF), section 12 (JSON + REGISTER.md + `files.download()`), cellule rappel export HTML. `code/experiments/eda/REGISTER.md` créé.
+- **Prochain pas** : exécuter le notebook sur Colab (Run All → télécharger HTML + JSON), puis lancer `tsf_transf.py` sur les 4 clusters.
+
+### Avant-dernière session : 2026-04-28 (session 13 — complète)
+
+- **Phase actuelle** : **Phase 1 amorcée** — baseline FAYAM intégrée + EDA des 4 clusters terminée.
+- **Avancée récente** : `code/notebooks/EDA_clusters.ipynb` créé (39 cellules, 11 sections) — analyse par fonction ET par cluster : statistiques descriptives, séries temporelles (heatmaps 14×1440, profils journaliers), zéros, distributions, ACF/FFT, ADF, cohérence intra/inter-cluster, recommandations prétraitement.
+- **Prochain pas** : (1) exécuter l'EDA notebook pour valider les graphiques ; (2) lancer `tsf_transf.py` sur les 4 clusters (dataset HuggingFace `FaalSa/dataME`) et reproduire les métriques FAYAM (sMAPE, RMSE, R², Spearman).
+
+### Avant-dernière session : 2026-04-28 (session 12 — finalisée)
 
 - **Phase actuelle** : présentation panorama XAI prête à l'oral — 47 slides + script complet.
 - **Avancée récente** : `SPEECH.md` créé (~30 s/slide, ~20 min, tableau temps cibles par section, conseils de rythme).
-- **Prochain pas** : démarrer la **phase 1** — code FAYAM, dataset FaaS, entraînement Transformer, métriques.
-
-### Avant-dernière session : 2026-04-28 (sessions 10–11)
-
-- **Phase actuelle** : présentation panorama XAI **100 % finalisée** — 47 slides, 760 Ko, 0 erreur.
-- **Avancée récente** : style tcolorbox uniforme (42→47 slides) ; frame Références (10 entrées) ; slides de transition automatiques.
 - **Prochain pas** : démarrer la **phase 1** — code FAYAM, dataset FaaS, entraînement Transformer, métriques.

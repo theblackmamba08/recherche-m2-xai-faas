@@ -4,13 +4,14 @@
 
 ## Phase 1 — Reproduction baseline FAYAM
 
-- [ ] Importer le code FAYAM (Transformer uniquement, pas le CNN-LSTM) dans `src/models/fayam_transformer.py`
-- [ ] Identifier les hyperparamètres manquants (`predictionLength`, `contextLength`, `lagsSequence`, `cardinality`, `embeddingDimension` — non chiffrés p. 76 du mémoire FAYAM)
-- [ ] `src/data/azure_loader.py` : chargement des fichiers Azure Functions 2019 (filtre HTTP, fusion 14 fichiers)
-- [ ] `src/data/dbscan_clustering.py` : reproduction des 33 clusters HTTP
-- [ ] **Activer `output_attentions=True` dès maintenant** pour disposer du matériel H3 sans réentraîner
-- [ ] Reproductibilité : seed fixée, métriques stables sur 3 runs sur ≥ 3 datasets parmi les 18 (`HashFunction` table IX FAYAM p. 86)
-- [ ] Tests unitaires de base dans `tests/`
+- [x] Récupérer le code FAYAM → `src/baseline/fayam/` (référence immuable, ne pas modifier)
+- [x] Identifier les hyperparamètres Transformer : `prediction_length=120`, `context_length=240`, `freq="1T"`, `encoder_layers=4`, `decoder_layers=4`, `d_model=32` (voir `src/baseline/fayam/BASELINE.md`)
+- [x] Déposer les 4 clusters CSV dans `memoire/06-datasets/raw/` + DATA-CARD
+- [x] **EDA complète** : `notebooks/EDA_clusters.ipynb` (48 cellules, 12 sections) — voir `notebooks/README.md`
+- [ ] Lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters (dataset HuggingFace `FaalSa/dataME`)
+- [ ] Reproduire les métriques FAYAM : sMAPE, RMSE, R², Spearman sur ≥ 3 clusters
+- [ ] **Activer `output_attentions=True`** (déjà présent dans le code FAYAM — vérifier au 1er run)
+- [ ] Documenter les écarts éventuels dans `memoire/02-baseline/MEMOIRE.md`
 
 ## Phase 2 — H1 : SoftCAM-Transformer (priorité)
 
