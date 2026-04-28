@@ -13,10 +13,12 @@
 - 🔴 **Métriques d'explication temporelles** : adapter *activation precision* / *activation sensitivity* aux séries temporelles (la « région annotée » devient quoi ?).
 - 🔴 Faithfulness (comprehensiveness/sufficiency) : sur quels tokens (timesteps) l'appliquer ?
 
-## Méthodo — H2 (TimeSHAP) si repli
+## Méthodo — H2 (TsSHAP / SHAPformer) si repli
 
-- 🔴 TimeSHAP requiert-il une signature `forward()` particulière ? Compatibilité directe avec HF Transformers ?
-- 🔴 Coût computationnel TimeSHAP sur nos 18 datasets : prohibitif ?
+- 🔴 **TsSHAP** : le surrogate XGBoost peut-il correctement imiter un Transformer sur les 18 fonctions FaaS (séries multivariées) ? Quelle fidélité obtenue ?
+- 🔴 **TsSHAP** : univarié par construction — stratégie pour couvrir les 18 séries simultanément ?
+- 🔴 **SHAPformer** : coût du réentraînement avec masked attention sur notre dataset FaaS ? Dépend du nombre de groupes N.
+- 🔴 **SHAPformer** : code GitHub KIT compatible avec `TimeSeriesTransformer` HuggingFace ?
 
 ## Méthodo — H3 (attention) si dernier recours
 

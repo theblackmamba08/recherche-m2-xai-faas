@@ -6,7 +6,7 @@
 
 - **Décision** : reformuler l'ordonnancement des hypothèses après lecture de l'article SoftCAM (Djoumessi & Berens, arXiv:2505.17748v1, mai 2025) :
   - **H1 (NOUVELLE)** : adapter le principe SoftCAM (interprétabilité intrinsèque par modification architecturale légère + régularisation ElasticNet sur les *evidence maps*) au `TimeSeriesTransformer` HuggingFace de FAYAM.
-  - **H2 (NOUVELLE)** : approches **SHAP-based** (TimeSHAP, KernelSHAP) — repli si H1 bloque conceptuellement.
+  - **H2 (NOUVELLE)** : approches **SHAP-based** — repli si H1 bloque. Deux options ordonnées : **TsSHAP** (prioritaire — seule méthode SHAP pour la prévision ; surrogate XGBoost + TreeSHAP sur backtested forecasts) ; **SHAPformer** (bonus — SHAP exact pour Transformer, 800× plus rapide, requiert réentraînement, code public disponible).
   - **H3 (NOUVELLE)** : étude des **poids d'attention** + DBSCAN + faithfulness (l'ancienne H1) — dernier recours, ou outil de validation de H1.
 - **Alternatives écartées** :
   - Conserver l'ancienne H1 (attention + DBSCAN + faithfulness) comme plan principal : *moins ambitieux et moins distinctif* qu'une contribution architecturale intrinsèque.

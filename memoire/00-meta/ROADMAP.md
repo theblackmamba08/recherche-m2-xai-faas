@@ -69,14 +69,8 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 - **Avancée récente** : `SPEECH.md` créé (~30 s/slide, ~20 min, tableau temps cibles par section, conseils de rythme).
 - **Prochain pas** : démarrer la **phase 1** — code FAYAM, dataset FaaS, entraînement Transformer, métriques.
 
-### Avant-dernière session : 2026-04-28 (session 11 — finalisée)
+### Avant-dernière session : 2026-04-28 (sessions 10–11)
 
 - **Phase actuelle** : présentation panorama XAI **100 % finalisée** — 47 slides, 760 Ko, 0 erreur.
-- **Avancée récente** : frame Références ajoutée (10 entrées, 5 slides auto) ; style tcolorbox uniforme sur tous les slides ; PDF prêt pour Dr LACMOU.
+- **Avancée récente** : style tcolorbox uniforme (42→47 slides) ; frame Références (10 entrées) ; slides de transition automatiques.
 - **Prochain pas** : démarrer la **phase 1** — code FAYAM, dataset FaaS, entraînement Transformer, métriques.
-
-### Avant-dernière session : 2026-04-28 (session 10 — finalisée)
-
-- **Phase actuelle** : présentation panorama XAI finalisée visuellement. Prête pour les encadreurs.
-- **Avancée récente** : style `tcolorbox` uniforme sur les 42 slides ; stratégies overflow documentées ; PDF 693 Ko sans erreur.
-- **Prochain pas** : démarrer la **phase 1** — code FAYAM, dataset, entraînement Transformer, métriques.
