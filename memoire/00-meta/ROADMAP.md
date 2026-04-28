@@ -63,12 +63,20 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-04-27 (session 9)
+### Dernière session : 2026-04-28 (session 12 — finalisée)
 
-- **Phase actuelle** : transition pré-phase 1 → phase 1. Archivage des présentations terminé (9 archivées).
-- **Avancée récente** :
-  - Présentation #9 (25/04/2026, SoftCAM) archivée — jugée incomplète par Dr LACMOU, à recompléter avec comparaison post-hoc + lien FAYAM.
-  - Toutes les présentations encadreurs sont maintenant archivées dans `presentations/`.
-- **Bloquants** : présentation SoftCAM à compléter ; code FAYAM non encore récupéré ; dataset non agrégé/documenté ; notebooks Colab janv. 2026 à retrouver.
-- **Prochain pas concret** : démarrer la **phase 1** — récupérer le code FAYAM, agréger le dataset, faire l'EDA, entraîner le modèle, ressortir les métriques.
-- **Décisions du jour** : archivage des présentations complet — on passe à la phase active.
+- **Phase actuelle** : présentation panorama XAI prête à l'oral — 47 slides + script complet.
+- **Avancée récente** : `SPEECH.md` créé (~30 s/slide, ~20 min, tableau temps cibles par section, conseils de rythme).
+- **Prochain pas** : démarrer la **phase 1** — code FAYAM, dataset FaaS, entraînement Transformer, métriques.
+
+### Avant-dernière session : 2026-04-28 (session 11 — finalisée)
+
+- **Phase actuelle** : présentation panorama XAI **100 % finalisée** — 47 slides, 760 Ko, 0 erreur.
+- **Avancée récente** : frame Références ajoutée (10 entrées, 5 slides auto) ; style tcolorbox uniforme sur tous les slides ; PDF prêt pour Dr LACMOU.
+- **Prochain pas** : démarrer la **phase 1** — code FAYAM, dataset FaaS, entraînement Transformer, métriques.
+
+### Avant-dernière session : 2026-04-28 (session 10 — finalisée)
+
+- **Phase actuelle** : présentation panorama XAI finalisée visuellement. Prête pour les encadreurs.
+- **Avancée récente** : style `tcolorbox` uniforme sur les 42 slides ; stratégies overflow documentées ; PDF 693 Ko sans erreur.
+- **Prochain pas** : démarrer la **phase 1** — code FAYAM, dataset, entraînement Transformer, métriques.

@@ -19,6 +19,7 @@
 | 2026-01-31 | Implémentation Transformer : Approche Alternative (Colab) | Dr LACMOU ZEUTOUO, Dr DJOUMESSI, Pr KENGNE TCHENDJI, M. Yvan | [dossier](2026-01-31-transformer-approche-2-colab/) |
 | 2026-04-17 | Explicabilité et Interprétabilité en IA : Fondations, Méthodes et Enjeux Éthiques | Pr KENGNE TCHENDJI, Dr LACMOU ZEUTOUO | [dossier](2026-04-17-explicabilite-interpretabilite/) |
 | 2026-04-25 | Soft-CAM : Rendre les Modèles Boîtes Noires Auto-Explicables *(incomplète — à recompléter)* | Dr LACMOU ZEUTOUO | [dossier](2026-04-25-softcam-presentation/) |
+| 2026-04-28 | Explicabilité : Panorama des méthodes XAI (LIME → SHAP → CAM → SoftCAM) | Dr LACMOU ZEUTOUO | [dossier](2026-04-28-explicabilite-panorama-methodes/) |
 
 ## 2026-04-27 — Ajout présentation #1
 
@@ -36,6 +37,31 @@
 - Séance présentielle (Pr KENGNE + Dr LACMOU uniquement). Présentation XAI approfondie : LIME, SHAP, Grad-CAM, NIST, mythes de Lipton.
 - **Décision clé** : Dr LACMOU a demandé d'adapter SoftCAM (Djoumessi 2025) au Transformer de FAYAM — convergence vers H1.
 - Action item ajouté : lire + ficher via skill `fiche-lecture`.
+
+## 2026-04-28 — Script de présentation (SPEECH.md)
+
+- `SPEECH.md` créé dans `2026-04-28-explicabilite-panorama-methodes/` : speech complet slide par slide, ~30 s par slide, total ~20 min.
+- Inclut temps cibles par section, conseils de débit, et stratégie d'abréviation si retard en section 4 (SHAP).
+
+## 2026-04-28 — Références + finalisation (47 slides)
+
+- Frame `Références` ajoutée à la fin de `slides.tex` : 10 entrées bibliographiques, 5 slides auto via `allowframebreaks`.
+- État final : **47 pages, 760 Ko, 0 erreur LaTeX**. Présentation prête pour Dr LACMOU.
+- Suppression des 9 dossiers `figures/` vides dans tous les dossiers de présentations.
+
+## 2026-04-28 — Uniformisation du style tcolorbox (suite)
+
+- Style `tcolorbox` étendu aux slides 14→42 (sections 4c à 7) : bleu/vert/rouge/orange/gris selon le rôle du contenu.
+- Recompilation confirmée : 42 pages, 0 erreur LaTeX.
+- Stratégies de gestion des overflows documentées (shrink, footnotesize, boxsep, découpage).
+
+## 2026-04-28 — Présentation panorama XAI (réponse Dr LACMOU)
+
+- Dossier `2026-04-28-explicabilite-panorama-methodes/` créé avec `BRIEF.md` et `slides.tex` compilé (**42 diapositives**, PDF 974 Ko).
+- Présentation construite suite au retour « incomplète » sur la séance du 25/04 : inclut toute la famille SHAP (LIME, KernelSHAP, TimeSHAP, WindowSHAP, TsSHAP, SHAPformer) + famille CAM (CAM, GradCAM, SoftCAM) + tableau de synthèse + grille de décision H1/H2.
+- Slides de transition automatiques ajoutés via `\AtBeginSection` (1 slide par section, TOC avec section courante en clair).
+- Métriques FAYAM (slide 2.3) = placeholders à compléter après phase 1.
+- Ajustements visuels LaTeX pris en charge directement par l'utilisateur.
 
 ## 2026-04-27 — Ajout présentation #2
 

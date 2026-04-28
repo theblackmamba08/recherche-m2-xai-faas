@@ -95,6 +95,67 @@
 - Dates corrigées : présentations #3 et #4 renommées de 2026-04-11/25 → 2025-11-11/25. Toutes les références internes mises à jour.
 - Chronologie complète : 5 présentations en 2025 (oct. × 2, nov. × 2, déc. × 1), 2 en janv. 2026.
 
+## 2026-04-28 — Script de présentation (SPEECH.md)
+
+- **Durée** : ~20 min
+- **Fait** :
+  - `SPEECH.md` créé dans `presentations/2026-04-28-explicabilite-panorama-methodes/` : speech complet slide par slide (~30 s/slide, ~20 min totales).
+  - Un bloc par slide dans l'ordre exact, avec phrases de transition pour les 7 slides automatiques.
+  - Tableau récapitulatif des temps cibles par section + conseils de rythme (section 4 abrégeable si retard).
+- **Prochaine session** : démarrer la **phase 1** — code FAYAM, dataset FaaS, entraînement Transformer.
+
+## 2026-04-28 — Références + finalisation présentation panorama XAI
+
+- **Durée** : ~30 min (clôture de session)
+- **Fait** :
+  - Frame `Références` ajoutée à la fin de `slides.tex` (`allowframebreaks`, 10 entrées : LIME, KernelSHAP, TimeSHAP, WindowSHAP, TsSHAP, SHAPformer, CAM, GradCAM, SoftCAM, FAYAM).
+  - Recompilation confirmée : **47 pages, 760 Ko, 0 erreur LaTeX** (5 slides de références auto-générés).
+  - Suppression des 9 dossiers `figures/` vides dans tous les dossiers de présentations.
+- **État final** : présentation **47 slides** complète et prête pour Dr LACMOU.
+- **Prochaine session** : démarrer la **phase 1** — code FAYAM, dataset FaaS, entraînement Transformer, métriques.
+
+## 2026-04-28 — Uniformisation style tcolorbox + gestion overflows
+
+- **Durée** : ~1h (suite de session)
+- **Fait** :
+  - Style `tcolorbox` (bleu/vert/rouge/orange/gris) étendu aux slides 14→42 (sections 4c à 7 complètes).
+  - Recompilation confirmée : 42 pages, 0 erreur LaTeX, PDF 693 Ko.
+  - Stratégies de gestion des overflows documentées : `[shrink=X]`, `\footnotesize`, `boxsep`, découpage en deux frames.
+- **Prochaine session** : corriger les overflows éventuels, puis démarrer la phase 1 (code FAYAM).
+
+## 2026-04-28 — Panorama XAI : fiches de lecture + présentation complète + slides de transition
+
+- **Durée** : ~4h (session complète)
+- **Contexte** : présentation SoftCAM du 25/04 jugée incomplète par Dr LACMOU. Session consacrée à construire la base littéraire manquante, générer la présentation complète, puis l'affiner.
+- **Fait** :
+  - **5 articles ajoutés** dans `memoire/01-litterature/articles/` et fichés : TimeSHAP (4/5), WindowSHAP (3/5), TsSHAP (5/5), SHAPformer (5/5), LIME (2/5).
+  - **Présentation Beamer générée et compilée** : `presentations/2026-04-28-explicabilite-panorama-methodes/slides.tex` (42 slides, PDF 974 Ko).
+  - **Slides de transition** ajoutés via `\AtBeginSection` (préambule) : 1 slide de transition par section, TOC avec section courante en clair et autres grisées (`sectionstyle=show/shaded`).
+  - Correction bug TikZ : ajout `decorations.pathreplacing` dans `\usetikzlibrary`.
+  - Utilisateur prend la main sur le LaTeX pour ajustements visuels — reprendra lors d'une prochaine session.
+- **Décisions** : TsSHAP = H2 prioritaire ; SHAPformer = H2 bonus ; LIME = référence historique uniquement.
+- **Bloquants** : métriques FAYAM (slide 2.3) = placeholders `\textit{(valeur)}` à remplir après phase 1 ; article KernelSHAP sans PDF archivé.
+- **Prochaine session** : démarrer la **phase 1** — récupérer le code FAYAM, reproduire les résultats Transformer.
+- **Maintenance** : hook Stop résolu — `presentations/MEMOIRE.md` resynchronisé avec le journal global.
+
+## 2026-04-28 — Panorama XAI : fiches de lecture + présentation complète (réponse Dr LACMOU)
+
+- **Durée** : ~3h
+- **Contexte** : présentation SoftCAM du 25/04 jugée incomplète par Dr LACMOU (manquait la comparaison avec les méthodes post-hoc et le lien avec FAYAM). Session consacrée à construire la base littéraire manquante et générer la présentation complète.
+- **Fait** :
+  - **5 articles ajoutés** dans `memoire/01-litterature/articles/` et fichés :
+    - `2021_Bento_TimeSHAP.pdf` — pertinence 4/5 ; SHAP séquentiel pour RNN/classification ; coalition pruning (138.5 → 14.0 coalitions, η=0.025)
+    - `2023_Nayebi_WindowSHAP.pdf` — pertinence 3/5 ; fenêtrage temporel ; variante Dynamic évite l'hypothèse anciens événements sans importance
+    - `2023_Raykar_TsSHAP.pdf` — pertinence 5/5 ; **seule méthode SHAP conçue pour la prévision** ; surrogate XGBoost + TreeSHAP sur backtested forecasts
+    - `2025_Hertel_SHAPformer.pdf` — pertinence 5/5 ; SHAP exact sampling-free pour Transformer de prévision ; 800× plus rapide que Permutation Explainer ; code GitHub disponible
+    - `2016_Ribeiro_LIME.pdf` — pertinence 2/5 ; référence fondatrice XAI post-hoc ; repère historique pour l'état de l'art
+  - **Présentation Beamer générée et compilée** : `presentations/2026-04-28-explicabilite-panorama-methodes/slides.tex` (35 slides, 902 Ko PDF, thème Madrid + seahorse, 7 sections).
+    - Plan : Accroche → FAYAM et sa faille XAI → Taxonomie XAI → Famille SHAP (LIME→KernelSHAP→TimeSHAP→WindowSHAP→TsSHAP→SHAPformer) → Famille CAM (CAM→GradCAM→SoftCAM) → Tableau de synthèse → Retour à FAYAM avec grille de décision H1/H2
+    - Correction bug TikZ : ajout `decorations.pathreplacing` dans `\usetikzlibrary`
+- **Décisions** : TsSHAP identifié comme H2-prioritaire (seule méthode SHAP pour forecasting) ; SHAPformer identifié comme H2-bonus (SHAP exact pour Transformer) ; LIME = référence historique uniquement, pertinence directe nulle.
+- **Bloquants restants** : KernelSHAP n'a pas d'article PDF archivé (présent dans la présentation via les fiches déjà lues) ; métriques FAYAM dans le slide 2.3 sont des placeholders `\textit{(valeur)}` à compléter après phase 1.
+- **Prochaine session** : démarrer la **phase 1** — récupérer le code FAYAM, reproduire les résultats Transformer.
+
 ## 2026-04-27 — Complément DEBRIEF présentation #4
 
 - Article *Foundation Models for Time Series: A Survey* (recommandé par Dr DJOUMESSI Kerol) ajouté dans le DEBRIEF de la présentation #4.
