@@ -9,4 +9,4 @@
 
 | Date run | Fichier JSON | C0 moy. | C4 moy. | C6 moy. | C8 moy. | Fn stationnaires | Notes |
 |----------|-------------|---------|---------|---------|---------|-----------------|-------|
-| *(premier run à venir)* | — | — | — | — | — | — | — |
+| 2026-05-02_08-31 | eda_results_2026-05-02_08-31.json | 121,937 | 97 | 2 | 5 | 19/19 | HTML : `EDA_clusters_2026-05-02.html` |
