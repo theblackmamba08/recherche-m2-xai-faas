@@ -1,0 +1,738 @@
+{
+  "overview": [
+    {
+      "Cluster": 0,
+      "Fonction": 942,
+      "Moyenne": 117529.15,
+      "Std": 78396.34,
+      "CV (%)": 66.7,
+      "Z\u00e9ros (%)": 0.0,
+      "Burstiness B": -0.2
+    },
+    {
+      "Cluster": 0,
+      "Fonction": 943,
+      "Moyenne": 130751.42,
+      "Std": 85653.81,
+      "CV (%)": 65.5,
+      "Z\u00e9ros (%)": 0.0,
+      "Burstiness B": -0.208
+    },
+    {
+      "Cluster": 0,
+      "Fonction": 944,
+      "Moyenne": 117529.21,
+      "Std": 78397.67,
+      "CV (%)": 66.7,
+      "Z\u00e9ros (%)": 0.0,
+      "Burstiness B": -0.2
+    },
+    {
+      "Cluster": 4,
+      "Fonction": 949,
+      "Moyenne": 97.25,
+      "Std": 64.67,
+      "CV (%)": 66.5,
+      "Z\u00e9ros (%)": 0.0,
+      "Burstiness B": -0.201
+    },
+    {
+      "Cluster": 4,
+      "Fonction": 951,
+      "Moyenne": 94.54,
+      "Std": 62.68,
+      "CV (%)": 66.3,
+      "Z\u00e9ros (%)": 0.1,
+      "Burstiness B": -0.203
+    },
+    {
+      "Cluster": 4,
+      "Fonction": 952,
+      "Moyenne": 106.38,
+      "Std": 75.08,
+      "CV (%)": 70.6,
+      "Z\u00e9ros (%)": 0.4,
+      "Burstiness B": -0.172
+    },
+    {
+      "Cluster": 4,
+      "Fonction": 953,
+      "Moyenne": 90.43,
+      "Std": 59.53,
+      "CV (%)": 65.8,
+      "Z\u00e9ros (%)": 0.5,
+      "Burstiness B": -0.206
+    },
+    {
+      "Cluster": 4,
+      "Fonction": 954,
+      "Moyenne": 97.49,
+      "Std": 68.65,
+      "CV (%)": 70.4,
+      "Z\u00e9ros (%)": 0.7,
+      "Burstiness B": -0.174
+    },
+    {
+      "Cluster": 6,
+      "Fonction": 138,
+      "Moyenne": 2.05,
+      "Std": 13.49,
+      "CV (%)": 657.9,
+      "Z\u00e9ros (%)": 90.1,
+      "Burstiness B": 0.736
+    },
+    {
+      "Cluster": 6,
+      "Fonction": 139,
+      "Moyenne": 2.05,
+      "Std": 13.54,
+      "CV (%)": 659.5,
+      "Z\u00e9ros (%)": 90.1,
+      "Burstiness B": 0.737
+    },
+    {
+      "Cluster": 6,
+      "Fonction": 140,
+      "Moyenne": 1.62,
+      "Std": 13.06,
+      "CV (%)": 808.6,
+      "Z\u00e9ros (%)": 95.2,
+      "Burstiness B": 0.78
+    },
+    {
+      "Cluster": 6,
+      "Fonction": 143,
+      "Moyenne": 1.68,
+      "Std": 13.15,
+      "CV (%)": 783.1,
+      "Z\u00e9ros (%)": 94.9,
+      "Burstiness B": 0.774
+    },
+    {
+      "Cluster": 6,
+      "Fonction": 144,
+      "Moyenne": 3.08,
+      "Std": 16.5,
+      "CV (%)": 536.3,
+      "Z\u00e9ros (%)": 89.4,
+      "Burstiness B": 0.686
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 964,
+      "Moyenne": 4.84,
+      "Std": 5.43,
+      "CV (%)": 112.2,
+      "Z\u00e9ros (%)": 20.7,
+      "Burstiness B": 0.058
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 965,
+      "Moyenne": 5.06,
+      "Std": 5.73,
+      "CV (%)": 113.2,
+      "Z\u00e9ros (%)": 24.4,
+      "Burstiness B": 0.062
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 967,
+      "Moyenne": 4.96,
+      "Std": 5.71,
+      "CV (%)": 115.1,
+      "Z\u00e9ros (%)": 25.6,
+      "Burstiness B": 0.07
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 968,
+      "Moyenne": 4.55,
+      "Std": 5.42,
+      "CV (%)": 119.1,
+      "Z\u00e9ros (%)": 28.2,
+      "Burstiness B": 0.087
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 969,
+      "Moyenne": 4.55,
+      "Std": 5.42,
+      "CV (%)": 119.1,
+      "Z\u00e9ros (%)": 28.1,
+      "Burstiness B": 0.087
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 977,
+      "Moyenne": 4.61,
+      "Std": 5.44,
+      "CV (%)": 118.0,
+      "Z\u00e9ros (%)": 27.4,
+      "Burstiness B": 0.083
+    }
+  ],
+  "cluster_means": {
+    "0": 121936.59,
+    "4": 97.22,
+    "6": 2.1,
+    "8": 4.76
+  },
+  "zeros": [
+    {
+      "Cluster": 0,
+      "Fonction": 942,
+      "Z\u00e9ros (%)": 0.0,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 0.0
+    },
+    {
+      "Cluster": 0,
+      "Fonction": 943,
+      "Z\u00e9ros (%)": 0.0,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 0.0
+    },
+    {
+      "Cluster": 0,
+      "Fonction": 944,
+      "Z\u00e9ros (%)": 0.0,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 0.0
+    },
+    {
+      "Cluster": 4,
+      "Fonction": 949,
+      "Z\u00e9ros (%)": 0.04,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 0.0
+    },
+    {
+      "Cluster": 4,
+      "Fonction": 951,
+      "Z\u00e9ros (%)": 0.07,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 0.0
+    },
+    {
+      "Cluster": 4,
+      "Fonction": 952,
+      "Z\u00e9ros (%)": 0.36,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 0.0
+    },
+    {
+      "Cluster": 4,
+      "Fonction": 953,
+      "Z\u00e9ros (%)": 0.47,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 0.0
+    },
+    {
+      "Cluster": 4,
+      "Fonction": 954,
+      "Z\u00e9ros (%)": 0.65,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 0.1
+    },
+    {
+      "Cluster": 6,
+      "Fonction": 138,
+      "Z\u00e9ros (%)": 90.12,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 16.6
+    },
+    {
+      "Cluster": 6,
+      "Fonction": 139,
+      "Z\u00e9ros (%)": 90.13,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 16.6
+    },
+    {
+      "Cluster": 6,
+      "Fonction": 140,
+      "Z\u00e9ros (%)": 95.22,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 16.8
+    },
+    {
+      "Cluster": 6,
+      "Fonction": 143,
+      "Z\u00e9ros (%)": 94.87,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 16.8
+    },
+    {
+      "Cluster": 6,
+      "Fonction": 144,
+      "Z\u00e9ros (%)": 89.43,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 16.4
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 964,
+      "Z\u00e9ros (%)": 20.71,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 0.4
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 965,
+      "Z\u00e9ros (%)": 24.38,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 0.7
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 967,
+      "Z\u00e9ros (%)": 25.59,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 0.7
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 968,
+      "Z\u00e9ros (%)": 28.16,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 0.9
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 969,
+      "Z\u00e9ros (%)": 28.11,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 0.9
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 977,
+      "Z\u00e9ros (%)": 27.42,
+      "Z\u00e9ros cons\u00e9cutifs max (h)": 0.9
+    }
+  ],
+  "fft_top_periods": {
+    "0": {
+      "942": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 61.18
+        },
+        {
+          "period_min": 720.0,
+          "power_pct": 15.27
+        },
+        {
+          "period_min": 480.0,
+          "power_pct": 6.35
+        }
+      ],
+      "943": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 62.72
+        },
+        {
+          "period_min": 720.0,
+          "power_pct": 14.34
+        },
+        {
+          "period_min": 480.0,
+          "power_pct": 6.08
+        }
+      ],
+      "944": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 61.18
+        },
+        {
+          "period_min": 720.0,
+          "power_pct": 15.26
+        },
+        {
+          "period_min": 480.0,
+          "power_pct": 6.35
+        }
+      ]
+    },
+    "4": {
+      "949": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 74.75
+        },
+        {
+          "period_min": 720.0,
+          "power_pct": 9.0
+        },
+        {
+          "period_min": 480.0,
+          "power_pct": 5.29
+        }
+      ],
+      "951": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 74.83
+        },
+        {
+          "period_min": 720.0,
+          "power_pct": 9.14
+        },
+        {
+          "period_min": 480.0,
+          "power_pct": 5.17
+        }
+      ],
+      "952": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 77.44
+        },
+        {
+          "period_min": 720.0,
+          "power_pct": 5.25
+        },
+        {
+          "period_min": 480.0,
+          "power_pct": 4.69
+        }
+      ],
+      "953": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 79.8
+        },
+        {
+          "period_min": 720.0,
+          "power_pct": 7.08
+        },
+        {
+          "period_min": 480.0,
+          "power_pct": 3.43
+        }
+      ],
+      "954": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 77.55
+        },
+        {
+          "period_min": 720.0,
+          "power_pct": 5.29
+        },
+        {
+          "period_min": 480.0,
+          "power_pct": 4.54
+        }
+      ]
+    },
+    "6": {
+      "138": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 3.04
+        },
+        {
+          "period_min": 360.0,
+          "power_pct": 1.86
+        },
+        {
+          "period_min": 288.0,
+          "power_pct": 1.84
+        }
+      ],
+      "139": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 3.03
+        },
+        {
+          "period_min": 360.0,
+          "power_pct": 1.86
+        },
+        {
+          "period_min": 288.0,
+          "power_pct": 1.83
+        }
+      ],
+      "140": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 2.32
+        },
+        {
+          "period_min": 288.0,
+          "power_pct": 1.78
+        },
+        {
+          "period_min": 360.0,
+          "power_pct": 1.78
+        }
+      ],
+      "143": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 2.41
+        },
+        {
+          "period_min": 360.0,
+          "power_pct": 1.79
+        },
+        {
+          "period_min": 288.0,
+          "power_pct": 1.79
+        }
+      ],
+      "144": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 3.83
+        },
+        {
+          "period_min": 360.0,
+          "power_pct": 1.5
+        },
+        {
+          "period_min": 288.0,
+          "power_pct": 1.49
+        }
+      ]
+    },
+    "8": {
+      "964": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 36.41
+        },
+        {
+          "period_min": 360.0,
+          "power_pct": 5.36
+        },
+        {
+          "period_min": 480.0,
+          "power_pct": 4.97
+        }
+      ],
+      "965": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 42.46
+        },
+        {
+          "period_min": 360.0,
+          "power_pct": 5.89
+        },
+        {
+          "period_min": 480.0,
+          "power_pct": 5.42
+        }
+      ],
+      "967": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 42.55
+        },
+        {
+          "period_min": 360.0,
+          "power_pct": 5.89
+        },
+        {
+          "period_min": 480.0,
+          "power_pct": 5.41
+        }
+      ],
+      "968": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 40.22
+        },
+        {
+          "period_min": 360.0,
+          "power_pct": 6.07
+        },
+        {
+          "period_min": 480.0,
+          "power_pct": 4.96
+        }
+      ],
+      "969": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 40.21
+        },
+        {
+          "period_min": 360.0,
+          "power_pct": 6.04
+        },
+        {
+          "period_min": 480.0,
+          "power_pct": 4.97
+        }
+      ],
+      "977": [
+        {
+          "period_min": 1440.0,
+          "power_pct": 40.27
+        },
+        {
+          "period_min": 360.0,
+          "power_pct": 6.04
+        },
+        {
+          "period_min": 480.0,
+          "power_pct": 4.96
+        }
+      ]
+    }
+  },
+  "adf": [
+    {
+      "Cluster": 0,
+      "Fonction": 942,
+      "ADF stat": -7.6454,
+      "p-value": 0.0,
+      "Lags AIC": 46,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 0,
+      "Fonction": 943,
+      "ADF stat": -7.4791,
+      "p-value": 0.0,
+      "Lags AIC": 46,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 0,
+      "Fonction": 944,
+      "ADF stat": -7.5951,
+      "p-value": 0.0,
+      "Lags AIC": 46,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 4,
+      "Fonction": 949,
+      "ADF stat": -7.4056,
+      "p-value": 0.0,
+      "Lags AIC": 45,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 4,
+      "Fonction": 951,
+      "ADF stat": -7.2714,
+      "p-value": 0.0,
+      "Lags AIC": 45,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 4,
+      "Fonction": 952,
+      "ADF stat": -5.4143,
+      "p-value": 0.0,
+      "Lags AIC": 46,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 4,
+      "Fonction": 953,
+      "ADF stat": -5.3314,
+      "p-value": 0.0,
+      "Lags AIC": 46,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 4,
+      "Fonction": 954,
+      "ADF stat": -5.3183,
+      "p-value": 0.0,
+      "Lags AIC": 46,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 6,
+      "Fonction": 138,
+      "ADF stat": -18.6791,
+      "p-value": 0.0,
+      "Lags AIC": 43,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 6,
+      "Fonction": 139,
+      "ADF stat": -18.7551,
+      "p-value": 0.0,
+      "Lags AIC": 43,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 6,
+      "Fonction": 140,
+      "ADF stat": -19.6887,
+      "p-value": 0.0,
+      "Lags AIC": 46,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 6,
+      "Fonction": 143,
+      "ADF stat": -19.6503,
+      "p-value": 0.0,
+      "Lags AIC": 46,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 6,
+      "Fonction": 144,
+      "ADF stat": -17.0397,
+      "p-value": 0.0,
+      "Lags AIC": 46,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 964,
+      "ADF stat": -7.0151,
+      "p-value": 0.0,
+      "Lags AIC": 41,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 965,
+      "ADF stat": -6.5763,
+      "p-value": 0.0,
+      "Lags AIC": 33,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 967,
+      "ADF stat": -6.568,
+      "p-value": 0.0,
+      "Lags AIC": 33,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 968,
+      "ADF stat": -6.7952,
+      "p-value": 0.0,
+      "Lags AIC": 33,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 969,
+      "ADF stat": -6.7799,
+      "p-value": 0.0,
+      "Lags AIC": 33,
+      "Stationnaire (p<0.05)": "Oui"
+    },
+    {
+      "Cluster": 8,
+      "Fonction": 977,
+      "ADF stat": -6.7865,
+      "p-value": 0.0,
+      "Lags AIC": 33,
+      "Stationnaire (p<0.05)": "Oui"
+    }
+  ],
+  "n_stationary": 19,
+  "n_total_functions": 19,
+  "run_date": "2026-05-02_08-31",
+  "clusters_analyzed": [
+    0,
+    4,
+    6,
+    8
+  ],
+  "n_functions": 19,
+  "n_timesteps": 20160
+}

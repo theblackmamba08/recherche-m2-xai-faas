@@ -31,8 +31,8 @@
 
 ## Données
 
-- 🔴 Le dataset Azure Functions 2019 est-il intégralement accessible (cf. `HashFunction` du tableau IX FAYAM p. 86) ou faut-il en regénérer une partie ?
-- 🔴 Le code FAYAM est-il fourni avec les hyperparamètres du Transformer (`predictionLength`, `contextLength`, `lagsSequence`, `cardinality`, `embeddingDimension`) ? **Non chiffrés p. 76 du mémoire**.
+- 🟢 **[Résolu 2026-04-28]** Le code FAYAM est-il fourni avec les hyperparamètres du Transformer ? → Oui : `prediction_length=120`, `context_length=240`, `freq="1T"`, `encoder_layers=4`, `decoder_layers=4`, `d_model=32` retrouvés dans `tsf_transf.py`.
+- 🟡 Le dataset Azure Functions 2019 : 4 clusters (0,4,6,8) disponibles en CSV (19 fonctions). Les 14 clusters restants restent à récupérer si nécessaire — non bloquant pour la Phase 1.
 - 🔴 Code source SoftCAM (`anonymous.4open.science/r/SoftCAM-E1A3/`) accessible publiquement ? Licence ?
 
 ## Rédaction

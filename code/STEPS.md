@@ -7,10 +7,10 @@
 - [x] Récupérer le code FAYAM → `src/baseline/fayam/` (référence immuable, ne pas modifier)
 - [x] Identifier les hyperparamètres Transformer : `prediction_length=120`, `context_length=240`, `freq="1T"`, `encoder_layers=4`, `decoder_layers=4`, `d_model=32` (voir `src/baseline/fayam/BASELINE.md`)
 - [x] Déposer les 4 clusters CSV dans `memoire/06-datasets/raw/` + DATA-CARD
-- [x] **EDA complète** : `notebooks/EDA_clusters.ipynb` (48 cellules, 12 sections) — voir `notebooks/README.md`
-- [ ] Lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters (dataset HuggingFace `FaalSa/dataME`)
+- [x] **EDA complète** : `notebooks/EDA_clusters.ipynb` (49 cellules, 12 sections, DATA_DIR adaptatif) — voir `notebooks/README.md` et `memoire/02-baseline/EDA_RAPPORT.md`
+- [ ] Lancer `notebooks/baseline-fayam-transformer.ipynb` sur Colab T4 *(notebook prêt — run tracker `experiments/runs/2026-05-02_11-15_baseline-fayam-transformer/`)*
 - [ ] Reproduire les métriques FAYAM : sMAPE, RMSE, R², Spearman sur ≥ 3 clusters
-- [ ] **Activer `output_attentions=True`** (déjà présent dans le code FAYAM — vérifier au 1er run)
+- [ ] **`output_attentions=True`** : déjà intégré dans le notebook (cellule 11 — extraction post-training → `.npy`)
 - [ ] Documenter les écarts éventuels dans `memoire/02-baseline/MEMOIRE.md`
 
 ## Phase 2 — H1 : SoftCAM-Transformer (priorité)

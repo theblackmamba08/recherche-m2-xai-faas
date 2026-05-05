@@ -26,6 +26,33 @@
   - H3 (CNN-LSTM PyTorch) : abandonnée — coût d'apprentissage trop élevé pour < 3 mois et niveau PyTorch débutant.
 - **Justification originale** : HuggingFace expose `output_attentions=True` nativement → pas de ré-implémentation modèle. L'angle original était l'analyse différentielle par cluster DBSCAN.
 
+## 2026-05-05 — Cluster 4 retenu comme cible primaire pour H1 (SoftCAM-Transformer)
+
+- **Décision** : la cible primaire de H1 est désormais le **cluster 4** (5 fonctions : 949, 951, 952, 953, 954). Les hypothèses opératoires (H1.A à H1.E) sont fixées sur ce cluster.
+- **Alternatives écartées** :
+  - **C0** : malgré un signal régulier en EDA (B=−0.20, FFT 24h forte), le run dédié donne R²≈0 et Spearman≈0 → modèle qui prédit la moyenne. Probable problème de magnitude (~120 000) interagissant avec le scaler interne du `TimeSeriesTransformer`. Archivé pour diagnostic ultérieur (cas-limite chapitre Discussion).
+  - **C6** : trivial predictor confirmé (RMSE≈0, sMAPE=2). Zero-inflated → exclu de H1 (déjà acté session 23).
+  - **C8** : trivial predictor lui aussi (R²=−0.79, sMAPE=2). 25 % de zéros + B>0 + kurtosis élevé → la MSE pousse le modèle à prédire la valeur modale (zéro).
+- **Justification** :
+  1. **C4 est le seul cluster où le baseline FAYAM converge** : R²=0.37, Spearman=0.92, sMAPE=0.22 sur le run dédié `2026-05-05_baseline-cluster4`. Sans modèle qui apprend, pas de carte d'évidence SoftCAM exploitable.
+  2. **Signal le plus structuré** : périodicité 24h dominante (FFT 75–80 % variance), profil journalier net (pic 17h-19h, creux 2h-6h), Pearson intra-cluster > 0.95 → généralisation possible aux 5 fonctions, et carte d'évidence interprétable visuellement.
+  3. **Validation didactique** : un Transformer qui capture un cycle clair va produire une evidence map *lisible* (pic = forte évidence, creux = faible évidence). Idéal pour démontrer la faisabilité de SoftCAM-temporel aux encadreurs et au jury.
+  4. **Diversité interne pour H1.E** : function 953 (R²=0.60) = best case ; function 949 (R²=0.15) = stress test → permet d'évaluer la robustesse de SoftCAM à la qualité de prédiction.
+- **Hypothèses opératoires actées pour H1** (à tester quand SoftCAM tournera) :
+  - H1.A : la carte d'évidence pointe les heures du profil journalier (pic/creux).
+  - H1.B : les têtes d'attention décodeur se polarisent autour des lags 1440 et 2880.
+  - H1.C : SoftCAM ne dégrade pas la précision baseline (R²≥0.30, Spearman≥0.85 conservés).
+  - H1.D : cohérence des cartes d'évidence entre les 5 fonctions (cohérent avec Pearson > 0.95).
+  - H1.E : test sur les deux extrêmes (function 953 best case, function 949 stress test).
+
+## 2026-05-02 — Décisions issues de l'EDA (prétraitement et entraînement)
+
+- **Conserver les zéros natifs** (clusters 6 et 8) : le `TimeSeriesTransformerForPrediction` les tolère ; les imputer ferait perdre l'information sur les plages silencieuses, cruciale pour C6 (cold start).
+- **Normalisation par fonction** (MinMaxScaler ou StandardScaler) : magnitude C0 (~120 000) vs C6 (~2) — facteur 60 000× ; normaliser par cluster masquerait les différences intra-cluster.
+- **Pas de différenciation** : toutes les séries sont stationnaires (ADF p ≈ 0, 19/19).
+- **Ordre d'entraînement** : C0 → C4 → C8 → C6 (complexité signal croissante : propre → cyclique → bursty → zero-inflaté).
+- **`output_attentions=True`** à activer dès le premier run pour disposer du matériel H1/H3.
+
 ## 2026-04-26 — Code unique dans `code/`, pas de duplication HPC
 
 - **Alternatives écartées** : code dupliqué dans `hpc/` ; submodule git.

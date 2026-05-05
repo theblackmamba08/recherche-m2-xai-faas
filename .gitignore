@@ -62,6 +62,9 @@ memoire/06-datasets/processed/**
 code/experiments/runs/**
 !code/experiments/runs/.gitkeep
 
+# Assets Colab dupliqués (cookies, JS Google) générés par les exports HTML
+code/experiments/eda/*_files/
+
 # ---------------------------------------------------------------------------
 # LaTeX (build artifacts)
 # ---------------------------------------------------------------------------

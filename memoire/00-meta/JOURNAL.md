@@ -188,7 +188,190 @@
 - Documentation EDA complétée : `code/notebooks/README.md` créé (guide autonome pour utilisateur externe ou Claude futur), `STEPS.md` mis à jour (4 étapes Phase 1 cochées), `REGISTER.md` enrichi avec pointeurs.
 - Push GitHub effectué (commit `4b8b4bb`) — token HF redacté dans `dataToHub.py` avant commit.
 
+## 2026-04-29 — Débogage Colab (session 14 — suite 2)
+
+- **Durée** : ~10 min
+- **Fait** :
+  - Bug récurrent `KeyError: 'Zeros (%)'` sur la cellule capture zéros — cause : Colab avait encore l'ancienne version du notebook uploadée avant le fix `a113c93`.
+  - Correction manuelle indiquée pour la session en cours + note ajoutée : toujours re-télécharger `EDA_clusters.ipynb` depuis GitHub avant d'uploader sur Colab.
+- **Prochaine session** : re-uploader la version correcte, finaliser le run, archiver JSON + HTML dans `code/experiments/eda/`.
+
+## 2026-05-02 — Finalisation archivage EDA + planification rapport (session 15 — suite)
+
+- **Durée** : ~15 min
+- **Fait** :
+  - HTML renommé proprement : `EDA_clusters.ipynb - Colab.html` → `EDA_clusters_2026-05-02.html` (+ dossier `_files` renommé en cohérence). `REGISTER.md` mis à jour.
+  - Décision : créer `memoire/02-baseline/EDA_RAPPORT.md` — synthèse narrative de l'EDA (contexte, résultats chiffrés, profil par cluster, décisions prétraitement) pour présentation aux encadreurs et base du chapitre données du mémoire.
+- **Prochaine session** : rédiger `EDA_RAPPORT.md`, puis lancer `tsf_transf.py`.
+
+## 2026-05-02 — Rapport EDA + clôture session 15
+
+- **Durée** : ~20 min
+- **Fait** :
+  - `memoire/02-baseline/EDA_RAPPORT.md` rédigé (7 sections, chiffres réels du JSON) : contexte, description données, stats descriptives par fonction, stationnarité (19/19 ADF p≈0), périodicité (24h universelle), zéros, profil par cluster, décisions prétraitement, ordre d'entraînement C0→C4→C8→C6, résumé exécutif.
+  - Commité et poussé (commit `f0f9e73`).
+  - Audit complet des fichiers de suivi : ROADMAP, JOURNAL, DECISIONS, QUESTIONS-OUVERTES, memory/ tous mis à jour.
+- **Prochaine session** : lancer `tsf_transf.py` sur les 4 clusters, reproduire les métriques FAYAM.
+
+## 2026-05-02 — Refactoring DATA_DIR + comparaison notebooks (session 15 — suite 2)
+
+- **Durée** : ~20 min
+- **Fait** :
+  - Notebook Colab exécuté (49 cellules, 31 outputs) comparé au local (48 cellules, propre) — seule vraie différence : `DATA_DIR` hardcodé dans la cellule d'imports.
+  - Refactoring : cellule d'imports scindée en 3 (imports / détection+DATA_DIR adaptatif / chargement). `DATA_DIR` se fixe maintenant automatiquement selon l'environnement. Commit `06b7c77`, poussé.
+- **Prochaine session** : rédiger `memoire/02-baseline/EDA_RAPPORT.md`, puis lancer `tsf_transf.py`.
+
+## 2026-05-02 — Premier run EDA complet + analyse résultats (session 15)
+
+- **Durée** : ~30 min
+- **Fait** :
+  - Run Colab `EDA_clusters.ipynb` exécuté avec succès (08h31). JSON + HTML archivés dans `code/experiments/eda/`.
+  - Résultats clés : 19/19 fonctions stationnaires (ADF p≈0), période dominante 24h universelle pour tous les clusters, moyennes C0=121 937 / C4=97 / C6=2 / C8=5 inv/min.
+  - `REGISTER.md` mis à jour manuellement avec les chiffres du run.
+- **Prochaine session** : lancer `tsf_transf.py` sur les 4 clusters pour reproduire les métriques FAYAM.
+
+## 2026-04-29 — Correction bug accents + exécution Colab (session 14 — suite)
+
+- **Durée** : ~15 min
+- **Fait** :
+  - Bug `KeyError: 'Zeros (%)'` corrigé dans les cellules de capture du notebook (accents manquants sur `Zéros (%)` et `Zéros consécutifs max (h)`) — fix commité et poussé (commit `a113c93`).
+  - Chemin des données adapté pour Colab : `DATA_DIR = Path('/content/drive/MyDrive/Recherche/Datasets')`.
+  - Notebook en cours d'exécution sur Colab au moment de la clôture.
+- **Prochaine session** : récupérer JSON + HTML depuis Colab, les archiver dans `code/experiments/eda/`, puis lancer `tsf_transf.py`.
+
 ## 2026-04-27 — Complément DEBRIEF présentation #4
 
 - Article *Foundation Models for Time Series: A Survey* (recommandé par Dr DJOUMESSI Kerol) ajouté dans le DEBRIEF de la présentation #4.
 - Action item créé : lire + ficher via skill `fiche-lecture` dans `memoire/01-litterature/`.
+
+## 2026-05-02 — Audit documentation + guide EDA cellule par cellule (session 15 — suite 3)
+
+- **Durée** : ~20 min
+- **Fait** :
+  - `memoire/02-baseline/EDA_RAPPORT.md` réécrit intégralement : remplacé la synthèse scientifique (7 sections) par un **guide cellule par cellule** des 49 cellules du notebook — chaque cellule explique ce qu'elle fait, pourquoi elle est là, et ce qu'on y observe. Lisible comme narration lors d'une présentation aux encadreurs.
+  - `code/MEMOIRE.md` complété avec entrée datée pour cette session d'audit.
+  - Audit de l'ensemble des fichiers de suivi confirmé complet : ROADMAP, JOURNAL, DECISIONS, QUESTIONS-OUVERTES, memory/ (`project_phase1_eda.md`, `MEMORY.md`), STEPS.md, code/MEMOIRE.md.
+- **Prochaine session** : lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters (dataset HuggingFace `FaalSa/dataME`) et reproduire les métriques FAYAM.
+
+## 2026-05-02 — Experiment tracker + notebook Colab baseline (session 15 — suite 4)
+
+- **Durée** : ~30 min
+- **Fait** :
+  - Skill `experiment-tracker` exécuté : dossier de run `code/experiments/runs/2026-05-02_11-15_baseline-fayam-transformer/` créé avec `run.md`, `command.sh`, `diff.patch` (7 fichiers non commités capturés).
+  - Notebook Colab généré : `code/notebooks/baseline-fayam-transformer.ipynb` (37 cellules, JSON valide). Fidèle au `tsf_transf.py` FAYAM avec ajouts : seeding complet, gradient clipping, checkpoints Drive toutes les 10 époques, tqdm, métriques RMSE/R²/Spearman, extraction `output_attentions=True` post-training (cross_attn + enc_attn couche 4 → `.npy` Drive).
+  - `code/STEPS.md`, `code/MEMOIRE.md`, `memoire/03-contribution/MEMOIRE.md` mis à jour.
+- **Prochaine étape** : uploader `baseline-fayam-transformer.ipynb` sur Google Colab (T4 GPU) et lancer Run All.
+
+## 2026-05-04 — Debug notebook + plan d'étude architecture (session 16)
+
+- **Durée** : ~1h
+- **Fait** :
+  - Origine du dataset `FaalSa/dataME` clarifiée : pipeline FAYAM complet (Azure Trace → HDBSCAN → `dataToHub.py` → HuggingFace Hub).
+  - Plan d'étude architecture 5 jours créé (`memoire/00-meta/PLAN-ETUDE-ARCHITECTURE.md`) : pipeline données GluonTS, encodeur, décodeur, inférence + production de visuels PNG/.excalidraw.
+  - Bug `TypeError: 'Axes' object is not iterable` corrigé dans `baseline-fayam-transformer.ipynb` (cellule 31) : `squeeze=False` + `.flatten()`.
+- **Prochaine étape** : lancer le notebook sur Colab T4 + démarrer J1 du plan d'étude (lecture Rasul & Rogge + esquisse architecture).
+
+## 2026-05-04 — Run baseline Colab exécuté + archivage (session 16 — suite)
+
+- **Durée** : ~20 min
+- **Fait** :
+  - Run `baseline-fayam-transformer.ipynb` exécuté avec succès sur Colab T4 GPU.
+  - HTML du notebook + dossier `_files` copiés dans `code/experiments/runs/2026-05-02_11-15_baseline-fayam-transformer/`.
+- **Bloquant** : métriques finales (MASE, sMAPE, RMSE, R², Spearman) pas encore reportées dans `run.md` — en attente de l'utilisateur.
+- **Prochaine étape** : compléter `run.md` avec les métriques, puis démarrer J1 du plan d'étude architecture.
+
+## 2026-05-04 — Métriques baseline extraites + run.md finalisé (session 16 — clôture)
+
+- **Durée** : ~10 min
+- **Fait** :
+  - Métriques extraites depuis le HTML Colab : MASE=0.8169, sMAPE=0.2903, RMSE=4.0750, R²=0.5845, Spearman=0.8342.
+  - `run.md` complété et status passé à `done`. Ces valeurs sont désormais la **baseline de référence** pour H1/H2.
+- **Prochaine étape** : J1 du plan d'étude architecture — lecture Rasul & Rogge + esquisse encoder-decoder Excalidraw.
+
+## 2026-05-05 — Adaptation notebook pour les 4 clusters locaux (session 17)
+
+- **Durée** : ~45 min
+- **Contexte** : `FaalSa/dataME` ne contient qu'1 série dans le test split (constaté à partir du `metrics.csv` à 1 ligne). Comparaison FAYAM Table VII impossible.
+- **Fait** :
+  - Notebook `baseline-fayam-transformer.ipynb` adapté en 6 cellules ciblées : nouveau `RUN_NAME=2026-05-05_baseline-fayam-local-clusters`, chargement direct des 4 CSV depuis `Drive/Recherche/Datasets/cluster_{0,4,6,8}.csv` (19 séries × 20 160 pas), métriques enrichies de `cluster` + `function_id`, nouvelle cellule de synthèse par cluster + sauvegarde `metrics_by_cluster.csv` et `cluster_mapping.csv`.
+  - Pipeline GluonTS et architecture du modèle inchangés. `cardinality=[len(train_dataset)]` s'auto-ajuste à 19.
+- **Prochaine étape** : re-upload sur Colab + Run All. Comparer les métriques par cluster avec FAYAM Table VII (notamment cluster 0 = profil très populaire vs Dataset 12 FAYAM).
+
+## 2026-05-05 — Traçage run local-clusters + diagnostic NameError (session 18)
+
+- **Durée** : ~15 min
+- **Fait** :
+  - `NameError: name 'cross_attn_arr' is not defined` (cellule 34) diagnostiqué : problème d'ordre d'exécution Colab — cellule 34 lancée avant cellule 33. Solution : Runtime → Run All.
+  - Dossier de traçage `code/experiments/runs/2026-05-05_baseline-fayam-local-clusters/` créé avec `run.md` pré-rempli : configuration, tableau métriques vide (global + par cluster C0/C4/C6/C8), chemins Drive des sorties attendues.
+  - `code/MEMOIRE.md` et section « État courant » de `ROADMAP.md` mis à jour (session 18).
+- **Prochaine étape** : re-upload notebook sur Colab → Runtime → Run All → remplir `run.md` avec les métriques → comparer par cluster avec FAYAM Table VII.
+
+## 2026-05-05 — Correction cellule attention manquante (session 19)
+
+- **Durée** : ~10 min
+- **Fait** :
+  - Diagnostic approfondi du `NameError` : la cellule de code d'extraction des attention weights était **absente** du notebook — seul le titre markdown "## 11 — Extraction attention" était présent, sans le code correspondant.
+  - Cellule insérée après `cell-33` dans `baseline-fayam-transformer.ipynb` : forward pass teacher-forcé avec `output_attentions=True`, extraction `cross_attentions[-1]` (dernière couche décodeur) + `encoder_attentions[-1]`, empilement en `cross_attn_arr` shape `(n, heads, pred_len, ctx_len)` et `enc_attn_arr`, sauvegarde `.npy` sur Drive.
+- **Prochaine étape** : re-upload notebook sur Colab → Runtime → Run All → remplir `run.md` avec métriques → comparer avec FAYAM Table VII.
+
+## 2026-05-05 — Archivage HTML run local-clusters (session 20)
+
+- **Durée** : ~5 min
+- **Fait** :
+  - Run Colab `2026-05-05_baseline-fayam-local-clusters` exécuté avec succès par l'utilisateur (19 séries, 4 clusters locaux, cellule attention incluse).
+  - HTML `baseline-fayam-transformer.ipynb - Colab2.html` + `_files/` copiés depuis `Downloads/` et renommés dans `code/experiments/runs/2026-05-05_baseline-fayam-local-clusters/` : `baseline-fayam-local-clusters - Colab.html` + `_files/`.
+- **Prochaine étape** : récupérer `metrics.csv`, `metrics_by_cluster.csv`, `cluster_mapping.csv`, `metrics.json` depuis Drive → compléter `run.md` → comparer par cluster avec FAYAM Table VII.
+
+## 2026-05-05 — Analyse métriques + clôture Phase 1 (session 21)
+
+- **Durée** : ~20 min
+- **Fait** :
+  - 4 fichiers résultats copiés depuis `Downloads/` dans `code/experiments/runs/2026-05-05_baseline-fayam-local-clusters/results/`.
+  - `run.md` complété avec métriques réelles (global : MASE=1.38, sMAPE=1.45, R²=-1.26) et analyse par cluster : C0 Spearman=0.74 (tendance captée, amplitude ratée), C4 Spearman=-0.90 (prédit à l'envers), C6 prédit 0 constant (zero-inflated), C8 MASE=0.44 (seul cluster < 1). Écart avec FAYAM (R²=0.958) expliqué par hétérogénéité des 19 séries dans un seul modèle + dataset trop petit.
+  - Status run → `done`. Phase 1 **terminée et archivée**.
+- **Décision** : C6 à exclure de H1 (trop zero-inflated). Priorité : C0 + C8 pour l'analyse d'attention et SoftCAM-Transformer.
+- **Prochaine étape** : démarrer **Phase 2 — H1** : lire `PLAN-ETUDE-ARCHITECTURE.md` (J1), puis implémenter SoftCAM-Transformer sur C0/C8.
+
+## 2026-05-05 — Archivage figures PNG (session 22)
+
+- **Durée** : ~5 min
+- **Fait** :
+  - `scatter_metrics.png`, `loss_curve.png`, `forecast_samples.png` téléchargés depuis Drive et copiés dans `code/experiments/runs/2026-05-05_baseline-fayam-local-clusters/results/`.
+  - Dossier de run entièrement archivé localement : HTML + CSV/JSON + PNG. `cross_attention_heatmap.png` reste sur Drive (à récupérer si besoin pour la rédaction).
+- **Prochaine étape** : Phase 2 — H1 (SoftCAM-Transformer sur C0/C8).
+
+## 2026-05-05 — Runs par cluster : création notebooks + archivage C6 (session 23)
+
+- **Durée** : ~45 min
+- **Contexte** : métriques du run 19-séries (session 21) très mauvaises pour C4 et C6. Analyse : FAYAM entraîne un modèle par série/dataset (pas un modèle global sur tous les clusters). Décision : passer aux runs dédiés par cluster pour isoler les profils.
+- **Fait** :
+  - **Notebook `baseline-cluster0.ipynb` créé** (34 cellules) : chargement `cluster_0.csv` uniquement (3 fonctions — 942, 943, 944), plots par fonction (zoom 6 h + vue 24 h, 2 colonnes), vue comparative 3 fonctions (subplot vertical), heatmap cross-attention par fonction. Générique : `CLUSTER_ID = 0` suffit à tout adapter.
+  - **Run cluster 6 archivé** : dossier `code/experiments/runs/2026-05-05_baseline-cluster6/` créé. Résultats extraits du zip Drive (`drive-download-20260505T212415Z-3-001.zip`) + HTML + `_files/` copiés. `run.md` rédigé avec métriques (RMSE≈0, MASE≈0, sMAPE≈2, R²=0, Spearman=NaN pour les 5 fonctions) et analyse : modèle prédit 0 constant, C6 zero-inflated → **exclu de H1**.
+  - **Notebook `baseline-cluster8.ipynb` créé** (34 cellules) : identique à cluster 0, `CLUSTER_ID = 8` — 6 fonctions (964, 965, 967, 968, 969, 977), ~5 inv/min, ~20-28 % de zéros, profil légèrement zero-inflated mais modélisable. Tableau stats EDA (CV, burstiness B) intégré dans le titre.
+- **Décisions** :
+  - C6 définitivement exclu de H1/H3 (zero-inflated, aucune information dans l'attention).
+  - Clusters prioritaires pour H1 : **C0** (profil populaire, Spearman=0.74 même avec modèle hétérogène) et **C8** (MASE=0.44, le plus propre).
+- **Prochaine étape** : lancer `baseline-cluster8.ipynb` sur Colab T4, puis `baseline-cluster0.ipynb`. Archiver les résultats. Comparer métriques dédiées vs run mélangé.
+- `code/MEMOIRE.md` retouché en fin de session pour refléter la complétion de `baseline-cluster8.ipynb` (ligne "Suite → créer" remplacée par confirmation de création).
+
+## 2026-05-05 — Archivage run cluster 8 (session 24)
+
+- **Durée** : ~10 min
+- **Fait** :
+  - Run `baseline-cluster8.ipynb` exécuté par l'utilisateur sur Colab T4. Zip Drive + HTML téléchargés et archivés dans `code/experiments/runs/2026-05-05_baseline-cluster8/`.
+  - `run.md` rédigé avec métriques par fonction et comparaison modèle dédié vs mixte : résultats identiques (MASE=0.44, sMAPE≈2.0, R²≈-0.79) → isolation ne résout pas le problème zero-inflated de C8.
+- **Décision** : C0 confirmé comme seule cible viable pour H1 (signal riche, profil populaire).
+- **Prochaine étape** : lancer `baseline-cluster0.ipynb` sur Colab T4.
+
+## 2026-05-05 — Synthèse 4 baselines + bascule cible H1 vers C4 (session 25)
+
+- **Durée** : ~30 min
+- **Contexte** : avec les 4 runs dédiés archivés (C0/C4/C6/C8), comparaison croisée entre les prédictions EDA et les résultats baseline pour valider/infirmer le choix de cible H1.
+- **Fait** :
+  - **Synthèse des 4 baselines** : C4 est le **seul cluster où le modèle apprend** (R²=0.37, Spearman=0.92). C0 R²≈0 (échec inattendu), C6/C8 = trivial predictors (RMSE≈0, sMAPE=2).
+  - **Confrontation EDA vs résultats** : 3/4 résultats étaient prévisibles (C6 explicitement annoncé par EDA cellule 17, C4 par FFT 75–80 % variance, C8 plus mitigé). C0 = surprise — l'EDA n'avait pas alerté sur la magnitude absolue (~120 000) interagissant avec le scaler interne du `TimeSeriesTransformer`.
+  - **Bascule de cible H1** : la conclusion de session 24 (*"C0 = seule cible viable"*) est invalidée par le run C0 dédié. **Nouvelle cible primaire : C4**.
+  - Hypothèses opératoires H1.A à H1.E définies et expliquées en langage simple à l'utilisateur (avant validation puis acte dans `DECISIONS.md`).
+- **Décisions** : voir [DECISIONS.md](DECISIONS.md) entrée 2026-05-05. C4 retenu, C0 archivé comme cas-limite pour le chapitre Discussion (diagnostic scaler à creuser ultérieurement).
+- **Fichiers de suivi mis à jour** : `DECISIONS.md` (entrée 2026-05-05), `ROADMAP.md` (État courant session 25), `code/MEMOIRE.md`, `memoire/02-baseline/MEMOIRE.md` (tableau comparatif 4 baselines), `memoire/03-contribution/MEMOIRE.md` (cible H1=C4 + hypothèses H1.A–H1.E), mémoire persistante (`project_phase1_baseline_results.md` + `MEMORY.md`).
+- **Prochaine étape** : démarrer **Phase 2** — étude architecture `TimeSeriesTransformer` HuggingFace (cf. `PLAN-ETUDE-ARCHITECTURE.md`, J1) en vue de l'implémentation SoftCAM-Transformer sur C4.
