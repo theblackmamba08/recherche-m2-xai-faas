@@ -20,6 +20,7 @@
 | 2026-04-17 | Explicabilité et Interprétabilité en IA : Fondations, Méthodes et Enjeux Éthiques | Pr KENGNE TCHENDJI, Dr LACMOU ZEUTOUO | [dossier](2026-04-17-explicabilite-interpretabilite/) |
 | 2026-04-25 | Soft-CAM : Rendre les Modèles Boîtes Noires Auto-Explicables *(incomplète — à recompléter)* | Dr LACMOU ZEUTOUO | [dossier](2026-04-25-softcam-presentation/) |
 | 2026-04-28 | Explicabilité : Panorama des méthodes XAI (LIME → SHAP → CAM → SoftCAM) | Dr LACMOU ZEUTOUO | [dossier](2026-04-28-explicabilite-panorama-methodes/) |
+| 2026-05-09 | Panorama XAI v2 — canevas Dr LACMOU + zooms SHAPformer/SoftCAM + architecture SoftCAM-Transformer | Dr LACMOU ZEUTOUO | [dossier](2026-05-09-panorama-xai-v2/) |
 
 ## 2026-04-27 — Ajout présentation #1
 
@@ -68,3 +69,19 @@
 - Dossier `2025-10-25-series-temporelles-explicabilite/` créé avec `BRIEF.md`, `DEBRIEF.md`, et `slides.pdf` (18 diapositives Beamer).
 - Amélioration notée par les encadreurs ; explicabilité introduite mais non opérationnalisée.
 - Retours : sorties d'un modèle à approfondir, dataset concret à choisir, étude comparative XAI, références et figures obligatoires.
+
+## 2026-05-08 — DEBRIEF présentation panorama XAI (28/04/2026)
+
+- `DEBRIEF.md` créé pour `2026-04-28-explicabilite-panorama-methodes/` à partir du retour oral de l'étudiant.
+- Retour Dr LACMOU : présentation **trop technique**, méthodes exposées comme blocs isolés sans fil conducteur. Étudiant en peine à l'oral.
+- **Cadre prescrit pour les futures présentations XAI** : 4 points par méthode (contexte / problèmes résolus / transposabilité / limites) + **plus-value de transition** vers la méthode suivante. Acté dans [`DECISIONS.md`](../memoire/00-meta/DECISIONS.md) (entrée 2026-05-08) et mémoire persistante.
+- Action items : reprendre les slides selon ce cadre, réduire le formalisme, construire le fil de plus-values jusqu'à SoftCAM-Transformer.
+
+## 2026-05-09 — Présentation Panorama XAI v2 (canevas Dr LACMOU appliqué)
+
+- Dossier `2026-05-09-panorama-xai-v2/` créé : `BRIEF.md`, `slides.tex`, `figures/softcam-transformer-architecture.svg`, `slides.pdf` compilé (**64 pages, 908 Ko, 0 erreur LaTeX**).
+- Préambule hérité de la V1 (Madrid + seahorse), ajout `amssymb` + lib TikZ `calc` ; environnements `ctxbox / probbox / transposbox / limitbox / plusbox` créés pour matérialiser le canevas Dr LACMOU.
+- Structure : 12 sections — pourquoi expliquer / contexte FAYAM (avec métriques Phase 1) / cadre canevas / SHAP panorama (LIME → KernelSHAP → TimeSHAP → WindowSHAP → TsSHAP) / **★ZOOM SHAPformer (7 slides)** / transition / CAM (CAM → GradCAM) / **★ZOOM SoftCAM (6 slides)** / synthèse comparative / **★Architecture SoftCAM-Transformer (10 slides : SVG embarqué TikZ, entrées/sorties par bloc, evidence layer Python, équation centrale, ElasticNet, variantes A/B/C, exemple carte C4, hypothèses H1.A--H1.E)** / conclusion / questions / références.
+- Slide-discussion ajoutée : *« Peut-on rendre SHAPformer pleinement self-explainable ? »* — discussion FastSHAP, conclusion non sans dénaturer, transition vers SoftCAM.
+- SVG d'architecture (`softcam-transformer-architecture.svg`) copié depuis `memoire/03-contribution/figures/`. Schéma TikZ équivalent embarqué dans le slides pour robustesse compilation.
+- 9 passes de débogage compilation : virgules dans titres tcolorbox (encadrer en `{...}`), Unicode (★, →, ↔ → équivalents math LaTeX), `\verbatim` → frames marqués `[fragile]`, lib `calc` ajoutée.

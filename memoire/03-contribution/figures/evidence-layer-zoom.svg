@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 920" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333"/>
+    </marker>
+    <marker id="arrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#C62828"/>
+    </marker>
+    <marker id="arrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2E7D32"/>
+    </marker>
+    <marker id="arrGrey" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#757575"/>
+    </marker>
+  </defs>
+
+  <!-- ===== TITRE ===== -->
+  <text x="575" y="28" text-anchor="middle" font-size="20" font-weight="bold" fill="#1A237E">Zoom Tête de Sortie — Siège du Module d'Explicabilité H1</text>
+  <text x="575" y="50" text-anchor="middle" font-size="12" fill="#555" font-style="italic">Ce qui change par rapport à FAYAM : parameter_projection → Evidence Layer + combinaison linéaire</text>
+
+  <!-- ===== ENTRÉE COMMUNE ===== -->
+  <rect x="330" y="65" width="490" height="52" rx="7" fill="#E8EAF6" stroke="#3949AB" stroke-width="2"/>
+  <text x="575" y="87" text-anchor="middle" font-size="13" font-weight="bold" fill="#1A237E">decoder_last_hidden_state</text>
+  <text x="575" y="106" text-anchor="middle" font-size="13" font-weight="bold" fill="#1A237E">(B, 120, 32)</text>
+
+  <!-- ===== SÉPARATION FAYAM vs H1 ===== -->
+  <line x1="575" y1="117" x2="575" y2="140" stroke="#333" stroke-width="2"/>
+  <!-- Branche gauche (FAYAM) -->
+  <line x1="575" y1="140" x2="220" y2="140" stroke="#757575" stroke-width="1.8"/>
+  <line x1="220" y1="140" x2="220" y2="168" stroke="#757575" stroke-width="1.8" marker-end="url(#arrGrey)"/>
+  <!-- Branche droite (H1) -->
+  <line x1="575" y1="140" x2="920" y2="140" stroke="#C62828" stroke-width="2.5"/>
+  <line x1="920" y1="140" x2="920" y2="168" stroke="#C62828" stroke-width="2.5" marker-end="url(#arrR)"/>
+
+  <!-- Label branche gauche -->
+  <text x="160" y="160" text-anchor="middle" font-size="12" fill="#616161" font-style="italic">FAYAM (original)</text>
+  <!-- Label branche droite -->
+  <text x="1020" y="160" text-anchor="middle" font-size="12" fill="#C62828" font-weight="bold">H1 SoftCAM-Transformer ★</text>
+
+  <!-- ================================================================== -->
+  <!-- BRANCHE GAUCHE : FAYAM ORIGINAL -->
+  <!-- ================================================================== -->
+
+  <rect x="55" y="170" width="330" height="585" rx="8" fill="#F5F5F5" stroke="#9E9E9E" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="220" y="192" text-anchor="middle" font-size="12" font-weight="bold" fill="#616161">Chemin FAYAM — boîte noire</text>
+
+  <!-- parameter_projection -->
+  <rect x="80" y="205" width="280" height="48" rx="6" fill="#ECEFF1" stroke="#607D8B" stroke-width="1.5"/>
+  <text x="220" y="224" text-anchor="middle" font-size="12" font-weight="bold" fill="#37474F">parameter_projection</text>
+  <text x="220" y="242" text-anchor="middle" font-size="11" fill="#455A64">Linear(32 → 3) → (B, 120, 3)</text>
+
+  <line x1="220" y1="253" x2="220" y2="280" stroke="#757575" stroke-width="1.5" marker-end="url(#arrGrey)"/>
+
+  <!-- Params StudentT -->
+  <rect x="80" y="282" width="280" height="76" rx="6" fill="#ECEFF1" stroke="#607D8B" stroke-width="1.5"/>
+  <text x="220" y="302" text-anchor="middle" font-size="12" font-weight="bold" fill="#37474F">Distribution StudentT</text>
+  <text x="220" y="320" text-anchor="middle" font-size="11" fill="#455A64">loc (B, 120, 1)   ← moyenne</text>
+  <text x="220" y="337" text-anchor="middle" font-size="11" fill="#455A64">scale (B, 120, 1) ← écart-type</text>
+  <text x="220" y="354" text-anchor="middle" font-size="11" fill="#455A64">df (B, 120, 1)    ← degrés lib.</text>
+
+  <line x1="220" y1="357" x2="220" y2="382" stroke="#757575" stroke-width="1.5" marker-end="url(#arrGrey)"/>
+
+  <!-- Sampling -->
+  <rect x="100" y="384" width="240" height="48" rx="6" fill="#ECEFF1" stroke="#607D8B" stroke-width="1.5"/>
+  <text x="220" y="404" text-anchor="middle" font-size="11" font-weight="bold" fill="#37474F">Échantillonnage × 100</text>
+  <text x="220" y="420" text-anchor="middle" font-size="11" fill="#455A64">(B, 100, 120)</text>
+
+  <!-- Output FAYAM -->
+  <line x1="220" y1="432" x2="220" y2="458" stroke="#757575" stroke-width="1.5" marker-end="url(#arrGrey)"/>
+  <rect x="80" y="460" width="280" height="48" rx="6" fill="#ECEFF1" stroke="#607D8B" stroke-width="1.5"/>
+  <text x="220" y="480" text-anchor="middle" font-size="12" font-weight="bold" fill="#37474F">Prédiction</text>
+  <text x="220" y="497" text-anchor="middle" font-size="11" fill="#455A64">(B, 100, 120) — médiane finale</text>
+
+  <!-- Explication FAYAM -->
+  <rect x="80" y="536" width="280" height="80" rx="6" fill="#FFCDD2" stroke="#E57373" stroke-width="1.5"/>
+  <text x="220" y="558" text-anchor="middle" font-size="11" font-weight="bold" fill="#C62828">Explication ?</text>
+  <text x="220" y="576" text-anchor="middle" font-size="11" fill="#C62828">⚠ ABSENT</text>
+  <text x="220" y="594" text-anchor="middle" font-size="10" fill="#C62828">parameter_projection est une</text>
+  <text x="220" y="609" text-anchor="middle" font-size="10" fill="#C62828">combinaison non-linéaire opaque</text>
+
+  <!-- ================================================================== -->
+  <!-- BRANCHE DROITE : H1 SOFTCAM-TRANSFORMER -->
+  <!-- ================================================================== -->
+
+  <rect x="765" y="170" width="370" height="690" rx="8" fill="#FFEBEE" stroke="#C62828" stroke-width="2.5"/>
+  <text x="950" y="192" text-anchor="middle" font-size="12" font-weight="bold" fill="#B71C1C">★ H1 — Evidence Layer (nouveauté)</text>
+
+  <!-- Evidence linear -->
+  <rect x="785" y="205" width="330" height="60" rx="6" fill="#FFCDD2" stroke="#C62828" stroke-width="2"/>
+  <text x="950" y="224" text-anchor="middle" font-size="12" font-weight="bold" fill="#B71C1C">evidence_linear</text>
+  <text x="950" y="242" text-anchor="middle" font-size="11" fill="#C62828">Linear(d_model=32 → ctx=240)</text>
+  <text x="950" y="256" text-anchor="middle" font-size="11" fill="#C62828">→ (B, 120, 240)  [logits bruts]</text>
+
+  <line x1="950" y1="265" x2="950" y2="290" stroke="#C62828" stroke-width="2" marker-end="url(#arrR)"/>
+
+  <!-- Softmax -->
+  <rect x="840" y="292" width="220" height="40" rx="5" fill="#FFCDD2" stroke="#C62828" stroke-width="1.8"/>
+  <text x="950" y="310" text-anchor="middle" font-size="11" font-weight="bold" fill="#B71C1C">Softmax(dim=-1)</text>
+  <text x="950" y="326" text-anchor="middle" font-size="10" fill="#C62828">somme = 1 par ligne t</text>
+
+  <line x1="950" y1="332" x2="950" y2="358" stroke="#C62828" stroke-width="2" marker-end="url(#arrR)"/>
+
+  <!-- Evidence map box -->
+  <rect x="785" y="360" width="330" height="90" rx="6" fill="#FFEBEE" stroke="#C62828" stroke-width="2.5"/>
+  <text x="950" y="382" text-anchor="middle" font-size="13" font-weight="bold" fill="#B71C1C">CARTE D'ÉVIDENCE</text>
+  <text x="950" y="401" text-anchor="middle" font-size="14" font-weight="bold" fill="#B71C1C">M  (B, 120, 240)</text>
+  <text x="950" y="420" text-anchor="middle" font-size="10" fill="#C62828">M[b, t, s] = importance du pas s</text>
+  <text x="950" y="434" text-anchor="middle" font-size="10" fill="#C62828">du contexte pour prédire le pas t</text>
+  <text x="950" y="445" text-anchor="middle" font-size="10" fill="#C62828" font-style="italic">→ L'EXPLICATION, lisible directement</text>
+
+  <!-- ElasticNet annotation -->
+  <rect x="785" y="462" width="330" height="58" rx="5" fill="#FFF9C4" stroke="#F57F17" stroke-width="1.5"/>
+  <text x="950" y="480" text-anchor="middle" font-size="11" font-weight="bold" fill="#E65100">Régularisation ElasticNet sur M</text>
+  <text x="950" y="496" text-anchor="middle" font-size="11" fill="#E65100">ℒ_elastic = α ‖M‖₁ + β ‖M‖₂²</text>
+  <text x="950" y="512" text-anchor="middle" font-size="10" fill="#E65100" font-style="italic">L1 → parcimonie · L2 → lissage temporel</text>
+
+  <!-- Combinaison linéaire -->
+  <line x1="950" y1="520" x2="950" y2="548" stroke="#C62828" stroke-width="2" marker-end="url(#arrR)"/>
+  <rect x="785" y="550" width="330" height="72" rx="6" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
+  <text x="950" y="570" text-anchor="middle" font-size="12" font-weight="bold" fill="#1B5E20">Combinaison linéaire</text>
+  <text x="950" y="588" text-anchor="middle" font-size="11" fill="#2E7D32">h[t] = Σ_s M[t,s] · enc_emb[s]</text>
+  <text x="950" y="605" text-anchor="middle" font-size="11" fill="#2E7D32">enc_emb (B,240,32) → h (B,120,32)</text>
+  <text x="950" y="618" text-anchor="middle" font-size="10" fill="#1B5E20" font-style="italic">→ représentation enrichie par le contexte</text>
+
+  <!-- projection finale -->
+  <line x1="950" y1="622" x2="950" y2="648" stroke="#C62828" stroke-width="2" marker-end="url(#arrR)"/>
+  <rect x="828" y="650" width="244" height="36" rx="5" fill="#ECEFF1" stroke="#455A64" stroke-width="1.5"/>
+  <text x="950" y="668" text-anchor="middle" font-size="11" font-weight="bold" fill="#37474F">parameter_projection</text>
+  <text x="950" y="684" text-anchor="middle" font-size="11" fill="#455A64">Linear(32→3) → (B,120,3)</text>
+
+  <line x1="950" y1="686" x2="950" y2="710" stroke="#C62828" stroke-width="2" marker-end="url(#arrR)"/>
+
+  <!-- StudentT + output H1 -->
+  <rect x="800" y="712" width="300" height="56" rx="5" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.5"/>
+  <text x="950" y="731" text-anchor="middle" font-size="11" font-weight="bold" fill="#0D47A1">StudentT → sample × 100</text>
+  <text x="950" y="748" text-anchor="middle" font-size="12" font-weight="bold" fill="#0D47A1">Prédiction (B, 100, 120)</text>
+  <text x="950" y="763" text-anchor="middle" font-size="10" fill="#1565C0" font-style="italic">+ Carte d'évidence M (B, 120, 240)</text>
+
+  <!-- ================================================================== -->
+  <!-- ZONE CENTRALE : CONNEXION encoder_embeddings → Combinaison ===== -->
+  <!-- ================================================================== -->
+
+  <!-- encoder_embeddings entrant depuis le bas-gauche -->
+  <rect x="405" y="580" width="230" height="50" rx="6" fill="#FFFDE7" stroke="#F9A825" stroke-width="1.8"/>
+  <text x="520" y="600" text-anchor="middle" font-size="11" font-weight="bold" fill="#5D4037">encoder_embeddings</text>
+  <text x="520" y="616" text-anchor="middle" font-size="11" fill="#5D4037">(B, 240, 32)</text>
+  <text x="520" y="628" text-anchor="middle" font-size="9" fill="#5D4037" font-style="italic">sortie de l'encodeur réutilisée ici</text>
+
+  <!-- Flèche encoder_embeddings → combinaison linéaire -->
+  <line x1="635" y1="605" x2="783" y2="585" stroke="#F9A825" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrG)"/>
+
+  <!-- ================================================================== -->
+  <!-- BILAN COMPARATIF ===== -->
+  <!-- ================================================================== -->
+
+  <rect x="55" y="680" width="700" height="110" rx="8" fill="#F3E5F5" stroke="#7B1FA2" stroke-width="1.5"/>
+  <text x="405" y="700" text-anchor="middle" font-size="12" font-weight="bold" fill="#4A148C">Comparaison FAYAM vs SoftCAM-Transformer</text>
+  <text x="405" y="718" text-anchor="middle" font-size="11" fill="#4A148C">FAYAM  :  (B,120,32) → Linear(32→3) → StudentT                   → prédiction  [opaque]</text>
+  <text x="405" y="736" text-anchor="middle" font-size="11" fill="#4A148C">H1     :  (B,120,32) → Linear(32→240)+Softmax → M (B,120,240)</text>
+  <text x="405" y="754" text-anchor="middle" font-size="11" fill="#4A148C">               → Σ M×enc_emb → Linear(32→3) → StudentT → prédiction + explication</text>
+  <text x="405" y="772" text-anchor="middle" font-size="11" fill="#7B1FA2" font-style="italic">Coût d'explication = 0 (1 seul forward pass produit prédiction ET carte d'évidence)</text>
+  <text x="405" y="786" text-anchor="middle" font-size="11" fill="#7B1FA2" font-style="italic">Fidélité par construction : M[t,s] est le poids RÉEL utilisé pour calculer pred[t]</text>
+
+  <!-- Critère H1.C -->
+  <rect x="55" y="800" width="700" height="50" rx="6" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.5"/>
+  <text x="405" y="820" text-anchor="middle" font-size="11" font-weight="bold" fill="#1B5E20">Critère de non-dégradation H1.C (à valider expérimentalement)</text>
+  <text x="405" y="840" text-anchor="middle" font-size="11" fill="#2E7D32">R² ≥ 0.30 et Spearman ≥ 0.85 conservés après ajout de l'Evidence Layer (vs FAYAM : R²=0.37, Spearman=0.92)</text>
+</svg>

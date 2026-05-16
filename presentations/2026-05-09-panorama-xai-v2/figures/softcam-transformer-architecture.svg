@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 1320" font-family="Arial, Helvetica, sans-serif">
+  <!-- =================== STYLES =================== -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#C62828"/>
+    </marker>
+    <marker id="arrowOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#E65100"/>
+    </marker>
+  </defs>
+
+  <!-- =================== TITLE =================== -->
+  <text x="550" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#1A237E">
+    Architecture SoftCAM-Transformer
+  </text>
+  <text x="550" y="58" text-anchor="middle" font-size="14" fill="#555" font-style="italic">
+    Adaptation intrinsèque du TimeSeriesTransformer (HuggingFace) pour la prévision FaaS
+  </text>
+
+  <!-- =================== INPUT =================== -->
+  <rect x="370" y="90" width="360" height="56" rx="8" ry="8" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.5"/>
+  <text x="550" y="115" text-anchor="middle" font-size="14" font-weight="bold" fill="#0D47A1">CONTEXTE PASSÉ</text>
+  <text x="550" y="135" text-anchor="middle" font-size="12" fill="#0D47A1">240 valeurs (minutes) — ex. charge cluster C4</text>
+
+  <!-- arrow input -> encoder -->
+  <line x1="550" y1="146" x2="550" y2="178" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- =================== ENCODER =================== -->
+  <rect x="420" y="180" width="260" height="50" rx="8" ry="8" fill="#ECEFF1" stroke="#455A64" stroke-width="1.5"/>
+  <text x="550" y="210" text-anchor="middle" font-size="14" font-weight="bold" fill="#263238">ENCODEUR (inchangé)</text>
+
+  <line x1="550" y1="230" x2="550" y2="262" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- =================== ENCODER EMBEDDINGS =================== -->
+  <rect x="370" y="265" width="360" height="56" rx="8" ry="8" fill="#FFFDE7" stroke="#F9A825" stroke-width="2"/>
+  <text x="550" y="290" text-anchor="middle" font-size="14" font-weight="bold" fill="#5D4037">embeddings encodeur</text>
+  <text x="550" y="310" text-anchor="middle" font-size="12" fill="#5D4037">tenseur (240 × 32)</text>
+
+  <!-- side branch: encoder embeddings reused later -->
+  <!-- vertical down to decoder -->
+  <line x1="550" y1="321" x2="550" y2="353" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <!-- lateral bypass: from encoder embeddings down to combination -->
+  <path d="M 730 293 L 920 293 L 920 880 L 720 880" fill="none" stroke="#F9A825" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrow)"/>
+  <text x="935" y="585" font-size="11" fill="#5D4037" font-style="italic" transform="rotate(0 935 585)">réutilisés</text>
+  <text x="935" y="600" font-size="11" fill="#5D4037" font-style="italic">par la combinaison</text>
+
+  <!-- =================== DECODER =================== -->
+  <rect x="420" y="355" width="260" height="50" rx="8" ry="8" fill="#ECEFF1" stroke="#455A64" stroke-width="1.5"/>
+  <text x="550" y="385" text-anchor="middle" font-size="14" font-weight="bold" fill="#263238">DÉCODEUR (inchangé)</text>
+
+  <line x1="550" y1="405" x2="550" y2="437" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- =================== DECODER EMBEDDINGS =================== -->
+  <rect x="370" y="440" width="360" height="56" rx="8" ry="8" fill="#FFFDE7" stroke="#F9A825" stroke-width="2"/>
+  <text x="550" y="465" text-anchor="middle" font-size="14" font-weight="bold" fill="#5D4037">embeddings décodeur</text>
+  <text x="550" y="485" text-anchor="middle" font-size="12" fill="#5D4037">tenseur (120 × 32)</text>
+
+  <line x1="550" y1="496" x2="550" y2="528" stroke="#C62828" stroke-width="2.5" marker-end="url(#arrowRed)"/>
+
+  <!-- =================== EVIDENCE LAYER (★ NEW) =================== -->
+  <rect x="320" y="530" width="460" height="90" rx="10" ry="10" fill="#FFEBEE" stroke="#C62828" stroke-width="3"/>
+  <text x="550" y="555" text-anchor="middle" font-size="16" font-weight="bold" fill="#B71C1C">★ EVIDENCE LAYER (nouveauté)</text>
+  <text x="550" y="578" text-anchor="middle" font-size="12" fill="#B71C1C">apprend pour chaque pas futur t un vecteur de 240 poids</text>
+  <text x="550" y="596" text-anchor="middle" font-size="12" fill="#B71C1C">sur les positions du contexte</text>
+  <text x="550" y="614" text-anchor="middle" font-size="11" fill="#B71C1C" font-style="italic">+ régularisation ElasticNet (L1 → parcimonie, L2 → lissage)</text>
+
+  <line x1="550" y1="620" x2="550" y2="652" stroke="#C62828" stroke-width="2.5" marker-end="url(#arrowRed)"/>
+
+  <!-- =================== EVIDENCE MAP =================== -->
+  <rect x="370" y="655" width="360" height="70" rx="8" ry="8" fill="#FFEBEE" stroke="#C62828" stroke-width="2"/>
+  <text x="550" y="680" text-anchor="middle" font-size="14" font-weight="bold" fill="#B71C1C">CARTE D'ÉVIDENCE</text>
+  <text x="550" y="700" text-anchor="middle" font-size="12" fill="#B71C1C">matrice (120 × 240)</text>
+  <text x="550" y="717" text-anchor="middle" font-size="11" fill="#B71C1C" font-style="italic">ligne t = poids du contexte pour la prédiction du pas t</text>
+
+  <!-- arrow down to combination -->
+  <line x1="550" y1="725" x2="550" y2="855" stroke="#C62828" stroke-width="2.5" marker-end="url(#arrowRed)"/>
+
+  <!-- arrow right to explanation box -->
+  <path d="M 730 690 L 870 690 L 870 770" fill="none" stroke="#E65100" stroke-width="2.5" marker-end="url(#arrowOrange)"/>
+  <text x="755" y="680" font-size="11" fill="#E65100" font-style="italic">est aussi…</text>
+
+  <!-- =================== EXPLANATION (free output) =================== -->
+  <rect x="780" y="770" width="200" height="80" rx="8" ry="8" fill="#FFF3E0" stroke="#E65100" stroke-width="2.5"/>
+  <text x="880" y="795" text-anchor="middle" font-size="13" font-weight="bold" fill="#E65100">EXPLICATION</text>
+  <text x="880" y="813" text-anchor="middle" font-size="13" font-weight="bold" fill="#E65100">INTRINSÈQUE</text>
+  <text x="880" y="833" text-anchor="middle" font-size="11" fill="#E65100" font-style="italic">gratuite, fidèle</text>
+  <text x="880" y="847" text-anchor="middle" font-size="11" fill="#E65100" font-style="italic">par construction</text>
+
+  <!-- =================== COMBINATION =================== -->
+  <rect x="280" y="860" width="440" height="76" rx="8" ry="8" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
+  <text x="500" y="884" text-anchor="middle" font-size="14" font-weight="bold" fill="#1B5E20">COMBINAISON LINÉAIRE</text>
+  <text x="500" y="906" text-anchor="middle" font-size="13" fill="#1B5E20">pred_latent[t] = Σᵢ carte[t,i] × emb_encodeur[i]</text>
+  <text x="500" y="925" text-anchor="middle" font-size="11" fill="#1B5E20" font-style="italic">pour chaque pas futur t ∈ [1..120]</text>
+
+  <line x1="500" y1="936" x2="500" y2="968" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- =================== FINAL PROJECTION =================== -->
+  <rect x="375" y="970" width="250" height="46" rx="8" ry="8" fill="#ECEFF1" stroke="#455A64" stroke-width="1.5"/>
+  <text x="500" y="998" text-anchor="middle" font-size="13" font-weight="bold" fill="#263238">projection linéaire finale</text>
+
+  <line x1="500" y1="1016" x2="500" y2="1048" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- =================== PREDICTION =================== -->
+  <rect x="340" y="1050" width="320" height="60" rx="8" ry="8" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
+  <text x="500" y="1075" text-anchor="middle" font-size="14" font-weight="bold" fill="#0D47A1">PRÉDICTION</text>
+  <text x="500" y="1095" text-anchor="middle" font-size="12" fill="#0D47A1">120 valeurs futures (loc, scale, df)</text>
+
+  <!-- =================== LEGEND =================== -->
+  <rect x="40" y="1140" width="1020" height="160" rx="8" ry="8" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+  <text x="60" y="1165" font-size="13" font-weight="bold" fill="#333">Légende</text>
+
+  <!-- legend items -->
+  <rect x="60" y="1180" width="20" height="14" fill="#ECEFF1" stroke="#455A64" stroke-width="1.5"/>
+  <text x="90" y="1192" font-size="12" fill="#333">Composant standard du TimeSeriesTransformer (inchangé)</text>
+
+  <rect x="60" y="1205" width="20" height="14" fill="#FFFDE7" stroke="#F9A825" stroke-width="2"/>
+  <text x="90" y="1217" font-size="12" fill="#333">Représentation latente apprise (embeddings)</text>
+
+  <rect x="60" y="1230" width="20" height="14" fill="#FFEBEE" stroke="#C62828" stroke-width="2"/>
+  <text x="90" y="1242" font-size="12" fill="#333">Composant nouveau (contribution H1) — remplace parameter_projection</text>
+
+  <rect x="60" y="1255" width="20" height="14" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
+  <text x="90" y="1267" font-size="12" fill="#333">Calcul interprétable (la prédiction est la formule de la combinaison)</text>
+
+  <rect x="60" y="1280" width="20" height="14" fill="#FFF3E0" stroke="#E65100" stroke-width="2"/>
+  <text x="90" y="1292" font-size="12" fill="#333">Sortie explication produite gratuitement (1 forward pass = prédiction + explication)</text>
+
+  <!-- right column legend -->
+  <line x1="600" y1="1175" x2="600" y2="1295" stroke="#9E9E9E" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="620" y="1192" font-size="12" fill="#333" font-weight="bold">Comparaison clé vs FAYAM</text>
+  <text x="620" y="1212" font-size="11" fill="#333">• FAYAM : parameter_projection = boîte noire</text>
+  <text x="620" y="1228" font-size="11" fill="#333">• SoftCAM-Transformer : evidence_layer = lisible</text>
+  <text x="620" y="1248" font-size="11" fill="#333">• Coût d'inférence identique (1 forward pass)</text>
+  <text x="620" y="1264" font-size="11" fill="#333">• Coût d'explication : 0 (vs 2^N pour SHAPformer)</text>
+  <text x="620" y="1284" font-size="11" fill="#333" font-style="italic">Cible H1 : C4 (R²≥0.30, Spearman≥0.85 conservés)</text>
+</svg>

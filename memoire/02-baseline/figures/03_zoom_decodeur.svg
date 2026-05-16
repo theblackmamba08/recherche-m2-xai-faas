@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 1500" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937">
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <polygon points="0,0 8,3 0,6" fill="#1f2937"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <polygon points="0,0 8,3 0,6" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-skip" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <polygon points="0,0 8,3 0,6" fill="#7c3aed"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1100" height="1500" fill="#ffffff"/>
+
+  <!-- ========== TITRE ========== -->
+  <text x="550" y="42" text-anchor="middle" font-size="26" font-weight="700">
+    DÉCODEUR — Zoom sur une couche Transformer
+  </text>
+  <text x="550" y="72" text-anchor="middle" font-size="14" fill="#6b7280" font-style="italic">
+    Trois sous-blocs au lieu de deux : la cross-attention est l'élément clé qui distingue le décodeur de l'encodeur
+  </text>
+
+  <!-- ========== INPUT ========== -->
+  <g>
+    <rect x="300" y="110" width="500" height="70" rx="10" fill="#f9fafb" stroke="#1f2937" stroke-width="1.5"/>
+    <text x="550" y="138" text-anchor="middle" font-weight="600" font-size="16">vecteur d'entrée  y</text>
+    <text x="550" y="160" text-anchor="middle" font-size="12" font-family="'Courier New', Courier, monospace" fill="#15803d">(B, 120, d_model = 32)</text>
+  </g>
+
+  <!-- ========== MASKED SELF-ATTENTION ========== -->
+  <g>
+    <rect x="300" y="205" width="500" height="160" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <text x="550" y="240" text-anchor="middle" font-weight="700" font-size="20" fill="#14532d">Masked Self-Attention</text>
+    <text x="550" y="262" text-anchor="middle" font-size="12" font-style="italic" fill="#166534">le futur ne peut pas « voir » devant lui</text>
+
+    <text x="335" y="295" font-size="13" fill="#14532d">▸  Q, K, V  =  3 projections linéaires de  y</text>
+    <text x="335" y="318" font-size="13" fill="#14532d">▸  masque causal triangulaire  :  pas  t  ne voit que  {0 … t-1}</text>
+    <text x="335" y="343" font-size="13" font-family="'Courier New', Courier, monospace" fill="#14532d">   softmax( (Q·K^T  +  mask) / √d_k ) · V</text>
+  </g>
+
+  <!-- ========== ADD & NORM 1 ========== -->
+  <g>
+    <rect x="300" y="385" width="500" height="55" rx="10" fill="#f0fdf4" stroke="#4ade80" stroke-width="1.5"/>
+    <text x="550" y="412" text-anchor="middle" font-weight="600" font-size="15" fill="#166534">Add &amp; Norm   ( résidu  +  LayerNorm )</text>
+    <text x="550" y="430" text-anchor="middle" font-size="11" font-style="italic" fill="#6b7280">y  ⊕  MaskedAttn(y)   →   LayerNorm</text>
+  </g>
+
+  <!-- ========== CROSS-ATTENTION (élément phare) ========== -->
+  <g>
+    <rect x="280" y="465" width="540" height="200" rx="16" fill="#bbf7d0" stroke="#15803d" stroke-width="3"/>
+    <text x="550" y="502" text-anchor="middle" font-weight="700" font-size="22" fill="#14532d">Cross-Attention</text>
+    <text x="550" y="525" text-anchor="middle" font-size="13" font-style="italic" fill="#166534">★ ici le décodeur consulte la memory de l'encodeur ★</text>
+
+    <text x="320" y="560" font-size="13" fill="#14532d">▸  Q  ←  sortie de la masked self-attn  (decoder)</text>
+    <text x="320" y="585" font-size="13" fill="#14532d">▸  K, V  ←  memory de l'encodeur  (cf. Visuel 1 et 2)</text>
+    <text x="320" y="610" font-size="13" font-family="'Courier New', Courier, monospace" fill="#14532d">   softmax(Q_dec · K_mem^T / √d_k) · V_mem</text>
+    <text x="320" y="638" font-size="12" font-style="italic" fill="#166534">→  chaque pas futur peut « interroger » les 240 pas du passé</text>
+  </g>
+
+  <!-- Flèche memory entrante (côté gauche) -->
+  <line x1="50" y1="565" x2="278" y2="565" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#arrow-blue)"/>
+  <text x="55" y="555" font-size="13" font-weight="700" fill="#2563eb">memory</text>
+  <text x="55" y="540" font-size="11" font-family="'Courier New', Courier, monospace" fill="#15803d">(B, 240, 32)</text>
+  <text x="55" y="585" font-size="11" font-style="italic" fill="#2563eb">venant de l'encodeur</text>
+
+  <!-- ========== ADD & NORM 2 ========== -->
+  <g>
+    <rect x="300" y="685" width="500" height="55" rx="10" fill="#f0fdf4" stroke="#4ade80" stroke-width="1.5"/>
+    <text x="550" y="712" text-anchor="middle" font-weight="600" font-size="15" fill="#166534">Add &amp; Norm   ( résidu  +  LayerNorm )</text>
+    <text x="550" y="730" text-anchor="middle" font-size="11" font-style="italic" fill="#6b7280">z  ⊕  CrossAttn(z, memory)   →   LayerNorm</text>
+  </g>
+
+  <!-- ========== FEED-FORWARD ========== -->
+  <g>
+    <rect x="300" y="765" width="500" height="120" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <text x="550" y="798" text-anchor="middle" font-weight="700" font-size="20" fill="#14532d">Feed-Forward (FFN)</text>
+    <text x="550" y="820" text-anchor="middle" font-size="12" font-style="italic" fill="#166534">deux couches denses, ReLU au milieu</text>
+
+    <text x="335" y="852" font-size="13" font-family="'Courier New', Courier, monospace" fill="#14532d">Linear(32 → ff_dim)  →  ReLU  →  Linear(ff_dim → 32)</text>
+    <text x="335" y="872" font-size="12" font-style="italic" fill="#6b7280">appliqué position par position (poids partagés sur les 120 pas)</text>
+  </g>
+
+  <!-- ========== ADD & NORM 3 ========== -->
+  <g>
+    <rect x="300" y="905" width="500" height="55" rx="10" fill="#f0fdf4" stroke="#4ade80" stroke-width="1.5"/>
+    <text x="550" y="932" text-anchor="middle" font-weight="600" font-size="15" fill="#166534">Add &amp; Norm   ( résidu  +  LayerNorm )</text>
+    <text x="550" y="950" text-anchor="middle" font-size="11" font-style="italic" fill="#6b7280">w  ⊕  FFN(w)   →   LayerNorm</text>
+  </g>
+
+  <!-- ========== OUTPUT ========== -->
+  <g>
+    <rect x="300" y="985" width="500" height="70" rx="10" fill="#f9fafb" stroke="#1f2937" stroke-width="1.5"/>
+    <text x="550" y="1013" text-anchor="middle" font-weight="600" font-size="16">vecteur de sortie  y'</text>
+    <text x="550" y="1035" text-anchor="middle" font-size="12" font-family="'Courier New', Courier, monospace" fill="#15803d">(B, 120, 32)   —   même shape que l'entrée  →  empilable</text>
+  </g>
+
+  <!-- ========== BANDEAU × 4 ========== -->
+  <g>
+    <rect x="200" y="1080" width="700" height="60" rx="10" fill="#14532d"/>
+    <text x="550" y="1108" text-anchor="middle" font-weight="700" font-size="17" fill="#ffffff">× 4 couches empilées</text>
+    <text x="550" y="1128" text-anchor="middle" font-size="12" font-style="italic" fill="#dcfce7">chaque couche consulte la même memory de l'encodeur</text>
+  </g>
+
+  <!-- ========== FLÈCHES principales ========== -->
+  <line x1="550" y1="180" x2="550" y2="203" stroke="#1f2937" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="550" y1="365" x2="550" y2="383" stroke="#1f2937" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="550" y1="440" x2="550" y2="463" stroke="#1f2937" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="550" y1="665" x2="550" y2="683" stroke="#1f2937" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="550" y1="740" x2="550" y2="763" stroke="#1f2937" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="550" y1="885" x2="550" y2="903" stroke="#1f2937" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="550" y1="960" x2="550" y2="983" stroke="#1f2937" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ========== SKIP CONNECTIONS ========== -->
+  <path d="M 820 145 C 950 145, 950 412, 820 412" stroke="#7c3aed" stroke-width="2" stroke-dasharray="6 4" fill="none" marker-end="url(#arrow-skip)"/>
+  <text x="965" y="280" font-size="12" font-weight="600" fill="#7c3aed">skip</text>
+
+  <path d="M 820 412 C 950 412, 950 712, 820 712" stroke="#7c3aed" stroke-width="2" stroke-dasharray="6 4" fill="none" marker-end="url(#arrow-skip)"/>
+  <text x="965" y="565" font-size="12" font-weight="600" fill="#7c3aed">skip</text>
+
+  <path d="M 820 712 C 950 712, 950 932, 820 932" stroke="#7c3aed" stroke-width="2" stroke-dasharray="6 4" fill="none" marker-end="url(#arrow-skip)"/>
+  <text x="965" y="825" font-size="12" font-weight="600" fill="#7c3aed">skip</text>
+
+  <!-- ========== LÉGENDE ========== -->
+  <g>
+    <rect x="65" y="1170" width="970" height="320" rx="10" fill="#fafafa" stroke="#d1d5db" stroke-width="1"/>
+
+    <text x="85" y="1198" font-weight="700" font-size="16">Légende &amp; rappels</text>
+
+    <!-- Colonne 1 : différences avec l'encodeur -->
+    <text x="85" y="1228" font-weight="600" font-size="14" fill="#374151">Différences avec l'encodeur (Visuel 2)</text>
+
+    <text x="85" y="1255" font-size="13"><tspan font-weight="600" fill="#14532d">+1 sous-bloc :</tspan> la Cross-Attention au milieu</text>
+    <text x="85" y="1278" font-size="13"><tspan font-weight="600" fill="#14532d">Self-attention masquée :</tspan> empêche le décodeur de tricher</text>
+    <text x="85" y="1295" font-size="13">  en regardant le futur pendant l'entraînement</text>
+    <text x="85" y="1320" font-size="13"><tspan font-weight="600" fill="#14532d">3 skip connections</tspan> au lieu de 2 (un par sous-bloc)</text>
+    <text x="85" y="1345" font-size="13"><tspan font-weight="600" fill="#14532d">Mêmes shapes</tspan> en entrée et sortie  →  empilable × 4</text>
+
+    <!-- Colonne 2 : zoom cross-attention -->
+    <text x="560" y="1228" font-weight="600" font-size="14" fill="#374151">Pourquoi la cross-attention est cruciale</text>
+
+    <text x="560" y="1255" font-size="13">▸  C'est le <tspan font-weight="700" fill="#14532d">seul lien</tspan> entre passé encodé et futur prédit</text>
+    <text x="560" y="1280" font-size="13">▸  Q vient du décodeur (« je veux prédire t+5 »)</text>
+    <text x="560" y="1300" font-size="13">▸  K, V viennent de la memory (« voici les 240 pas »)</text>
+    <text x="560" y="1325" font-size="13">▸  Sa <tspan font-weight="700" fill="#2563eb">attention map</tspan> est extraite via</text>
+    <text x="560" y="1342" font-size="13" font-family="'Courier New', Courier, monospace" fill="#1e40af">   output_attentions=True</text>
+    <text x="560" y="1360" font-size="12" font-style="italic" fill="#6b7280">  (matériel pour H3, repli si H1 SoftCAM bloque)</text>
+
+    <!-- Note de pied -->
+    <line x1="85" y1="1410" x2="1015" y2="1410" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="85" y="1435" font-size="12" font-style="italic" fill="#6b7280">
+      Visuel 3 / 4 — Zoom décodeur.   La sortie  y'  des 4 couches empilées entre dans la Distribution Head (cf. Visuel 4).
+    </text>
+    <text x="85" y="1458" font-size="12" font-style="italic" fill="#6b7280">
+      Note : le décodeur opère en mode « teacher forcing » à l'entraînement, en mode autoregressif à l'inférence.
+    </text>
+  </g>
+
+</svg>

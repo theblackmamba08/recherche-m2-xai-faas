@@ -63,7 +63,78 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-05 (session 25)
+### Dernière session : 2026-05-16 (session 33)
+
+- **Phase actuelle** : Phase 2 — H1 SoftCAM-Transformer. **Code implémenté**, prêt à tourner sur Colab T4.
+- **Avancée récente** :
+  - **Compréhension complète de l'architecture** validée par dialogue pédagogique (encoder + decoder + evidence layer). Architecture désormais maîtrisée pour la soutenance.
+  - **Code H1 produit** :
+    - `code/src/models/softcam_transformer.py` (~360 l.) — `SoftCAMTransformerConfig`, `SoftCAMTSPredictionOutput`, `SoftCAMTransformerForPrediction` (sous-classement HF, hook encodeur, override `output_params` → forward ET generate fonctionnent).
+    - `code/tests/test_softcam_transformer.py` (10 tests pytest).
+    - `code/notebooks/softcam-cluster4.ipynb` (33 cellules, généré par `_generate_softcam_cluster4.py`) — clone repo + GATE H1.C explicite + extraction & heatmaps des cartes M.
+  - **Caveat L1 documenté** : sous softmax `mean(|M|) = 1/ctx` est constant (gradient nul) ; le vrai sparsity-inducing est l'entropie `γ·H(M)` (hyperparam exposé).
+  - **Mémoires persistantes sauvegardées** (session 32 → 33) : argumentation H1, controverse Jain & Wallace, TFT concurrent, plan validation.
+- **Prochain pas** :
+  1. 🔴 Commit + push GitHub (`code/src/models/`, tests, notebook + générateur, doc updates)
+  2. 🔴 Upload `softcam-cluster4.ipynb` sur Colab T4 → Runtime → Run All
+  3. 🔴 Vérifier le **GATE H1.C** : R² ≥ 0.30 et Spearman ≥ 0.85 sur le test set
+  4. 🟡 Si GO → analyser heatmaps M + comparer à `cross_attentions` (gratuit)
+  5. 🟡 Si NO-GO → pivot immédiat vers H2 (TimeSHAP)
+
+### Session précédente : 2026-05-16 (session 32)
+
+- **Phase actuelle** : Phase 2 — H1 SoftCAM-Transformer. Fiche TFT rédigée. Priorité 🔴 close.
+- **Avancée récente** :
+  - **Fiche TFT créée** : `memoire/01-litterature/fiches/2019_Lim_TFT.md` — architecture complète (VSN, GRN, IMHA), résultats 9 datasets, critique Jain & Wallace 2019, tableau comparatif TFT vs H1.
+  - **Argument H1 consolidé** : M[t,s] = décomposition linéaire exacte (fidèle par construction) vs IMHA TFT = poids d'attention non fidèles.
+  - **Phrase-clé soutenance** prête : "...c'est une décomposition linéaire prouvée, pas une attribution approximée."
+- **Prochain pas** :
+  1. 🟡 **Ajouter TFT au panorama XAI v3** (canevas Dr LACMOU 4 points + plus-value de transition)
+  2. ✅ **Implémenter `evidence_layer`** dans `src/models/softcam_transformer.py` (fait session 33)
+
+### Session précédente : 2026-05-14 (session 30 — clôture Phase 1 bis)
+
+- **Phase actuelle** : **Phase 1 bis CLOSE.** HPO Cluster 4 exécutée et archivée. Décision baseline actée. En route vers Phase 2 (H1 SoftCAM-Transformer) + lecture TFT.
+- **Avancée récente** :
+  - Run `optimized-cluster4.ipynb` exécuté sur Colab T4, résultats rapatriés et archivés dans [`code/experiments/runs/2026-05-14_optimized-cluster4/`](../../code/experiments/runs/2026-05-14_optimized-cluster4/).
+  - **HPO** : 15 trials, 4 complétés (73% pruned dont OOM). Best val R²=0.5347 avec `d_model=128, context=240, encoder_layers=4, lr=6.41e-4`.
+  - **Test** : R²=**-1.39** (vs FAYAM=0.37) → dégradation -1.76pp. Cause : `context=240` (OOM-contraint) perd la périodicité 24h.
+  - **Décision** : **FAYAM original conservé comme baseline** (seuil +20pp non atteint).
+  - **Insight majeur** : `d_model=32` de FAYAM justifié empiriquement — seul `d_model` compatible avec `context=1440` sans OOM T4. Réponse à la question encadreur.
+  - **Ablation 949** : dédié R²=0.215 > multi-opt R²=-1.257 → "écrasée par multi-task" (contamination context=240 à noter).
+- **Prochain pas** (par ordre de priorité) :
+  1. 🔴 **Lire le papier TFT** (Lim et al. 2019, arxiv:1912.09363) et créer `memoire/01-litterature/fiches/2019_Lim_TFT.md`
+  2. 🟡 Re-positionner la motivation H1 dans `memoire/03-contribution/MEMOIRE.md` (alternative à TFT, fidélité par construction vs attribution attention)
+  3. 🟡 Ajouter TFT au panorama XAI v3 avec canevas Dr LACMOU (contexte/problèmes/transposabilité/limites)
+  4. 🟢 Démarrer **Phase 2 — H1** : J1 du [`PLAN-ETUDE-ARCHITECTURE.md`](PLAN-ETUDE-ARCHITECTURE.md) — cartographier `parameter_projection` HuggingFace (cible de l'evidence layer SoftCAM)
+
+### Session précédente : 2026-05-09 (session 28)
+
+- **Phase actuelle** : préparation finale de la séance Dr LACMOU (panorama XAI v2 + SPEECH section architecture).
+- **Avancée récente** :
+  - `SPEECH-architecture.md` créé pour la section 10 (Architecture SoftCAM-Transformer) : 10 slides commentées avec texte à dire, transitions, anticipation de 5 questions probables, notes Cabrel.
+- **Prochain pas** : Cabrel relit le speech avant la séance ; en parallèle, démarrer **Phase 2 — H1** : J1 du [`PLAN-ETUDE-ARCHITECTURE.md`](PLAN-ETUDE-ARCHITECTURE.md) (cartographier `parameter_projection` HuggingFace).
+
+### Session précédente : 2026-05-09 (session 27)
+
+- **Phase actuelle** : **Phase 1 terminée**, transition vers Phase 2. Présentation panorama XAI v2 prête.
+- **Avancée récente** :
+  - **Présentation Panorama XAI v2** construite et compilée : `presentations/2026-05-09-panorama-xai-v2/` (64 pages, 908 Ko). Canevas Dr LACMOU appliqué uniformément (5 environnements TeX dédiés : `ctxbox/probbox/transposbox/limitbox/plusbox`).
+  - **Zooms approfondis** : 7 slides SHAPformer (architecture training masking + inférence 2^N + résultats + position semi-intrinsèque + discussion *« peut-on rendre 1-pass ? »*) et 6 slides SoftCAM (architecture intrinsèque + ElasticNet + résultats CNN + perspective ViT/Transformer).
+  - **Section Architecture SoftCAM-Transformer (10 slides)** : motivation, schéma TikZ complet, entrées/sorties par bloc, code PyTorch evidence layer, équation centrale, ElasticNet visualisé, 3 variantes A/B/C, exemple carte d'évidence sur C4, hypothèses H1.A--H1.E.
+  - SVG architecture créé : `memoire/03-contribution/figures/softcam-transformer-architecture.svg` (réutilisable mémoire + Beamer).
+  - Discussion conceptuelle actée : Variante B (carte × embeddings encodeur) retenue pour le design SoftCAM-Transformer ; idée *« SHAPformer self-explainable »* reléguée au chapitre Discussion (dénature SHAPformer si poussée plus loin).
+- **Prochain pas** : démarrer **Phase 2** — J1 du [`PLAN-ETUDE-ARCHITECTURE.md`](PLAN-ETUDE-ARCHITECTURE.md) : cartographier `parameter_projection` HuggingFace pour localiser la cible exacte de l'evidence layer.
+
+### Session précédente : 2026-05-08 (session 26)
+
+- **Phase actuelle** : **Phase 1 terminée**, transition vers Phase 2. Retour panorama XAI traité.
+- **Avancée récente** :
+  - DEBRIEF de la présentation panorama XAI du 28/04/2026 rédigé. Retour Dr LACMOU : présentation trop technique, étudiant en peine à l'oral.
+  - **Cadre prescrit pour toute méthode XAI** : 4 points (contexte / problèmes résolus / transposabilité / limites) + plus-value de transition. Acté dans [DECISIONS.md](DECISIONS.md) (entrée 2026-05-08) et mémoire persistante.
+- **Prochain pas** : (1) reprendre les slides du panorama selon le cadre Dr LACMOU avant la prochaine séance ; (2) en parallèle, démarrer **Phase 2 — H1** : J1 du [`PLAN-ETUDE-ARCHITECTURE.md`](PLAN-ETUDE-ARCHITECTURE.md) (architecture `TimeSeriesTransformer` HuggingFace).
+
+### Session précédente : 2026-05-05 (session 25)
 
 - **Phase actuelle** : **Phase 1 terminée** — 4 runs dédiés archivés, cible H1 actée.
 - **Avancée récente** :

@@ -22,3 +22,10 @@
 - Article SoftCAM (Djoumessi & Berens, mai 2025) intégré et fiché.
 - Conséquence : refonte des hypothèses (cf. [`../00-meta/DECISIONS.md`](../00-meta/DECISIONS.md) et [`../00-meta/ROADMAP.md`](../00-meta/ROADMAP.md)).
 - BibTeX-keys à reporter dans `redaction/biblio/refs.bib` : `FAYAM2024Prediction`, `Djoumessi2025SoftCAM`.
+
+## 2026-05-16 — Fiche TFT (Lim et al. 2021)
+
+- Fiche rédigée sans PDF (connaissances de formation) : [`fiches/2019_Lim_TFT.md`](fiches/2019_Lim_TFT.md) (pertinence 5/5)
+- TFT = concurrent direct de H1 : Transformer TS interprétable (VSN + IMHA), déployé en production (Google), IJF 2021.
+- Argument clé contre TFT : IMHA partage les valeurs → poids d'attention non fidèles par construction (critique Jain & Wallace 2019). H1 produit une décomposition linéaire exacte.
+- BibTeX-key : `Lim2021TFT`.

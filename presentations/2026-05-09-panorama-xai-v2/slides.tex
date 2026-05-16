@@ -1,0 +1,1631 @@
+%% ============================================================
+%%  Panorama des méthodes XAI — V2 (canevas Dr LACMOU)
+%%  Zooms approfondis sur SHAPformer et SoftCAM
+%%  Architecture détaillée de SoftCAM-Transformer (H1)
+%%  Présentation pour Dr LACMOU ZEUTOUO J. — 2026-05-09
+%% ============================================================
+\documentclass[10pt]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, decorations.pathreplacing, fit, backgrounds, calc}
+
+\usetheme{Madrid}
+\usecolortheme{seahorse}
+
+\usepackage[most]{tcolorbox}
+\tcbset{colback=blue!5, colframe=blue!50!black, arc=3mm}
+
+%% --- Couleurs personnalisées ---
+\definecolor{shap}{RGB}{52,120,200}
+\definecolor{cam}{RGB}{200,80,50}
+\definecolor{softcam}{RGB}{40,160,80}
+\definecolor{fayam}{RGB}{120,60,180}
+\definecolor{verrou}{RGB}{180,30,30}
+\definecolor{evidence}{RGB}{198,40,40}
+\definecolor{newcontrib}{RGB}{230,81,0}
+
+%% --- Boîtes du canevas Dr LACMOU ---
+\newtcolorbox{ctxbox}[1][]{
+  colback=blue!3, colframe=blue!40!black, arc=2mm, boxrule=0.5pt,
+  fonttitle=\bfseries, title=Contexte, #1}
+\newtcolorbox{probbox}[1][]{
+  colback=orange!3, colframe=orange!50!black, arc=2mm, boxrule=0.5pt,
+  fonttitle=\bfseries, title=Problèmes que la méthode résout, #1}
+\newtcolorbox{transposbox}[1][]{
+  colback=green!3, colframe=green!40!black, arc=2mm, boxrule=0.5pt,
+  fonttitle=\bfseries, title=Transposabilité, #1}
+\newtcolorbox{limitbox}[1][]{
+  colback=red!3, colframe=red!60!black, arc=2mm, boxrule=0.5pt,
+  fonttitle=\bfseries, title=Limites, #1}
+\newtcolorbox{plusbox}[1][]{
+  colback=newcontrib!5, colframe=newcontrib!70!black, arc=3mm, boxrule=0.8pt,
+  fonttitle=\bfseries, title=Plus-value de la méthode suivante, #1}
+
+%% --- Commandes utilitaires ---
+\newcommand{\source}[1]{\vspace{4pt}\hfill{\textcolor{gray}{\textbf{\tiny #1}}}}
+\newcommand{\zoomtag}{\textcolor{newcontrib}{\textbf{\large \ensuremath{\bigstar}\ ZOOM}}}
+
+%% --- Métadonnées ---
+\title{Méthodes d'Explicabilité en IA — Panorama V2}
+\subtitle{Du post-hoc à l'intrinsèque — Zooms SHAPformer / SoftCAM\\Vers SoftCAM-Transformer (H1) pour la prévision FaaS}
+\author{FOSSO Cabrel}
+\institute{Université de Dschang}
+\date{9 mai 2026}
+
+%% --- Slide de transition automatique avant chaque section ---
+\AtBeginSection[]{%
+  \begin{frame}[plain, noframenumbering]
+    \vfill
+    \centering
+    \begin{beamercolorbox}[sep=14pt, center, shadow=true, rounded=true]{title}
+      \usebeamerfont{title}\insertsectionhead\par
+    \end{beamercolorbox}
+    \vspace{0.2cm}
+    \tableofcontents[currentsection, hideallsubsections,
+                     sectionstyle=show/shaded]
+    \vfill
+  \end{frame}%
+}
+
+%% ============================================================
+\begin{document}
+%% ============================================================
+
+%% ----------------------------------------------------------
+%% TITRE + SOMMAIRE
+%% ----------------------------------------------------------
+\frame{\titlepage}
+
+\begin{frame}{Plan de la présentation}
+  \tableofcontents[hideallsubsections]
+\end{frame}
+
+%% ============================================================
+%% SECTION 1 — POURQUOI EXPLIQUER ?
+%% ============================================================
+\section{Pourquoi expliquer ?}
+
+\begin{frame}{Le paradoxe performance / confiance}
+  \begin{columns}
+    \begin{column}{0.55\textwidth}
+      \begin{itemize}
+        \item Les modèles ML modernes atteignent des performances remarquables :
+              ResNet, GPT, Transformers\ldots
+        \item Mais leur complexité les rend \alert{opaques} :
+          \begin{itemize}
+            \item Millions de paramètres
+            \item Décisions non traçables
+            \item Comportements inattendus hors distribution
+          \end{itemize}
+        \item Résultat : \textbf{les utilisateurs ne font pas confiance} aux prédictions
+              qu'ils ne comprennent pas
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{tcolorbox}[colback=red!5, colframe=red!70!black, arc=3mm,
+                        fonttitle=\bfseries, title=Dilemme, halign=center]
+        Performance élevée\\[4pt]
+        \textbf{vs}\\[4pt]
+        Confiance \& déployabilité
+      \end{tcolorbox}
+      \vspace{6pt}
+      \begin{tcolorbox}[colback=green!5, colframe=green!50!black, arc=3mm,
+                        fonttitle=\bfseries, title=Constat, halign=center]
+        Un modèle précis mais inexplicable\\
+        \textbf{ne peut pas être déployé}\\
+        en secteur critique
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Qu'est-ce qu'une bonne explication ?}
+  \begin{block}{3 dimensions clés}
+    \begin{itemize}
+      \item \textbf{Portée} : locale (une prédiction) ou globale (tout le modèle)
+      \item \textbf{Fidélité} : l'explication reflète-t-elle vraiment le raisonnement du modèle ?
+      \item \textbf{Interprétabilité} : compréhensible par un humain non expert ?
+    \end{itemize}
+  \end{block}
+
+  \vspace{6pt}
+
+  \begin{exampleblock}{3 propriétés théoriques (axiomes SHAP, Lundberg \& Lee 2017)}
+    \begin{itemize}
+      \item \textbf{Précision locale} : l'explication prédit correctement localement
+      \item \textbf{Missingness} : une feature absente a contribution nulle
+      \item \textbf{Cohérence} : si une feature contribue plus dans un modèle,
+            son score ne diminue pas
+    \end{itemize}
+  \end{exampleblock}
+\end{frame}
+
+%% ============================================================
+%% SECTION 2 — CONTEXTE FAYAM + FAILLE XAI
+%% ============================================================
+\section{Contexte : FAYAM et sa faille XAI}
+
+\begin{frame}{Prédiction de charge FaaS : le problème métier}
+  \begin{columns}
+    \begin{column}{0.55\textwidth}
+      \begin{itemize}
+        \item \textbf{FaaS} (Function-as-a-Service) : paradigme cloud où les fonctions
+              s'exécutent à la demande
+        \item \textbf{Défi} : invocations imprévisibles —
+              pics, saisonnalités, profils hétérogènes
+        \item \textbf{Enjeu} : pré-allouer les ressources pour éviter latence ou gaspillage
+        \item \textbf{Solution} : prédire le nombre d'invocations futures
+              à partir de l'historique
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{tcolorbox}[title=Dataset FAYAM, colback=blue!5, colframe=blue!50!black,
+                        arc=3mm, fonttitle=\bfseries]
+        \begin{itemize}
+          \item Azure Functions Trace 2019
+          \item 18 fonctions instrumentées
+          \item 33 clusters DBSCAN (profils de charge)
+          \item Horizon : \textit{predictionLength} minutes
+        \end{itemize}
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Le modèle FAYAM ciblé : TimeSeriesTransformer (HuggingFace)}
+  \begin{tcolorbox}[colback=fayam!8, colframe=fayam!70!black, arc=3mm,
+                    fonttitle=\bfseries, title=Architecture FAYAM Modèle 2]
+    \begin{itemize}
+      \item \texttt{TimeSeriesTransformerForPrediction} HuggingFace
+      \item Encodeur--Décodeur (4 couches chacun, $d_{\text{model}} = 32$)
+      \item Attention multi-têtes, \texttt{output\_attentions=True} disponible
+      \item Sortie : distribution Student-t (loc, scale, df) sur 120 pas futurs
+    \end{itemize}
+  \end{tcolorbox}
+
+  \vspace{4pt}
+
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm,
+                    fonttitle=\bfseries, title={Notre baseline reproduite (Phase 1, mai 2026)}]
+    \begin{tabular}{lccccc}
+      \toprule
+      \textbf{Modèle} & \textbf{MASE} & \textbf{sMAPE} & \textbf{RMSE} & \textbf{R²} & \textbf{Spearman} \\
+      \midrule
+      Baseline FAYAM (mixte 19 séries) & 1.38 & 1.45 & 4.07 & -1.26 & 0.83 \\
+      \textbf{Baseline FAYAM dédié C4} & \textbf{0.85} & \textbf{0.22} & — & \textbf{0.37} & \textbf{0.92} \\
+      \bottomrule
+    \end{tabular}
+
+    \vspace{4pt}
+    {\footnotesize C4 = cluster 4 — 5 fonctions FaaS, signal 24h structuré $\Rightarrow$ \textbf{cible H1 actée}.}
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Le verrou : prédiction sans justification}
+  \begin{center}
+  \begin{tikzpicture}[
+      node distance=1.2cm,
+      box/.style={draw, rounded corners, text width=3.8cm, align=center, minimum height=0.9cm},
+      redbox/.style={draw=verrou, fill=verrou!10, rounded corners,
+                     text width=5.5cm, align=center, minimum height=1.1cm}]
+    \node[box, fill=fayam!15] (model) {\textbf{Transformer FAYAM}\\(C4 : R²=0.37)};
+    \node[box, fill=green!15, right=of model] (pred) {\textbf{Prédiction}\\Spearman=0.92};
+    \node[redbox, below=of pred] (verrou) {\alert{\textbf{Aucune explication associée}}\\
+      Pourquoi cette prédiction ?\\Quelles features ont compté ?};
+    \draw[-{Stealth}] (model) -- (pred);
+    \draw[-{Stealth}, dashed, verrou] (pred) -- (verrou);
+  \end{tikzpicture}
+  \end{center}
+
+  \begin{tcolorbox}[colback=red!3, colframe=red!60!black, arc=2mm,
+                    fonttitle=\bfseries, title=Conséquence directe]
+    Un opérateur FaaS ne peut ni \textbf{valider}, ni \textbf{auditer}, ni \textbf{faire confiance}
+    à un modèle qui ne justifie pas ses prédictions.
+    \vspace{4pt}\centering
+    \textbf{Déploiement en secteur critique : impossible}
+  \end{tcolorbox}
+\end{frame}
+
+%% ============================================================
+%% SECTION 3 — CADRE DU PANORAMA
+%% ============================================================
+\section{Cadre du panorama}
+
+\begin{frame}{Comment nous allons présenter chaque méthode}
+  \begin{tcolorbox}[colback=newcontrib!5, colframe=newcontrib!70!black, arc=3mm,
+                    fonttitle=\bfseries, title=Canevas en 4 points (uniforme pour toutes les méthodes)]
+    Pour chaque méthode XAI rencontrée, nous appliquerons cette grille :
+    \begin{enumerate}
+      \item \textbf{Contexte} de la méthode --- d'où elle vient, dans quel domaine elle est née
+      \item \textbf{Problèmes que la méthode résout} --- la lacune comblée à sa création
+      \item \textbf{Transposabilité} --- est-elle applicable à d'autres domaines, notamment à la prévision FaaS ?
+      \item \textbf{Limites} --- ce qui justifiera la méthode suivante
+    \end{enumerate}
+    \vspace{2pt}
+    Et entre deux méthodes : la \textbf{plus-value} apportée par la suivante.
+  \end{tcolorbox}
+
+  \vspace{6pt}
+
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm,
+                    fonttitle=\bfseries, title=Pourquoi ce cadre ?]
+    Construire un \textbf{récit en chaîne} où chaque méthode comble un manque de la précédente.\\
+    Le récit aboutit naturellement au choix de \textbf{SoftCAM-Transformer (H1)}.
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Taxonomie XAI — 4 axes structurants}
+  \begin{columns}
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[colback=blue!3, colframe=blue!40!black, arc=2mm, boxrule=0.5pt,
+                        fonttitle=\bfseries, title={Axe 1 — Quand ?}]
+        \begin{itemize}
+          \item \textbf{Post-hoc} (LIME, SHAP, GradCAM\ldots)
+          \item \textbf{Pendant l'entraînement / intrinsèque} (SoftCAM, SHAPformer)
+        \end{itemize}
+      \end{tcolorbox}
+      \begin{tcolorbox}[colback=green!3, colframe=green!40!black, arc=2mm, boxrule=0.5pt,
+                        fonttitle=\bfseries, title={Axe 2 — Qui ?}]
+        \begin{itemize}
+          \item \textbf{Agnostique} (LIME, SHAP)
+          \item \textbf{Spécifique} (CAM, SoftCAM)
+        \end{itemize}
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[colback=orange!3, colframe=orange!50!black, arc=2mm, boxrule=0.5pt,
+                        fonttitle=\bfseries, title={Axe 3 — Portée}]
+        \begin{itemize}
+          \item Locale, semi-locale, globale
+        \end{itemize}
+      \end{tcolorbox}
+      \begin{tcolorbox}[colback=purple!3, colframe=purple!50!black, arc=2mm, boxrule=0.5pt,
+                        fonttitle=\bfseries, title={Axe 4 — Tâche}]
+        \begin{itemize}
+          \item Classification, régression, \textbf{prévision $\leftarrow$ FaaS}
+        \end{itemize}
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+%% SECTION 4 — FAMILLE SHAP (canevas court)
+%% ============================================================
+\section{Famille SHAP : panorama}
+
+%% --- LIME ---
+\begin{frame}{LIME — Ribeiro, Singh \& Guestrin (KDD 2016)}
+  \begin{columns}
+    \begin{column}{0.49\textwidth}
+      \begin{ctxbox}
+        \begin{itemize}
+          \item Conférence : KDD 2016
+          \item Domaine d'origine : \textbf{classification}
+                (texte, images, tabulaire)
+          \item Premier cadre XAI post-hoc \emph{model-agnostique} rigoureux
+        \end{itemize}
+      \end{ctxbox}
+      \begin{probbox}
+        Comment expliquer la prédiction d'un modèle quelconque
+        de façon \textbf{localement fidèle} et \textbf{interprétable} ?\\[2pt]
+        $\Rightarrow$ apprendre un modèle linéaire sparse autour du point $x$.
+      \end{probbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{transposbox}
+        \begin{itemize}
+          \item Texte / image / tabulaire \checkmark
+          \item Séries temporelles : \texttimes\ (features traitées comme indépendantes)
+          \item Prévision : \texttimes
+        \end{itemize}
+      \end{transposbox}
+      \begin{limitbox}
+        \begin{itemize}
+          \item \textbf{Instabilité} : 2 runs = 2 explications différentes
+          \item Pas de garantie théorique de cohérence ni missingness
+          \item Inadapté au domaine séquentiel
+        \end{itemize}
+      \end{limitbox}
+    \end{column}
+  \end{columns}
+  \source{Ribeiro et al., KDD 2016 --- arXiv:1602.04938}
+\end{frame}
+
+\begin{frame}{LIME $\to$ KernelSHAP}
+  \begin{plusbox}
+    \textbf{KernelSHAP (Lundberg \& Lee, 2017)} apporte ce qui manque à LIME :
+    \begin{itemize}
+      \item \textbf{Fondement axiomatique} (théorie des jeux, Shapley 1953)
+      \item Garantit \textbf{simultanément} précision locale, missingness, cohérence
+      \item Solution \textbf{unique} (alors que LIME a une infinité de solutions selon le kernel)
+    \end{itemize}
+    \vspace{2pt}
+    \centering
+    \emph{LIME = bonne idée sans fondement; KernelSHAP = même idée sur fondement théorique.}
+  \end{plusbox}
+\end{frame}
+
+%% --- KERNELSHAP ---
+\begin{frame}{KernelSHAP — Lundberg \& Lee (NeurIPS 2017)}
+  \begin{columns}
+    \begin{column}{0.49\textwidth}
+      \begin{ctxbox}
+        \begin{itemize}
+          \item Conférence : NeurIPS 2017
+          \item Issu de la \textbf{théorie des jeux coopératifs} (Shapley 1953)
+          \item Unifie LIME, DeepLIFT, SHAP linéaire sous un même cadre
+        \end{itemize}
+      \end{ctxbox}
+      \begin{probbox}
+        Calculer la contribution \textbf{juste et unique} de chaque feature :
+        \[
+          \phi_i = \!\!\sum_{S \subseteq F\setminus\{i\}}\!
+          \tfrac{|S|!(|F|-|S|-1)!}{|F|!}\, [f(S\cup\{i\}) - f(S)]
+        \]
+      \end{probbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{transposbox}
+        \begin{itemize}
+          \item Tabulaire / classification \checkmark
+          \item Séquentiel / RNN : \texttimes\ (ignore l'historique)
+          \item Prévision : \texttimes
+        \end{itemize}
+      \end{transposbox}
+      \begin{limitbox}
+        \begin{itemize}
+          \item Coût exact : $2^{|F|}$ coalitions
+          \item KernelSHAP \textbf{approxime} par échantillonnage Monte Carlo
+          \item N'attribue à \textbf{aucun} pas temporel passé
+        \end{itemize}
+      \end{limitbox}
+    \end{column}
+  \end{columns}
+  \source{Lundberg \& Lee, NeurIPS 2017}
+\end{frame}
+
+\begin{frame}{KernelSHAP $\to$ TimeSHAP}
+  \begin{plusbox}
+    \textbf{TimeSHAP (Bento et al., KDD 2021)} étend KernelSHAP au domaine séquentiel :
+    \begin{itemize}
+      \item Perturbations \textbf{bidimensionnelles} : features × événements (pas temporels)
+      \item Élagage temporel : $O(2^l) \to O(l \cdot 2^{l-i})$
+      \item 3 niveaux d'explication : événements / features / cellules
+    \end{itemize}
+    \vspace{2pt}
+    \centering
+    \emph{KernelSHAP voit le présent ; TimeSHAP voit la séquence.}
+  \end{plusbox}
+\end{frame}
+
+%% --- TIMESHAP ---
+\begin{frame}{TimeSHAP — Bento et al. (KDD 2021)}
+  \begin{columns}
+    \begin{column}{0.49\textwidth}
+      \begin{ctxbox}
+        \begin{itemize}
+          \item Conférence : KDD 2021 (Feedzai)
+          \item Domaine d'origine : détection de fraude bancaire (RNN/GRU)
+          \item Première extension SHAP au domaine séquentiel
+        \end{itemize}
+      \end{ctxbox}
+      \begin{probbox}
+        SHAP ignore l'historique des modèles récurrents.\\
+        TimeSHAP :
+        \begin{itemize}
+          \item Matrice $X \in \mathbb{R}^{d\times l}$ ($d$ features, $l$ événements)
+          \item Perturbations features \emph{et} événements
+          \item Élagage temporel pour réduire le coût
+        \end{itemize}
+      \end{probbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{transposbox}
+        \begin{itemize}
+          \item Classification séquentielle \checkmark
+          \item Prévision : \texttimes\ (conçu pour scores de proba)
+          \item Transformer FAYAM : applicable en boîte noire mais explique mal
+        \end{itemize}
+      \end{transposbox}
+      \begin{limitbox}
+        \begin{itemize}
+          \item \textbf{Conçu pour la classification}
+          \item Adapté difficilement à la régression / prévision
+          \item Reste post-hoc et coûteux
+        \end{itemize}
+      \end{limitbox}
+    \end{column}
+  \end{columns}
+  \source{Bento et al., KDD 2021 --- arXiv:2012.00073}
+\end{frame}
+
+\begin{frame}{TimeSHAP $\to$ WindowSHAP}
+  \begin{plusbox}
+    \textbf{WindowSHAP (Nayebi et al., 2023)} attaque le coût de TimeSHAP :
+    \begin{itemize}
+      \item Calcul SHAP par \textbf{fenêtres temporelles} (pas par pas individuel)
+      \item Variante \emph{Dynamic} : pas d'hypothèse a priori sur les instants importants
+      \item Gain CPU : $-80\%$ vs KernelSHAP sur $L=120$
+    \end{itemize}
+    \vspace{2pt}\centering
+    \emph{TimeSHAP attribue par pas ; WindowSHAP par fenêtre — moins fin, plus rapide.}
+  \end{plusbox}
+\end{frame}
+
+%% --- WINDOWSHAP ---
+\begin{frame}{WindowSHAP — Nayebi et al. (J. Biomed. Inf. 2023)}
+  \begin{columns}
+    \begin{column}{0.49\textwidth}
+      \begin{ctxbox}
+        \begin{itemize}
+          \item Journal : Journal of Biomedical Informatics, 2023
+          \item Domaine d'origine : médical (TBI, MIMIC-III)
+          \item 3 datasets cliniques validés
+        \end{itemize}
+      \end{ctxbox}
+      \begin{probbox}
+        Réduire le coût de KernelSHAP en agrégeant les pas temporels.
+        3 variantes : \emph{Stationary}, \emph{Sliding}, \emph{Dynamic}.
+      \end{probbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{transposbox}
+        \begin{itemize}
+          \item Classification clinique \checkmark
+          \item Prévision : \texttimes
+          \item Transformer FaaS : partiellement (en boîte noire)
+        \end{itemize}
+      \end{transposbox}
+      \begin{limitbox}
+        \begin{itemize}
+          \item Validé uniquement en \textbf{classification}
+          \item Pas de librairie Python officielle
+          \item Granularité grossière (fenêtres)
+        \end{itemize}
+      \end{limitbox}
+    \end{column}
+  \end{columns}
+  \source{Nayebi et al., 2023 --- DOI:10.1016/j.jbi.2023.104438}
+\end{frame}
+
+\begin{frame}{WindowSHAP $\to$ TsSHAP}
+  \begin{plusbox}
+    \textbf{TsSHAP (Raykar et al., IBM 2023)} comble le vide \textbf{prévision} :
+    \begin{itemize}
+      \item \textbf{Seule méthode SHAP nativement conçue pour la prévision}
+      \item Pipeline : backtesting $\to$ features interprétables $\to$ surrogate XGBoost $\to$ TreeSHAP
+      \item 3 portées : locale, semi-locale, globale
+    \end{itemize}
+    \vspace{2pt}\centering
+    \emph{Avant TsSHAP : pas de SHAP pour la prévision. Avec TsSHAP : enfin un SHAP forecasting.}
+  \end{plusbox}
+\end{frame}
+
+%% --- TSSHAP ---
+\begin{frame}{TsSHAP — Raykar et al. (IBM Research 2023)}
+  \begin{columns}
+    \begin{column}{0.49\textwidth}
+      \begin{ctxbox}
+        \begin{itemize}
+          \item Auteurs : IBM Research, 2023
+          \item Domaine : prévision univariée (ventes, énergie, M5)
+          \item \textbf{Première méthode SHAP de prévision}
+        \end{itemize}
+      \end{ctxbox}
+      \begin{probbox}
+        \begin{itemize}
+          \item Backtesting $\to$ prévisions historiques $\hat{y}(T+h|T)$
+          \item Features : lags, saisonnalités, calendrier
+          \item Surrogate XGBoost imite le forecaster
+          \item TreeSHAP exact sur le surrogate
+        \end{itemize}
+      \end{probbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{transposbox}
+        \begin{itemize}
+          \item Prévision univariée \checkmark
+          \item Multivariée : \emph{partiel} (1 modèle par série)
+          \item Transformer FAYAM : applicable en boîte noire
+          \item \textbf{Notre H2 prioritaire}
+        \end{itemize}
+      \end{transposbox}
+      \begin{limitbox}
+        \begin{itemize}
+          \item \textbf{Univarié} (FAYAM = 18 fonctions)
+          \item \textbf{Surrogate} XGBoost $\neq$ Transformer réel — fidélité approximative
+          \item Features à définir manuellement
+        \end{itemize}
+      \end{limitbox}
+    \end{column}
+  \end{columns}
+  \source{Raykar et al., IBM 2023 --- arXiv:2303.12316}
+\end{frame}
+
+\begin{frame}{TsSHAP $\to$ SHAPformer}
+  \begin{plusbox}
+    \textbf{SHAPformer (Hertel et al., KIT déc. 2025)} apporte 3 ruptures :
+    \begin{itemize}
+      \item \textbf{Plus de surrogate} : SHAP exact directement sur le Transformer cible
+      \item \textbf{Plus d'échantillonnage} : calcul exact via manipulation d'attention
+      \item \textbf{800$\times$ plus rapide} que les approches classiques
+    \end{itemize}
+    \vspace{2pt}\centering
+    \emph{TsSHAP imite le modèle ; SHAPformer explique le modèle réel.}\\
+    Et c'est notre prochain zoom approfondi.
+  \end{plusbox}
+\end{frame}
+
+%% ============================================================
+%% SECTION 5 — ★ ZOOM SHAPformer
+%% ============================================================
+\section{\zoomtag\ SHAPformer (Hertel et al., 2025)}
+
+\begin{frame}{SHAPformer — Annonce du zoom}
+  \begin{tcolorbox}[colback=newcontrib!5, colframe=newcontrib!70!black, arc=3mm,
+                    fonttitle=\bfseries, title=Pourquoi un zoom approfondi sur SHAPformer ?]
+    \begin{itemize}
+      \item \textbf{Climax du post-hoc} : la méthode la plus avancée de la famille SHAP appliquée au Transformer de prévision
+      \item Architecture \textbf{conceptuellement proche} de notre H1 (modification d'entraînement)
+      \item Code \textbf{public} (\href{https://github.com/KIT-IAI/SHAPformer}{KIT-IAI/SHAPformer}) — directement utilisable comme repli H2
+      \item Position \textbf{intermédiaire} entre post-hoc et intrinsèque (\emph{semi-self-explainable})
+    \end{itemize}
+    \vspace{4pt}\centering
+    Comprendre SHAPformer en profondeur, c'est comprendre le saut conceptuel vers SoftCAM.
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{SHAPformer — Canevas 4 points}
+  \begin{columns}
+    \begin{column}{0.49\textwidth}
+      \begin{ctxbox}
+        \begin{itemize}
+          \item Auteurs : Hertel, Pütz, Mikut, Hagenmeyer, Schäfer (KIT, Allemagne)
+          \item Preprint arXiv:2512.20514, déc. 2025 (under review)
+          \item Domaine : \textbf{prévision énergétique} (charge réseau électrique)
+          \item Datasets : synthétique + TransnetBW (TSO allemand 2015-2019)
+        \end{itemize}
+      \end{ctxbox}
+      \begin{probbox}
+        \begin{itemize}
+          \item Permutation Explainer trop coûteux : \textbf{484 s/explication}
+          \item Échantillonnage Monte Carlo produit des contrefactuels \textbf{irréalistes} (off-distribution)
+          \item Solution : SHAP \textbf{exact}, sans échantillonnage, en $<1$\,s
+        \end{itemize}
+      \end{probbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{transposbox}
+        \begin{itemize}
+          \item Transformer \checkmark
+          \item Prévision \checkmark
+          \item Multivarié \checkmark
+          \item \textbf{Directement applicable} au TimeSeriesTransformer FAYAM (avec réentraînement)
+        \end{itemize}
+      \end{transposbox}
+      \begin{limitbox}
+        \begin{itemize}
+          \item Réentraînement requis (\textbf{2--10$\times$} plus long)
+          \item Coût d'inférence : $2^N$ forward passes (rapide, mais pas 1)
+          \item Reste \textbf{post-hoc conceptuellement} (explication = phase séparée)
+        \end{itemize}
+      \end{limitbox}
+    \end{column}
+  \end{columns}
+  \source{Hertel et al., arXiv:2512.20514, déc. 2025}
+\end{frame}
+
+\begin{frame}{SHAPformer — Architecture (1) : phase d'entraînement}
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=3mm,
+                    fonttitle=\bfseries, title=Idée centrale : entraînement avec entrées masquées]
+    Au lieu d'entraîner sur les entrées \emph{complètes}, SHAPformer masque
+    aléatoirement des \textbf{groupes de features} via les poids d'attention.
+  \end{tcolorbox}
+
+  \begin{center}
+  \begin{tikzpicture}[scale=0.85, transform shape,
+      box/.style={draw, rounded corners, fill=fayam!12, minimum height=0.7cm, minimum width=2.0cm, align=center}]
+    \node[box] (in)  {Entrée\\groupes 1..N};
+    \node[box, right=0.6cm of in, fill=red!15] (mask) {Masquage\\d'attention\\\scriptsize(sous-ensemble S)};
+    \node[box, right=0.6cm of mask] (tr) {Transformer\\(forward)};
+    \node[box, right=0.6cm of tr] (loss) {Loss\\sur sortie partielle};
+    \draw[-{Stealth}] (in) -- (mask);
+    \draw[-{Stealth}] (mask) -- (tr);
+    \draw[-{Stealth}] (tr) -- (loss);
+  \end{tikzpicture}
+  \end{center}
+
+  \begin{tcolorbox}[colback=green!3, colframe=green!50!black, arc=2mm, fonttitle=\bfseries,
+                    title=Effet de cet entraînement]
+    Le modèle apprend à prédire \textbf{à partir de n'importe quel sous-ensemble} de groupes.\\
+    Il devient \emph{robuste aux features absents} — pré-requis pour calculer SHAP exact à l'inférence.
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{SHAPformer — Architecture (2) : inférence Shapley exact}
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=3mm,
+                    fonttitle=\bfseries, title=Calcul SHAP sans échantillonnage]
+    À l'inférence, on évalue le modèle sur \textbf{tous} les $2^N$ sous-ensembles de groupes.\\
+    Chaque évaluation = 1 forward pass rapide.
+  \end{tcolorbox}
+
+  \[
+    \phi_i = \!\!\sum_{S \subseteq V\setminus\{i\}}\!
+      \tfrac{(N-1-|S|)!\,|S|!}{N!}\,\bigl[f(S\cup\{i\}) - f(S)\bigr]
+    \quad\text{(SHAP \textbf{exact})}
+  \]
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{tcolorbox}[colback=orange!3, colframe=orange!60!black, arc=2mm,
+                        fonttitle=\bfseries, title=Exemple TransnetBW]
+        \begin{itemize}
+          \item $N=13$ groupes (7 jours passés + 6 covariables futures)
+          \item $2^{13} = 8\,192$ évaluations
+          \item Temps total : \textbf{0.6\,s}
+          \item \textbf{800$\times$ plus rapide} que Permutation Explainer (484\,s)
+        \end{itemize}
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{tcolorbox}[colback=red!3, colframe=red!60!black, arc=2mm,
+                        fonttitle=\bfseries, title=Limite mathématique]
+        Coût exponentiel en $N$.\\[2pt]
+        Pour FAYAM (18 fonctions × lags), $N$ peut grossir vite.\\[2pt]
+        \emph{Solution proposée par les auteurs : sous-ensemble de coalitions (linéaire en $N$, mais perd l'exactitude).}
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{SHAPformer — Résultats clés (TransnetBW)}
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm,
+                    fonttitle=\bfseries, title=Performance prédictive et coût d'explication]
+    \centering
+    \begin{tabular}{lcc}
+      \toprule
+      \textbf{Méthode} & \textbf{RMSE [MW]} & \textbf{Inférence / explication} \\
+      \midrule
+      Transformer baseline & 263.1 & 0.01\,s (prédiction seule) \\
+      \quad + Permutation Explainer & — & 484\,s \\
+      \quad + Custom Masker (Monte Carlo) & — & 3.54\,s \\
+      \textbf{SHAPformer} & \textbf{265.9} & \textbf{0.60\,s} \\
+      \bottomrule
+    \end{tabular}
+    \vspace{4pt}
+    {\footnotesize \textbf{Précision préservée} ($\sim 1\%$ écart) malgré l'entraînement modifié.}
+  \end{tcolorbox}
+
+  \vspace{6pt}
+
+  \begin{tcolorbox}[colback=green!3, colframe=green!50!black, arc=2mm,
+                    fonttitle=\bfseries, title=Insights métier (TransnetBW)]
+    Importance globale identifiée par SHAPformer (donnée réelle) :
+    charge passée 47\% — day-of-week 22\% — hour-of-day 20\% — temperature/holiday/precipitation < 11\%.\\
+    \emph{Permutation Explainer sous-estime la charge passée à 10\% (échantillonnage off-distribution casse la corrélation).}
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{SHAPformer — Position : \emph{semi-self-explainable}}
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=3mm,
+                    fonttitle=\bfseries, title=Trois familles d'explicabilité — où se situe SHAPformer ?]
+    \centering
+    \scriptsize
+    \begin{tabular}{lccc}
+      \toprule
+      & \textbf{Modèle modifié ?} & \textbf{Explication = forward pass ?} & \textbf{Type explication} \\
+      \midrule
+      Post-hoc classique (LIME, KernelSHAP, GradCAM) & non & non (calcul à part) & approximation \\
+      \textbf{SHAPformer} & oui (entraînement) & non ($2^N$ passes) & \textbf{SHAP exact} \\
+      \textbf{SoftCAM} (intrinsèque pur) & oui (architecture) & oui (1 pass) & carte d'évidence \\
+      \bottomrule
+    \end{tabular}
+  \end{tcolorbox}
+
+  \vspace{4pt}
+
+  \begin{tcolorbox}[colback=newcontrib!5, colframe=newcontrib!70!black, arc=2mm,
+                    fonttitle=\bfseries, title=Verdict]
+    SHAPformer occupe une \textbf{position intermédiaire} :
+    \begin{itemize}
+      \item L'entraînement masqué le rend partiellement intrinsèque (le modèle est conçu pour être expliqué)
+      \item Mais l'explication elle-même reste une phase \textbf{séparée} de la prédiction
+    \end{itemize}
+    \centering
+    $\Rightarrow$ \emph{Semi-self-explainable}. Pas encore le saut paradigmatique.
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Peut-on rendre SHAPformer pleinement self-explainable ?}
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm,
+                    fonttitle=\bfseries, title=Question explorée]
+    Adapter SHAPformer pour que l'explication soit produite \emph{en même temps} que la prédiction (1 forward pass total) ?
+  \end{tcolorbox}
+
+  \begin{columns}
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[colback=orange!3, colframe=orange!60!black, arc=2mm,
+                        fonttitle=\bfseries, title=Pistes techniques]
+        \begin{enumerate}
+          \item Tête auxiliaire qui régresse les SHAP values\\
+                {\footnotesize (cf. \textbf{FastSHAP} -- Jethani et al., NeurIPS 2021)}
+          \item Distillation : modèle élève qui imite SHAPformer
+          \item Décomposition algébrique du Shapley (impossible pour Transformer non-linéaire)
+          \item Hybridation SHAPformer + SoftCAM
+        \end{enumerate}
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[colback=red!3, colframe=red!60!black, arc=2mm,
+                        fonttitle=\bfseries, title={Conclusion : non, sans dénaturer}]
+        \begin{itemize}
+          \item Pistes 1--2 : on perd \textbf{l'exactitude SHAP} (devient une approximation apprise)
+          \item Piste 3 : impossible mathématiquement
+          \item Piste 4 : on \textbf{redescend vers SoftCAM}
+        \end{itemize}
+        \vspace{2pt}\centering
+        \emph{Forcer SHAPformer à 1-pass = perdre ce qui le rend SHAPformer.\\La voie naturelle vers le 1-pass passe par l'intrinsèque.}
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+%% SECTION 6 — TRANSITION SHAP $\to$ CAM
+%% ============================================================
+\section{Transition : SHAP $\to$ CAM}
+
+\begin{frame}{Le verrou que la famille SHAP ne franchit pas}
+  \begin{tcolorbox}[colback=red!3, colframe=red!60!black, arc=3mm,
+                    fonttitle=\bfseries, title=Le constat après le panorama SHAP]
+    Toutes les méthodes SHAP — y compris SHAPformer — calculent l'explication
+    \textbf{après} (ou en parallèle de) la prédiction.
+    \begin{itemize}
+      \item \textbf{Aucune} ne fait coïncider \emph{calcul de prédiction} et \emph{calcul d'explication}
+      \item L'explication est toujours \emph{ajoutée} au modèle, pas \emph{constitutive} de lui
+    \end{itemize}
+  \end{tcolorbox}
+
+  \vspace{4pt}
+
+  \begin{tcolorbox}[colback=newcontrib!5, colframe=newcontrib!70!black, arc=3mm,
+                    fonttitle=\bfseries, title=La rupture : famille CAM]
+    Une autre tradition de XAI vient de la vision par ordinateur :
+    \begin{itemize}
+      \item \textbf{CAM} (2016) : la carte d'activation par classe \emph{est} le score
+      \item \textbf{GradCAM} (2017) : généralisation gradient, encore post-hoc
+      \item \textbf{SoftCAM} (2025) : \emph{intrinsèque pur} — l'explication est la prédiction
+    \end{itemize}
+    \centering
+    \emph{Et c'est cette voie que nous suivrons pour H1.}
+  \end{tcolorbox}
+\end{frame}
+
+%% ============================================================
+%% SECTION 7 — FAMILLE CAM
+%% ============================================================
+\section{Famille CAM : du post-hoc à l'intrinsèque}
+
+%% --- CAM ---
+\begin{frame}{CAM — Zhou et al. (CVPR 2016)}
+  \begin{columns}
+    \begin{column}{0.49\textwidth}
+      \begin{ctxbox}
+        \begin{itemize}
+          \item Conférence : CVPR 2016
+          \item Domaine : \textbf{vision par ordinateur} (CNN classifieurs)
+          \item Première méthode à \emph{localiser} sans backprop ni perturbation
+        \end{itemize}
+      \end{ctxbox}
+      \begin{probbox}
+        Carte de chaleur des régions discriminantes :
+        \[
+          M_c(x,y) = \sum_k w_k^c \, f_k(x,y)
+        \]
+        $f_k$ = $k^e$ feature map ; $w_k^c$ = poids FC pour classe $c$.
+      \end{probbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{transposbox}
+        \begin{itemize}
+          \item CNN classifieur 2D \checkmark
+          \item Séries temporelles : \texttimes
+          \item Transformer : \texttimes\ (pas de feature maps)
+        \end{itemize}
+      \end{transposbox}
+      \begin{limitbox}
+        \begin{itemize}
+          \item Requiert un GAP avant la couche FC
+          \item Architecture imposée
+          \item Classification uniquement
+        \end{itemize}
+      \end{limitbox}
+    \end{column}
+  \end{columns}
+  \source{Zhou et al., CVPR 2016}
+\end{frame}
+
+\begin{frame}{CAM $\to$ GradCAM}
+  \begin{plusbox}
+    \textbf{GradCAM (Selvaraju et al., ICCV 2017)} libère CAM de la contrainte GAP :
+    \begin{itemize}
+      \item Utilise les \textbf{gradients} du score de classe pour pondérer les feature maps
+      \item Applicable à \textbf{toute} architecture CNN, sans contrainte
+      \item Compatible avec n'importe quelle couche convolutive
+    \end{itemize}
+    \vspace{2pt}\centering
+    \emph{CAM = lisible mais contrainte ; GradCAM = lisible et libre, mais redevient post-hoc.}
+  \end{plusbox}
+\end{frame}
+
+%% --- GRADCAM ---
+\begin{frame}{GradCAM — Selvaraju et al. (ICCV 2017)}
+  \begin{columns}
+    \begin{column}{0.49\textwidth}
+      \begin{ctxbox}
+        \begin{itemize}
+          \item Conférence : ICCV 2017
+          \item Domaine : vision (CNN, n'importe quelle architecture)
+          \item Standard de facto pour visualiser CNN
+        \end{itemize}
+      \end{ctxbox}
+      \begin{probbox}
+        \[
+          \alpha_k^c = \tfrac{1}{Z}\sum_{i,j} \tfrac{\partial y^c}{\partial A^k_{ij}}
+        \]
+        \[
+          L^c_{\text{GradCAM}} = \text{ReLU}\!\bigl(\textstyle\sum_k \alpha_k^c A^k\bigr)
+        \]
+        Pondération par gradient au lieu de poids FC.
+      \end{probbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{transposbox}
+        \begin{itemize}
+          \item Toute CNN classifieur \checkmark
+          \item Régression : partiel
+          \item Transformer : \texttimes
+        \end{itemize}
+      \end{transposbox}
+      \begin{limitbox}
+        \begin{itemize}
+          \item \textbf{Post-hoc} : 1 back-pass par classe
+          \item Résolution limitée à la feature map cible
+          \item Sensible aux gradients saturés
+        \end{itemize}
+      \end{limitbox}
+    \end{column}
+  \end{columns}
+  \source{Selvaraju et al., ICCV 2017}
+\end{frame}
+
+\begin{frame}{GradCAM $\to$ SoftCAM}
+  \begin{plusbox}
+    \textbf{SoftCAM (Djoumessi \& Berens, mai 2025)} change de paradigme :
+    \begin{itemize}
+      \item L'explication n'est plus \emph{calculée} après — elle \emph{est constitutive} du modèle
+      \item Modification architecturale légère : conv 1$\times$1 \emph{class-evidence layer} + ElasticNet
+      \item \textbf{1 forward pass} produit la prédiction \emph{et} la carte d'évidence
+      \item Aucun paramètre supplémentaire, aucun coût d'inférence ajouté
+    \end{itemize}
+    \vspace{2pt}\centering
+    \emph{GradCAM explique le modèle ; SoftCAM est le modèle qui s'explique.}\\
+    Et c'est notre prochain zoom approfondi.
+  \end{plusbox}
+\end{frame}
+
+%% ============================================================
+%% SECTION 8 — ★ ZOOM SOFTCAM
+%% ============================================================
+\section{\zoomtag\ SoftCAM (Djoumessi \& Berens, 2025)}
+
+\begin{frame}{SoftCAM — Annonce du zoom}
+  \begin{tcolorbox}[colback=newcontrib!5, colframe=newcontrib!70!black, arc=3mm,
+                    fonttitle=\bfseries, title=Pourquoi un zoom approfondi sur SoftCAM ?]
+    \begin{itemize}
+      \item \textbf{Climax intrinsèque} : la méthode XAI la plus pure conceptuellement (l'explication \emph{est} la prédiction)
+      \item Architecture \textbf{minimaliste} (1 couche conv 1$\times$1 + régularisation) — \emph{transposable}
+      \item Validation expérimentale solide : 3 datasets médicaux, 2 backbones (VGG-16, ResNet-50)
+      \item \textbf{Porte d'entrée explicite vers ViT/Transformer} (perspective des auteurs, p.10)
+      \item \textbf{Inspiration directe de notre H1} (SoftCAM-Transformer)
+    \end{itemize}
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{SoftCAM — Canevas 4 points}
+  \begin{columns}
+    \begin{column}{0.49\textwidth}
+      \begin{ctxbox}
+        \begin{itemize}
+          \item Auteurs : Djoumessi \& Berens (Tübingen)
+          \item Preprint arXiv:2505.17748, mai 2025
+          \item Domaine : \textbf{imagerie médicale} (rétine, CXR)
+          \item 3 datasets : Kaggle DR Fundus, Retinal OCT, RSNA CXR
+        \end{itemize}
+      \end{ctxbox}
+      \begin{probbox}
+        Les méthodes post-hoc (GradCAM, SHAP, IG) approximent \emph{après coup} et sont
+        \textbf{infidèles} au vrai raisonnement.\\[2pt]
+        SoftCAM intègre l'explication \emph{dans} le modèle.
+      \end{probbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{transposbox}
+        \begin{itemize}
+          \item CNN classification 2D \checkmark
+          \item ViT : \emph{piste explicite des auteurs}
+          \item Transformer prévision : \emph{notre H1}
+          \item Multivarié temporel : \emph{à inventer}
+        \end{itemize}
+      \end{transposbox}
+      \begin{limitbox}
+        \begin{itemize}
+          \item Validé uniquement sur \textbf{CNN imagerie}
+          \item Trade-off $\lambda_1, \lambda_2$ task-specific
+          \item Résolution coarse (16$\times$16)
+        \end{itemize}
+      \end{limitbox}
+    \end{column}
+  \end{columns}
+  \source{Djoumessi \& Berens, arXiv:2505.17748, mai 2025}
+\end{frame}
+
+\begin{frame}{SoftCAM — Architecture (1) : modification minimale}
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=3mm,
+                    fonttitle=\bfseries, title=De CNN standard à SoftCAM]
+    {\small
+    \textbf{CNN standard :}\\
+    \quad Backbone $\to$ GAP $\to$ FCL $\to$ Softmax $\to$ classe
+
+    \vspace{4pt}
+    \textbf{SoftCAM (modification minimale) :}\\
+    \quad Backbone $\to$ $\underbrace{\textbf{Conv}_{1\times1}}_{\text{evidence layer}}$ $\to$ AvgPool $\to$ Softmax $\to$ classe
+    }
+  \end{tcolorbox}
+
+  \begin{center}
+  \begin{tikzpicture}[scale=0.85, transform shape,
+    box/.style={draw, rounded corners, minimum width=2cm, minimum height=0.7cm, align=center}]
+    \node[box, fill=fayam!12] (back) {Backbone\\CNN};
+    \node[box, fill=evidence!15, right=0.5cm of back] (ev) {\textbf{Conv}$_{1\times1}$\\evidence};
+    \node[box, fill=blue!10, right=0.5cm of ev] (pool) {AvgPool};
+    \node[box, fill=green!12, right=0.5cm of pool] (out) {Score classe\\+ carte};
+    \draw[-{Stealth}] (back) -- (ev);
+    \draw[-{Stealth}] (ev) -- (pool);
+    \draw[-{Stealth}] (pool) -- (out);
+    \draw[-{Stealth}, dashed, evidence] (ev) to[bend right=30] node[below, sloped] {\scriptsize carte = sortie 2} ($(out.south)+(0,-0.6)$);
+  \end{tikzpicture}
+  \end{center}
+
+  \begin{tcolorbox}[colback=green!3, colframe=green!50!black, arc=2mm,
+                    fonttitle=\bfseries, title=Propriété clé]
+    \begin{itemize}
+      \item \textbf{1 forward pass} produit toutes les cartes (toutes les classes)
+      \item Sortie : tenseur $A \in \mathbb{R}^{M\times N\times C}$ — \textbf{carte d'évidence par classe}
+      \item Aucun paramètre supplémentaire vs FCL standard
+    \end{itemize}
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{SoftCAM — Architecture (2) : régularisation ElasticNet}
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm,
+                    fonttitle=\bfseries, title=Loss augmentée (Eq. 5 de l'article)]
+    \[
+      \mathcal{L}(y, \hat y) = \underbrace{\text{CE}(y,\hat y)}_{\text{performance}}
+        + \underbrace{\lambda_1 \!\!\sum_{c,i,j}\! |A^{i,j}_c|}_{\ell_1\;\text{(Lasso)}}
+        + \underbrace{\lambda_2 \!\!\sum_{c,i,j}\! \|A^{i,j}_c\|_2^2}_{\ell_2\;\text{(Ridge)}}
+    \]
+  \end{tcolorbox}
+
+  \begin{columns}
+    \begin{column}{0.32\textwidth}
+      \begin{tcolorbox}[colback=orange!3, colframe=orange!60!black, arc=2mm,
+                        fonttitle=\bfseries, title=Sparse ($\lambda_1>0$),
+                        halign title=center]
+        \centering
+        Lasso $\to$ cartes \textbf{parcimonieuses}\\
+        Régions précises
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.34\textwidth}
+      \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm,
+                        fonttitle=\bfseries, title=Dense ($\lambda_2>0$),
+                        halign title=center]
+        \centering
+        Ridge $\to$ cartes \textbf{lissées}\\
+        Grandes régions
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{tcolorbox}[colback=green!3, colframe=green!60!black, arc=2mm,
+                        fonttitle=\bfseries, title=ElasticNet,
+                        halign title=center]
+        \centering
+        \textbf{Compromis} adaptatif\\
+        Réglable par $\lambda_1, \lambda_2$
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+  \source{Djoumessi \& Berens, 2025 --- $\lambda_1\!\in\![10^{-6},9{\cdot}10^{-4}]$, $\lambda_2\!\in\![7{\cdot}10^{-5},2{\cdot}10^{-4}]$}
+\end{frame}
+
+\begin{frame}{SoftCAM — Résultats expérimentaux}
+  \begin{columns}
+    \begin{column}{0.50\textwidth}
+      \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm,
+                        fonttitle=\bfseries, title=Performance préservée (Table 1)]
+        \begin{tabular}{lcc}
+          \toprule
+          \textbf{Modèle} & \textbf{Backbone} & \textbf{AUC} \\
+          \midrule
+          Standard         & VGG-16    & 0.938 \\
+          SoftCAM dense    & VGG-16    & \textbf{0.942} \\
+          SoftCAM sparse   & VGG-16    & 0.938 \\
+          Standard         & ResNet-50 & 0.999 \\
+          SoftCAM          & ResNet-50 & \textbf{1.000} \\
+          \bottomrule
+        \end{tabular}
+        \vspace{2pt}{\footnotesize \textit{Modification n'altère pas la précision — souvent l'améliore.}}
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{tcolorbox}[colback=green!3, colframe=green!50!black, arc=2mm,
+                        fonttitle=\bfseries, title=Explicabilité (Fig. 3)]
+        Sparse SoftCAM \textbf{surpasse toutes les méthodes post-hoc} en
+        top-k precision : \textbf{vs GradCAM, IG, Guided Backprop, ScoreCAM, LayerCAM}.
+      \end{tcolorbox}
+      \begin{tcolorbox}[colback=orange!3, colframe=orange!60!black, arc=2mm,
+                        fonttitle=\bfseries, title=Coût computationnel]
+        \textbf{1 forward pass}\\[1pt]
+        vs 1 back-pass (gradient) ou $N$ forward passes (perturbation) chez les concurrents
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{SoftCAM — Position : intrinsèque pur, perspective Transformer}
+  \begin{columns}
+    \begin{column}{0.50\textwidth}
+      \begin{tcolorbox}[colback=red!3, colframe=red!60!black, arc=2mm,
+                        fonttitle=\bfseries, title=Limites encore à résoudre]
+        \begin{itemize}
+          \item Évalué uniquement sur CNN 2D
+          \item Tâche de classification (pas de prévision)
+          \item Cartes 16$\times$16 grossières
+        \end{itemize}
+      \end{tcolorbox}
+      \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm,
+                        fonttitle=\bfseries, title=Citation des auteurs (p. 10)]
+        \emph{``In the future, we could explore the integration of SoftCAM with other standard architectures like ViT.''}\\[2pt]
+        $\Rightarrow$ \textbf{Notre H1}.
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{tcolorbox}[colback=newcontrib!5, colframe=newcontrib!70!black, arc=2mm,
+                        fonttitle=\bfseries, title=Pourquoi c'est le bon point de départ pour FAYAM]
+        \begin{itemize}
+          \item Modification architecturale \textbf{légère}
+          \item Esprit \textbf{intrinsèque pur} (1 pass = pred + expl)
+          \item Régularisation \textbf{transposable} au temporel
+          \item Code de référence public
+          \item Compatible \emph{philosophiquement} avec un Transformer si l'on adapte la \emph{couche cible}
+        \end{itemize}
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+%% SECTION 9 — SYNTHÈSE SHAPFORMER vs SOFTCAM
+%% ============================================================
+\section{Synthèse : SHAPformer vs SoftCAM}
+
+\begin{frame}{Tableau comparatif fin}
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm, boxrule=0.5pt]
+    \scriptsize
+    \begin{tabular}{lcc}
+      \toprule
+      \textbf{Critère} & \textbf{SHAPformer} & \textbf{SoftCAM} \\
+      \midrule
+      Famille                       & SHAP                     & CAM \\
+      Paradigme                     & Semi-intrinsèque         & \textbf{Intrinsèque pur} \\
+      Modèle modifié ?              & Entraînement (masking)   & Architecture (evidence layer) \\
+      Réentraînement requis ?       & Oui (2--10$\times$ + long) & Oui (modification minimale) \\
+      Coût d'inférence prédictive   & 1 forward pass           & 1 forward pass \\
+      Coût d'inférence explication  & $2^N$ forward passes     & \textbf{0 (compris dans le 1 pass)} \\
+      Type d'explication            & Valeurs SHAP \textbf{exactes} & Carte d'évidence \\
+      Fidélité                      & Maximale (SHAP exact)    & Maximale (par construction) \\
+      Tâche d'origine               & Prévision énergie        & Classification médicale \\
+      Architecture d'origine        & \textbf{Transformer}     & CNN \\
+      Validé pour FaaS multivarié ?  & Direct (avec ré-entraînement) & \emph{Demande adaptation} \\
+      \bottomrule
+    \end{tabular}
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{L'axe semi-intrinsèque $\leftrightarrow$ intrinsèque}
+  \begin{center}
+  \begin{tikzpicture}[scale=0.95, transform shape]
+    \draw[ultra thick, ->] (-0.5,0) -- (12,0);
+    \node[below] at (0,-0.2) {\footnotesize Post-hoc pur};
+    \node[below] at (12,-0.2) {\footnotesize Intrinsèque pur};
+
+    \node[draw, fill=red!20, rounded corners, align=center] at (1.5,0.9) {LIME, KernelSHAP\\TimeSHAP, WindowSHAP, TsSHAP};
+    \node[draw, fill=orange!20, rounded corners, align=center] at (5,0.9) {GradCAM};
+    \node[draw, fill=newcontrib!25, rounded corners, align=center] at (7.5,0.9) {\textbf{SHAPformer}\\\scriptsize semi-intrinsèque};
+    \node[draw, fill=softcam!25, rounded corners, align=center] at (10.7,0.9) {\textbf{SoftCAM}\\\scriptsize intrinsèque pur};
+
+    \draw[->] (1.5,0.4) -- (1.5,0.05);
+    \draw[->] (5,0.4) -- (5,0.05);
+    \draw[->] (7.5,0.4) -- (7.5,0.05);
+    \draw[->] (10.7,0.4) -- (10.7,0.05);
+  \end{tikzpicture}
+  \end{center}
+
+  \begin{tcolorbox}[colback=newcontrib!5, colframe=newcontrib!70!black, arc=2mm,
+                    fonttitle=\bfseries, title=Le saut conceptuel manquant]
+    \begin{itemize}
+      \item SHAPformer apporte un Transformer \emph{pré-conditionné} pour SHAP, mais l'explication reste séparée
+      \item SoftCAM montre qu'on peut faire \emph{coïncider} prédiction et explication — sur CNN
+    \end{itemize}
+    \centering
+    \textbf{Notre H1 : combiner les deux pour la prévision FaaS} \\
+    {\large $\Rightarrow$ \textbf{SoftCAM-Transformer}}
+  \end{tcolorbox}
+\end{frame}
+
+%% ============================================================
+%% SECTION 10 — ARCHITECTURE SOFTCAM-TRANSFORMER (★ CONTRIBUTION)
+%% ============================================================
+\section{\zoomtag\ SoftCAM-Transformer (notre contribution H1)}
+
+\begin{frame}{Motivation : la synthèse logique du parcours}
+  \begin{tcolorbox}[colback=newcontrib!5, colframe=newcontrib!70!black, arc=3mm,
+                    fonttitle=\bfseries, title=Ce que les méthodes précédentes ne couvrent pas]
+    Aucune méthode existante ne couvre simultanément :
+    \begin{itemize}
+      \item[\checkmark] Architecture \textbf{Transformer}
+      \item[\checkmark] Tâche de \textbf{prévision}
+      \item[\checkmark] Fidélité \textbf{intrinsèque} (1 pass)
+      \item[\checkmark] Séries \textbf{multivariées}
+      \item[\checkmark] Sans surcoût d'inférence
+    \end{itemize}
+  \end{tcolorbox}
+
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm,
+                    fonttitle=\bfseries, title=Notre proposition : SoftCAM-Transformer]
+    \centering
+    Adapter le principe SoftCAM (evidence layer + ElasticNet) au\\
+    \texttt{TimeSeriesTransformerForPrediction} HuggingFace de FAYAM,
+    cible \textbf{Cluster 4} (signal 24h structuré).
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Vue d'ensemble : le flux complet}
+  \begin{center}
+  \resizebox{0.95\textwidth}{!}{%
+  \begin{tikzpicture}[
+    box/.style={draw, rounded corners, minimum height=0.65cm, minimum width=2.5cm, align=center, font=\small},
+    bbox/.style={box, fill=blue!10},
+    gbox/.style={box, fill=gray!15},
+    ybox/.style={box, fill=yellow!20},
+    rbox/.style={box, fill=evidence!20, draw=evidence, very thick},
+    ebox/.style={box, fill=green!15},
+    obox/.style={box, fill=newcontrib!20, draw=newcontrib, thick},
+    arr/.style={-{Stealth[length=2.5mm]}, thick},
+    rarr/.style={arr, draw=evidence}
+  ]
+    \node[bbox] (in)    {Contexte (240,1)};
+    \node[gbox, below=0.4cm of in]    (enc)   {Encodeur};
+    \node[ybox, below=0.4cm of enc]   (eenc)  {emb encodeur (240, 32)};
+    \node[gbox, below=0.4cm of eenc]  (dec)   {Décodeur};
+    \node[ybox, below=0.4cm of dec]   (edec)  {emb décodeur (120, 32)};
+    \node[rbox, below=0.4cm of edec]  (ev)    {\textbf{\ensuremath{\bigstar}\ Evidence Layer} \\ \scriptsize Linear(32 $\to$ 240) + softmax + ElasticNet};
+    \node[rbox, below=0.4cm of ev]    (carte) {Carte d'évidence (120, 240)};
+    \node[ebox, below=0.4cm of carte] (comb)  {Combinaison linéaire \\ \scriptsize $\sum_i$ carte$[t,i]\cdot$emb\_enc$[i]$};
+    \node[gbox, below=0.4cm of comb]  (proj)  {Projection finale};
+    \node[bbox, below=0.4cm of proj]  (pred)  {Prédiction (120,)};
+
+    \node[obox, right=4cm of carte] (expl) {\textbf{Explication}\\ intrinsèque\\ \scriptsize gratuite};
+
+    \draw[arr] (in) -- (enc);
+    \draw[arr] (enc) -- (eenc);
+    \draw[arr] (eenc) -- (dec);
+    \draw[arr] (dec) -- (edec);
+    \draw[rarr] (edec) -- (ev);
+    \draw[rarr] (ev) -- (carte);
+    \draw[rarr] (carte) -- (comb);
+    \draw[arr] (comb) -- (proj);
+    \draw[arr] (proj) -- (pred);
+
+    %% bypass embeddings encodeur réutilisés
+    \draw[arr, dashed, orange!80!black]
+      (eenc.east) -| ++(2.5,0) |- (comb.east);
+
+    %% sortie explication
+    \draw[arr, draw=newcontrib]
+      (carte.east) -- (expl.west);
+  \end{tikzpicture}}
+  \end{center}
+
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm, fonttitle=\bfseries,
+                    title=Lecture du flux]
+    \footnotesize
+    Flux principal : \textbf{Contexte $\to$ Encodeur $\to$ Décodeur $\to$ Evidence Layer $\to$ Combinaison $\to$ Prédiction}.
+    Branche jaune pointillée : embeddings encodeur \emph{réutilisés} par la combinaison.
+    Branche orange : la carte d'évidence \emph{est} l'explication.
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Entrées et sorties par bloc — récapitulatif}
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm, fonttitle=\bfseries,
+                    title={Tenseurs traversant le modèle ($d_{\text{model}}=32$, ctx=240, pred=120)}]
+    \tiny
+    \begin{tabular}{p{2.0cm}p{3.5cm}p{4cm}p{2.0cm}}
+      \toprule
+      \textbf{Bloc} & \textbf{Entrée} & \textbf{Sortie} & \textbf{Statut} \\
+      \midrule
+      Contexte             & — & (240, 1) — valeurs charge & héritage FAYAM \\
+      Encodeur             & (240, 1) & (240, 32) & héritage \\
+      emb encodeur         & sortie encodeur & (240, 32) ×2 (vers décodeur ET combinaison) & \emph{réutilisé} \\
+      Décodeur             & (240, 32) + amorce & (120, 32) & héritage \\
+      emb décodeur         & sortie décodeur & (120, 32) & transit \\
+      \textbf{\ensuremath{\bigstar}\ Evidence Layer} & emb décodeur (120, 32) & \textbf{carte (120, 240)} & \textbf{NOUVEAU} \\
+      Carte d'évidence    & sortie evidence layer & (120, 240) ×2 (vers combinaison ET sortie expl) & \textbf{NOUVEAU} \\
+      Combinaison linéaire & carte + emb encodeur & (120, 32) — pred latent & nouveau (calcul) \\
+      Projection finale    & (120, 32) & (120, 3) — paramètres Student-t & héritage \\
+      Prédiction           & (120, 3) & (120,) — valeurs futures & héritage \\
+      \textbf{Explication}  & carte (120, 240) & (120, 240) — exposée & \textbf{sortie gratuite} \\
+      \bottomrule
+    \end{tabular}
+  \end{tcolorbox}
+
+  \begin{tcolorbox}[colback=newcontrib!5, colframe=newcontrib!70!black, arc=2mm, fonttitle=\bfseries,
+                    title=Lecture clé]
+    Seul le bloc \textbf{Evidence Layer} est \emph{vraiment nouveau}.
+    Tout le reste est soit hérité du Transformer FAYAM (95\% du modèle inchangé),
+    soit une opération mathématique simple (combinaison linéaire).
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}[fragile]{Zoom : composition interne de l'Evidence Layer}
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=3mm, fonttitle=\bfseries,
+                    title=L'Evidence Layer en 3 ingrédients]
+    \begin{enumerate}
+      \item \textbf{Une projection linéaire} : \texttt{Linear(32 $\to$ 240)} — apprend, pour chaque pas futur, un vecteur de 240 scores bruts sur le contexte.
+      \item \textbf{Un softmax} (sur les 240 positions) : transforme les scores en \emph{distribution de probabilité} positive sommant à 1.
+      \item \textbf{Régularisation ElasticNet} dans la \emph{loss} (pas dans la couche) : $\lambda_1 \|\text{carte}\|_1 + \lambda_2 \|\text{carte}\|_2^2$.
+    \end{enumerate}
+  \end{tcolorbox}
+
+  \vspace{2pt}
+
+  \begin{tcolorbox}[colback=gray!3, colframe=gray!60!black, arc=2mm, fonttitle=\bfseries,
+                    title=PyTorch — version minimaliste]
+    \tiny
+\begin{verbatim}
+class EvidenceLayer(nn.Module):
+    def __init__(self, d_model=32, context_length=240, n_dist_params=3):
+        super().__init__()
+        self.evidence_proj = nn.Linear(d_model, context_length)
+        self.final_proj    = nn.Linear(d_model, n_dist_params)
+
+    def forward(self, decoder_emb, encoder_emb):
+        raw   = self.evidence_proj(decoder_emb)        # (B, 120, 240)
+        carte = torch.softmax(raw, dim=-1)             # (B, 120, 240)
+        combined  = torch.bmm(carte, encoder_emb)      # (B, 120, 32)
+        dist_params = self.final_proj(combined)        # (B, 120, 3)
+        return dist_params, carte
+\end{verbatim}
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{L'équation centrale}
+  \begin{tcolorbox}[colback=newcontrib!5, colframe=newcontrib!70!black, arc=3mm,
+                    fonttitle=\bfseries, title=La prédiction comme combinaison interprétable]
+    \[
+      \text{pred\_latent}[t] \;=\; \sum_{i=1}^{240} \text{carte}[t, i] \cdot \text{emb\_encodeur}[i]
+    \]
+    \[
+      \hat y[t] \;=\; \text{Linear}_{32\to3}\bigl( \text{pred\_latent}[t] \bigr)
+    \]
+  \end{tcolorbox}
+
+  \begin{columns}
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm,
+                        fonttitle=\bfseries, title=Lecture sémantique]
+        \begin{itemize}
+          \item carte$[t, i]$ = \textbf{poids} d'utilisation du pas passé $i$ pour prédire le pas futur $t$
+          \item Sommant à 1 sur les 240 positions $\Rightarrow$ \emph{distribution d'attention apprise}
+          \item Formule de prédiction \textbf{lisible directement}
+        \end{itemize}
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[colback=green!3, colframe=green!50!black, arc=2mm,
+                        fonttitle=\bfseries, title=Pourquoi c'est intrinsèque]
+        L'explication n'est pas \emph{calculée à part} :\\
+        elle est la \textbf{formule même} qui produit la prédiction.\\[2pt]
+        $\Rightarrow$ \textbf{Fidélité parfaite par construction}.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Loss étendue : ElasticNet sur la carte}
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=3mm,
+                    fonttitle=\bfseries, title=Loss totale]
+    \[
+      \mathcal{L} \;=\; \underbrace{\text{NLL}_{\text{Student-}t}(\hat y, y)}_{\text{prédiction (FAYAM)}}
+      \;+\; \underbrace{\lambda_1\,\|\text{carte}\|_1}_{\text{parcimonie}}
+      \;+\; \underbrace{\lambda_2\,\|\text{carte}\|_2^2}_{\text{lissage}}
+    \]
+  \end{tcolorbox}
+
+  \begin{columns}
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[colback=orange!3, colframe=orange!60!black, arc=2mm,
+                        fonttitle=\bfseries, title={$\ell_1$ — parcimonie}]
+        Force la majorité des poids à zéro $\Rightarrow$ la carte ne pointe \textbf{qu'un petit nombre} de pas du contexte.
+        Lecture interprétable.
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[colback=green!3, colframe=green!50!black, arc=2mm,
+                        fonttitle=\bfseries, title={$\ell_2$ — lissage}]
+        Évite les pics isolés bizarres $\Rightarrow$ les poids voisins varient progressivement.
+        Cohérence temporelle.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+
+  \begin{tcolorbox}[colback=newcontrib!5, colframe=newcontrib!70!black, arc=2mm,
+                    fonttitle=\bfseries, title=Hyperparamètres de départ (transposés de SoftCAM CNN)]
+    \centering
+    $\lambda_1 \approx 10^{-3}$ \quad ; \quad $\lambda_2 \approx 10^{-4}$ \quad (à régler par grid search sur C4)
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{3 variantes de design pour l'Evidence Layer}
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm,
+                    fonttitle=\bfseries, title=Choix de design — point ouvert]
+    \tiny
+    \begin{tabular}{lp{4cm}p{2.5cm}p{2.5cm}}
+      \toprule
+      \textbf{Variante} & \textbf{Combinaison} & \textbf{Lisibilité} & \textbf{Expressivité} \\
+      \midrule
+      A — contexte brut    & pred = $\sum_i$ carte$[t,i] \cdot$ x\_brut$[i]$  & \textbf{maximale} & limitée \\
+      \textbf{B — emb encodeur} & pred = $\sum_i$ carte$[t,i] \cdot$ emb\_enc$[i]$ + projection finale & élevée & \textbf{élevée} \\
+      C — hybride          & A + biais appris (résiduel) & moyenne & moyenne \\
+      \bottomrule
+    \end{tabular}
+  \end{tcolorbox}
+
+  \begin{columns}
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[colback=green!3, colframe=green!50!black, arc=2mm,
+                        fonttitle=\bfseries, title=Recommandation]
+        \textbf{Variante B} (carte $\times$ emb encodeur) :
+        \begin{itemize}
+          \item Fidèle à SoftCAM original (cartes sur feature maps, pas pixels)
+          \item Plus expressive (capture les non-linéarités encodées)
+          \item Moins triviale à expliquer mais reste lisible
+        \end{itemize}
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[colback=red!3, colframe=red!60!black, arc=2mm,
+                        fonttitle=\bfseries, title=Risque variante A]
+        Combinaison linéaire de \emph{valeurs brutes} :\\
+        Le modèle ne peut pas prédire un pic plus haut que le maximum observé.\\
+        Trop contraint pour C4 hétérogène (function 949 vs 953).
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{À quoi ressemble une explication — exemple sur C4}
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm, fonttitle=\bfseries,
+                    title={Carte d'évidence pour t = ``lundi 17h00'' (function 953)}]
+    \tiny
+\begin{verbatim}
+poids
+  1.0|
+     |
+  0.8|                                              ####
+     |                                              ####   <-- lag 24h
+  0.6|                                              ####       (dimanche 17h)
+     |
+  0.4|                                                              ####
+     |           ####                                              ####  <-- 5 dernières
+  0.2|           ####                                              ####      minutes
+     |     ####  ####                                              ####
+  0.0| ----####  #### ---- ---- ---- ---- ---- ---- ----           ####
+     +-----------------------------------------------------------------> minutes
+       240        180        120         60          0
+       (4h ago)   (3h ago)   (2h ago)   (1h ago)   (now)
+\end{verbatim}
+  \end{tcolorbox}
+
+  \begin{tcolorbox}[colback=newcontrib!5, colframe=newcontrib!70!black, arc=2mm, fonttitle=\bfseries,
+                    title=Lecture]
+    \begin{itemize}
+      \item Le modèle utilise principalement les valeurs d'\textbf{il y a 24h} (dimanche 17h)
+      \item Et les \textbf{5 dernières minutes} pour ajuster
+      \item Tout le reste : poids $\approx 0$ grâce à la parcimonie ElasticNet
+      \item \emph{Validation visuelle de l'hypothèse H1.A : la carte pointe les heures du profil journalier.}
+    \end{itemize}
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Hypothèses opératoires H1.A--H1.E (déjà actées dans DECISIONS.md)}
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm, fonttitle=\bfseries,
+                    title={Cible H1 = Cluster 4 (5 fonctions, signal 24h)}]
+    \footnotesize
+    \begin{tabular}{p{0.5cm}p{10cm}}
+      \toprule
+      \textbf{H1.A} & La carte d'évidence pointe les heures du profil journalier (pic 17--19h, creux 2--6h) \\
+      \textbf{H1.B} & Les têtes d'attention décodeur se polarisent autour des lags 1440 et 2880 \\
+      \textbf{H1.C} & SoftCAM ne dégrade pas la précision baseline ($R^2 \geq 0.30$, Spearman $\geq 0.85$) \\
+      \textbf{H1.D} & Cohérence des cartes entre les 5 fonctions du cluster (Pearson $> 0.95$) \\
+      \textbf{H1.E} & Test sur les extrêmes : function 953 (best $R^2{=}0.60$) vs 949 (stress $R^2{=}0.15$) \\
+      \bottomrule
+    \end{tabular}
+  \end{tcolorbox}
+
+  \begin{tcolorbox}[colback=newcontrib!5, colframe=newcontrib!70!black, arc=2mm, fonttitle=\bfseries,
+                    title=Critère de bascule vers H2]
+    Si après ~3 semaines de prototypage SoftCAM-Transformer :
+    \begin{itemize}
+      \item Le modèle ne converge pas, \textbf{ou}
+      \item H1.C est violé (dégradation > seuil)
+    \end{itemize}
+    \centering
+    $\Rightarrow$ Bascule sur \textbf{H2 = SHAPformer ou TsSHAP} (repli rigoureusement justifié)
+  \end{tcolorbox}
+\end{frame}
+
+%% ============================================================
+%% SECTION 11 — CONCLUSION + PERSPECTIVES
+%% ============================================================
+\section{Conclusion et perspectives}
+
+\begin{frame}{Récit récapitulatif — d'où vient SoftCAM-Transformer}
+  \begin{center}
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+    box/.style={draw, rounded corners, minimum height=0.7cm, minimum width=1.7cm, align=center, font=\scriptsize}
+  ]
+    \node[box, fill=red!15]    (lime)   {LIME};
+    \node[box, fill=red!15, right=0.3 of lime] (ks) {KernelSHAP};
+    \node[box, fill=orange!15, right=0.3 of ks] (ts) {TimeSHAP};
+    \node[box, fill=orange!15, right=0.3 of ts] (ws) {WindowSHAP};
+    \node[box, fill=orange!15, right=0.3 of ws] (tss){TsSHAP};
+    \node[box, fill=newcontrib!25, right=0.3 of tss, draw=newcontrib, thick] (sf){\textbf{SHAPformer}};
+
+    \node[box, fill=blue!15, below=1.0 of lime] (cam) {CAM};
+    \node[box, fill=blue!15, right=0.3 of cam] (gc) {GradCAM};
+    \node[box, fill=softcam!25, right=0.3 of gc, draw=softcam!70!black, thick] (sc) {\textbf{SoftCAM}};
+
+    \node[box, fill=fayam!25, draw=fayam, very thick, minimum width=4.0cm, below=1.0 of ws]
+      (h1) {\textbf{SoftCAM-Transformer (H1)}\\\scriptsize notre contribution};
+
+    \draw[->, thick] (lime) -- (ks);
+    \draw[->, thick] (ks) -- (ts);
+    \draw[->, thick] (ts) -- (ws);
+    \draw[->, thick] (ws) -- (tss);
+    \draw[->, thick] (tss) -- (sf);
+    \draw[->, thick] (cam) -- (gc);
+    \draw[->, thick] (gc) -- (sc);
+
+    \draw[->, thick, fayam] (sf) to[bend left=20] (h1.east);
+    \draw[->, thick, fayam] (sc) to[bend right=20] (h1.west);
+  \end{tikzpicture}}
+  \end{center}
+
+  \begin{tcolorbox}[colback=blue!3, colframe=blue!50!black, arc=2mm, fonttitle=\bfseries,
+                    title=Le récit en une phrase]
+    \centering
+    SoftCAM-Transformer = la rigueur architecturale intrinsèque de SoftCAM\\
+    appliquée à la cible Transformer / prévision de SHAPformer.
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Perspectives — pour le chapitre Discussion}
+  \begin{columns}
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[colback=orange!3, colframe=orange!60!black, arc=2mm,
+                        fonttitle=\bfseries, title=Pistes non explorées]
+        \begin{itemize}
+          \item Vers un \textbf{SHAPformer self-explainable} ?\\
+                {\small Discussion FastSHAP, hybridation, écueils}
+          \item Application à C0 (cas-limite, scaler interne)
+          \item Extension multivariée : \emph{evidence layer} sur covariables exogènes
+          \item Cartes 2D contexte $\times$ prédiction (variante C)
+        \end{itemize}
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[colback=green!3, colframe=green!50!black, arc=2mm,
+                        fonttitle=\bfseries, title=Prochaines étapes Phase 2]
+        \begin{enumerate}
+          \item J1 : cartographier \texttt{parameter\_projection} HuggingFace
+          \item J2--J5 : prototype \texttt{SoftCAMHead} (variante B)
+          \item Entraînement sur C4 (5 fonctions)
+          \item Validation H1.A--H1.E
+          \item Si KO : bascule SHAPformer/TsSHAP
+        \end{enumerate}
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+
+  \vspace{4pt}
+  \begin{tcolorbox}[colback=newcontrib!5, colframe=newcontrib!70!black, arc=2mm, fonttitle=\bfseries,
+                    title=Calendrier]
+    \centering
+    Phase 2 (H1) : 3--4 semaines $\Rightarrow$ Phase 3 (rédaction) à partir de S9
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Questions ?}
+  \vspace{20pt}
+  \begin{center}
+    \Large\textbf{Merci pour votre attention}
+
+    \vspace{14pt}
+    \large Des questions ?
+
+    \vspace{14pt}
+    {\footnotesize
+    \emph{Cette présentation applique le canevas en 4 points\\
+    (contexte / problèmes / transposabilité / limites + plus-value de transition)\\
+    prescrit lors de la séance du 28/04/2026.}}
+  \end{center}
+\end{frame}
+
+%% ============================================================
+%% RÉFÉRENCES
+%% ============================================================
+\begin{frame}[allowframebreaks]{Références}
+  \scriptsize
+  \begin{thebibliography}{99}
+    \bibitem{Ribeiro2016} M.T. Ribeiro, S. Singh, C. Guestrin.
+      \emph{``Why Should I Trust You?'' Explaining the Predictions of Any Classifier}. KDD 2016. arXiv:1602.04938.
+    \bibitem{Lundberg2017} S.M. Lundberg, S.-I. Lee.
+      \emph{A Unified Approach to Interpreting Model Predictions}. NeurIPS 2017.
+    \bibitem{Bento2021} J. Bento et al.
+      \emph{TimeSHAP: Explaining Recurrent Models through Sequence Perturbations}. KDD 2021. arXiv:2012.00073.
+    \bibitem{Nayebi2023} A. Nayebi et al.
+      \emph{WindowSHAP: An Efficient Framework for Explaining Time-Series Classifiers Based on Shapley Values}. J. Biomed. Inform., 2023.
+    \bibitem{Raykar2023} V.C. Raykar et al.
+      \emph{TsSHAP: Robust Model Agnostic Feature-Based Explainability for Time Series Forecasting}. arXiv:2303.12316, IBM 2023.
+    \bibitem{Hertel2025} M. Hertel, S. Pütz, R. Mikut, V. Hagenmeyer, B. Schäfer.
+      \emph{SHAPformer: Explainable Time Series Forecasting with Sampling-Free SHAP Values for Transformers}. arXiv:2512.20514, KIT, déc. 2025.
+    \bibitem{Zhou2016} B. Zhou et al.
+      \emph{Learning Deep Features for Discriminative Localization}. CVPR 2016.
+    \bibitem{Selvaraju2017} R.R. Selvaraju et al.
+      \emph{Grad-CAM: Visual Explanations from Deep Networks via Gradient-Based Localization}. ICCV 2017.
+    \bibitem{Djoumessi2025} K. Djoumessi, P. Berens.
+      \emph{SoftCAM: Making Black Box Models Self-Explainable}. arXiv:2505.17748, mai 2025.
+    \bibitem{Jethani2021} N. Jethani et al.
+      \emph{FastSHAP: Real-Time Shapley Value Estimation}. NeurIPS 2021.
+    \bibitem{FAYAM2024} J. Fayam et al.
+      \emph{Prédiction de charge FaaS par réseaux de neurones profonds}. Mémoire M2, Université de Dschang, 2024.
+  \end{thebibliography}
+\end{frame}
+
+%% ============================================================
+\end{document}
+%% ============================================================

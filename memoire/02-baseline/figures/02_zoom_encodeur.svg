@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 1300" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937">
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <polygon points="0,0 8,3 0,6" fill="#1f2937"/>
+    </marker>
+    <marker id="arrow-skip" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <polygon points="0,0 8,3 0,6" fill="#7c3aed"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1100" height="1300" fill="#ffffff"/>
+
+  <!-- ========== TITRE ========== -->
+  <text x="550" y="42" text-anchor="middle" font-size="26" font-weight="700">
+    ENCODEUR — Zoom sur une couche Transformer
+  </text>
+  <text x="550" y="72" text-anchor="middle" font-size="14" fill="#6b7280" font-style="italic">
+    Cette structure est empilée 4 fois dans l'encodeur du TimeSeriesTransformer FAYAM
+  </text>
+
+  <!-- ========== INPUT ========== -->
+  <g>
+    <rect x="300" y="110" width="500" height="70" rx="10" fill="#f9fafb" stroke="#1f2937" stroke-width="1.5"/>
+    <text x="550" y="138" text-anchor="middle" font-weight="600" font-size="16">vecteur d'entrée  x</text>
+    <text x="550" y="160" text-anchor="middle" font-size="12" font-family="'Courier New', Courier, monospace" fill="#15803d">(B, 240, d_model = 32)</text>
+  </g>
+
+  <!-- ========== MULTI-HEAD SELF-ATTENTION ========== -->
+  <g>
+    <rect x="300" y="205" width="500" height="160" rx="14" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="550" y="240" text-anchor="middle" font-weight="700" font-size="20" fill="#1e3a8a">Multi-Head Self-Attention</text>
+    <text x="550" y="262" text-anchor="middle" font-size="12" font-style="italic" fill="#1e40af">h têtes parallèles, puis concat + projection linéaire</text>
+
+    <text x="335" y="295" font-size="13" fill="#1e3a8a">▸  Q, K, V  =  3 projections linéaires de  x</text>
+    <text x="335" y="318" font-size="13" font-family="'Courier New', Courier, monospace" fill="#1e3a8a">   Attention(Q,K,V) = softmax(Q·K^T / √d_k) · V</text>
+    <text x="335" y="343" font-size="13" fill="#1e3a8a">▸  chaque pas du passé regarde TOUS les autres pas (pas de masque)</text>
+  </g>
+
+  <!-- ========== ADD & NORM 1 ========== -->
+  <g>
+    <rect x="300" y="385" width="500" height="55" rx="10" fill="#eff6ff" stroke="#60a5fa" stroke-width="1.5"/>
+    <text x="550" y="412" text-anchor="middle" font-weight="600" font-size="15" fill="#1e40af">Add &amp; Norm   ( résidu  +  LayerNorm )</text>
+    <text x="550" y="430" text-anchor="middle" font-size="11" font-style="italic" fill="#6b7280">x  ⊕  MHA(x)   →   LayerNorm</text>
+  </g>
+
+  <!-- ========== FEED-FORWARD ========== -->
+  <g>
+    <rect x="300" y="465" width="500" height="120" rx="14" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="550" y="498" text-anchor="middle" font-weight="700" font-size="20" fill="#1e3a8a">Feed-Forward (FFN)</text>
+    <text x="550" y="520" text-anchor="middle" font-size="12" font-style="italic" fill="#1e40af">deux couches denses, non-linéarité ReLU au milieu</text>
+
+    <text x="335" y="552" font-size="13" font-family="'Courier New', Courier, monospace" fill="#1e3a8a">Linear(32 → ff_dim)  →  ReLU  →  Linear(ff_dim → 32)</text>
+    <text x="335" y="572" font-size="12" font-style="italic" fill="#6b7280">appliqué position par position (poids partagés sur les 240 pas)</text>
+  </g>
+
+  <!-- ========== ADD & NORM 2 ========== -->
+  <g>
+    <rect x="300" y="605" width="500" height="55" rx="10" fill="#eff6ff" stroke="#60a5fa" stroke-width="1.5"/>
+    <text x="550" y="632" text-anchor="middle" font-weight="600" font-size="15" fill="#1e40af">Add &amp; Norm   ( résidu  +  LayerNorm )</text>
+    <text x="550" y="650" text-anchor="middle" font-size="11" font-style="italic" fill="#6b7280">y  ⊕  FFN(y)   →   LayerNorm</text>
+  </g>
+
+  <!-- ========== OUTPUT ========== -->
+  <g>
+    <rect x="300" y="685" width="500" height="70" rx="10" fill="#f9fafb" stroke="#1f2937" stroke-width="1.5"/>
+    <text x="550" y="713" text-anchor="middle" font-weight="600" font-size="16">vecteur de sortie  x'</text>
+    <text x="550" y="735" text-anchor="middle" font-size="12" font-family="'Courier New', Courier, monospace" fill="#15803d">(B, 240, 32)   —   même shape que l'entrée  →  empilable</text>
+  </g>
+
+  <!-- ========== BANDEAU × 4 ========== -->
+  <g>
+    <rect x="200" y="780" width="700" height="60" rx="10" fill="#1e3a8a"/>
+    <text x="550" y="808" text-anchor="middle" font-weight="700" font-size="17" fill="#ffffff">× 4 couches empilées</text>
+    <text x="550" y="828" text-anchor="middle" font-size="12" font-style="italic" fill="#dbeafe">la sortie  x'  d'une couche devient l'entrée  x  de la couche suivante</text>
+  </g>
+
+  <!-- ========== FLÈCHES principales (flux vertical) ========== -->
+  <line x1="550" y1="180" x2="550" y2="203" stroke="#1f2937" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="550" y1="365" x2="550" y2="383" stroke="#1f2937" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="550" y1="440" x2="550" y2="463" stroke="#1f2937" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="550" y1="585" x2="550" y2="603" stroke="#1f2937" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="550" y1="660" x2="550" y2="683" stroke="#1f2937" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ========== SKIP CONNECTIONS (résidus) ========== -->
+  <!-- Skip 1 : input top → entrée Add&Norm 1 -->
+  <path d="M 800 145 C 920 145, 920 412, 800 412" stroke="#7c3aed" stroke-width="2" stroke-dasharray="6 4" fill="none" marker-end="url(#arrow-skip)"/>
+  <text x="935" y="282" font-size="12" font-weight="600" fill="#7c3aed">skip</text>
+  <text x="935" y="298" font-size="11" font-style="italic" fill="#7c3aed">(résidu)</text>
+
+  <!-- Skip 2 : sortie Add&Norm 1 → entrée Add&Norm 2 -->
+  <path d="M 800 412 C 920 412, 920 632, 800 632" stroke="#7c3aed" stroke-width="2" stroke-dasharray="6 4" fill="none" marker-end="url(#arrow-skip)"/>
+  <text x="935" y="515" font-size="12" font-weight="600" fill="#7c3aed">skip</text>
+  <text x="935" y="531" font-size="11" font-style="italic" fill="#7c3aed">(résidu)</text>
+
+  <!-- ========== LÉGENDE ========== -->
+  <g>
+    <rect x="65" y="870" width="970" height="380" rx="10" fill="#fafafa" stroke="#d1d5db" stroke-width="1"/>
+
+    <text x="85" y="898" font-weight="700" font-size="16">Légende &amp; rappels</text>
+
+    <!-- Colonne 1 : éléments visuels -->
+    <text x="85" y="930" font-weight="600" font-size="14" fill="#374151">Éléments visuels</text>
+
+    <rect x="85" y="943" width="22" height="22" rx="4" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="118" y="960" font-size="13"><tspan font-weight="700">Sous-bloc principal</tspan> — opération apprenable (MHA, FFN)</text>
+
+    <rect x="85" y="973" width="22" height="22" rx="4" fill="#eff6ff" stroke="#60a5fa" stroke-width="1.5"/>
+    <text x="118" y="990" font-size="13"><tspan font-weight="700">Add &amp; Norm</tspan> — résidu + normalisation, sans paramètre attention</text>
+
+    <line x1="85" y1="1015" x2="107" y2="1015" stroke="#7c3aed" stroke-width="2" stroke-dasharray="6 4"/>
+    <polygon points="107,1012 113,1015 107,1018" fill="#7c3aed"/>
+    <text x="118" y="1020" font-size="13"><tspan font-weight="700">Skip connection</tspan> — connexion résiduelle (l'entrée est ajoutée à la sortie)</text>
+
+    <text x="85" y="1050" font-size="13" font-family="'Courier New', Courier, monospace" fill="#15803d">(B, 240, 32)</text>
+    <text x="220" y="1050" font-size="13">shape conservée à toutes les étapes (clé de l'empilement)</text>
+
+    <!-- Colonne 2 : pourquoi cette structure -->
+    <text x="560" y="930" font-weight="600" font-size="14" fill="#374151">Pourquoi cette structure ?</text>
+
+    <text x="560" y="958" font-size="13"><tspan font-weight="600">▸ Self-Attention</tspan> permet à chaque pas du passé</text>
+    <text x="560" y="975" font-size="13">  de "regarder" tous les autres pas en parallèle.</text>
+
+    <text x="560" y="1000" font-size="13"><tspan font-weight="600">▸ FFN</tspan> ajoute une non-linéarité par position</text>
+    <text x="560" y="1017" font-size="13">  (les poids sont partagés sur les 240 pas).</text>
+
+    <text x="560" y="1042" font-size="13"><tspan font-weight="600">▸ Skip + LayerNorm</tspan> stabilisent l'apprentissage</text>
+    <text x="560" y="1059" font-size="13">  (sans eux, 4 couches empilées ne convergeraient pas).</text>
+
+    <text x="560" y="1090" font-size="13"><tspan font-weight="600">▸ Empilement × 4</tspan> = représentations de plus en plus abstraites</text>
+    <text x="560" y="1107" font-size="13">  du contexte temporel (240 minutes du passé FaaS).</text>
+
+    <!-- Note de pied -->
+    <line x1="85" y1="1170" x2="1015" y2="1170" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="85" y="1195" font-size="12" font-style="italic" fill="#6b7280">
+      Visuel 2 / 4 — Zoom encodeur.   Sortie de toutes les couches empilées = "memory" consultée par le décodeur via cross-attention (cf. Visuel 3).
+    </text>
+    <text x="85" y="1218" font-size="12" font-style="italic" fill="#6b7280">
+      Source architecturale : Vaswani et al. 2017 (Transformer original) — Rasul &amp; Rogge 2022 (TimeSeriesTransformer HuggingFace).
+    </text>
+  </g>
+
+</svg>

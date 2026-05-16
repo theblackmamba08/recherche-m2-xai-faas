@@ -141,6 +141,28 @@
 - Métriques C8 dédié : MASE=0.44, sMAPE≈2.0, R²=-0.79, Spearman=+0.05 — identiques au modèle mixte (session 21) → isolation n'améliore pas C8.
 - Suite → lancer `baseline-cluster0.ipynb` sur Colab (cible prioritaire H1).
 
+## 2026-05-14 — HPO Path B + ablation per-function 949 (session 29)
+
+- **Notebook `optimized-cluster4.ipynb` créé** (46 cellules, 56.7 Ko) : pipeline HPO complet sur Cluster 4.
+- **Stratégie HPO** : Optuna TPE + MedianPruner, 15 trials × 20 epochs max, 4 hyperparams (`d_model ∈ {32,64,128}`, `context_length ∈ {240,480,1440}`, `encoder_layers ∈ {2,3,4}`, `lr ∈ log[1e-5, 1e-3]`). Fixés : `n_heads=2`, `embedding_dim=[2]`, `dropout=0.1`, `batch_size=256`, `decoder_layers=encoder_layers`.
+- **Validation HPO** : 120 minutes held-out avant le test horizon (positions -240 à -120 de target_full). Objectif : maximiser moyenne R² sur les 5 fonctions de C4. SQLite storage sur Drive pour resume en cas de déconnexion Colab.
+- **Retrain final** : early stopping sur val R² (patience=10, max 80 epochs) — remplace les 51 epochs fixes de FAYAM qui plateau dès l'epoch 20-25 d'après la courbe de loss.
+- **Ablation 949** : à la fin du notebook, modèle dédié à la fonction 949 (la plus problématique en multi-task, R²=0.15) avec hyperparams optimaux. Diagnostic : R²(dédié) > R²(multi) → fonction écrasée par le multi-task ; ≈ → intrinsèquement difficile ; < → transfert positif.
+- **Comparaison FAYAM vs Optimisé** : per-fonction (tableau + barplot) sur MASE, sMAPE, RMSE, R², Spearman.
+- Script générateur : `_generate_optimized_cluster4.py` (conservé pour reproductibilité).
+
+## 2026-05-14 — Archivage résultats HPO + décision baseline (session 30)
+
+- Run exécuté sur Colab T4 (15h42–16h41). Résultats rapatriés depuis `Downloads/` et archivés dans `code/experiments/runs/2026-05-14_optimized-cluster4/`.
+- **HPO** : 15 trials, 4 complétés, 11 pruned (dont 7 OOM — `context_length ≥ 480` OOM pour `d_model ≥ 64` sur T4). Best val R²=0.5347 avec `d_model=128, context=240, encoder_layers=4, lr=6.41e-4`.
+- **Test** : R²=**-1.3854** (vs FAYAM=0.3701) — dégradation -1.76. Cause : `context=240` (OOM-contraint) perd la périodicité 24h.
+- **Décision : FAYAM original conservé comme baseline.** Seuil +20pp non atteint.
+- **Insight** : `d_model=32` de FAYAM justifié empiriquement — seul `d_model` compatible avec `context=1440` sans OOM T4.
+- **Ablation 949** : dédié R²=0.215 > multi-opt R²=-1.257 → "écrasée par multi-task" (attention : contamination context=240).
+- **Attention weights** : cross_attn `(5,2,120,240)` et enc_attn `(5,2,240,240)` disponibles sur Drive pour H3.
+- Artefacts : `run.md`, `hpo/best_params.json`, `results/{final_summary,metrics_optimized,comparison_fayam_vs_optimized,ablation_949}.json`, `optimized_cluster4.ipynb`.
+- Suite → 🔴 Lire TFT (arxiv:1912.09363) + créer fiche `2019_Lim_TFT.md`. Puis Phase 2 J1 (`parameter_projection` HuggingFace).
+
 ## 2026-05-05 — Synthèse 4 baselines + cible H1 = C4 (session 25)
 
 - Comparaison croisée des 4 runs dédiés archivés dans `experiments/runs/2026-05-05_baseline-cluster{0,4,6,8}/`. Verdict :
@@ -151,3 +173,20 @@
 - Confrontation EDA vs résultats : 3/4 prévisibles (C6 et C8 par burstiness/zéros, C4 par FFT 75–80 %). C0 = surprise non capturée par l'EDA → ajouter signal d'alerte sur magnitude brute dans futures EDA.
 - **Cible H1 actée : C4** (cf. [`memoire/00-meta/DECISIONS.md`](../memoire/00-meta/DECISIONS.md), entrée 2026-05-05). Phase 1 close.
 - Suite → Phase 2 : étude architecture `TimeSeriesTransformer` HF (J1 de `PLAN-ETUDE-ARCHITECTURE.md`).
+
+## 2026-05-16 — Implémentation H1 SoftCAM-Transformer (session 32)
+
+- **Nouveau package** `code/src/models/` créé avec `softcam_transformer.py` (~360 lignes) :
+  - `SoftCAMTransformerConfig(TimeSeriesTransformerConfig)` — ajoute `alpha_l1`, `beta_l2`, `gamma_entropy`.
+  - `SoftCAMTSPredictionOutput(Seq2SeqTSPredictionOutput)` — expose `evidence_map`, `forecast_loss`, `elastic_loss`, `entropy_loss`.
+  - `SoftCAMTransformerForPrediction(TimeSeriesTransformerForPrediction)` :
+    - sous-classement strict ; encodeur / décodeur **inchangés** ;
+    - 1 seul nouveau module : `evidence_linear = Linear(d_model → context_length)` ;
+    - hook automatique sur l'encodeur pour cacher `encoder_last_hidden_state` → `output_params()` retrouve `enc_hidden` sans changer la signature HF ;
+    - 1 seul point d'insertion (`output_params`) → fonctionne en `forward` ET `generate` sans réécrire ce dernier ;
+    - méthode `explain()` pour extraction teacher-forcée de M sur le test set.
+- **Caveat L1 documenté** : sous softmax, `mean(|M|) = 1/ctx` est constant → gradient nul. Le terme sparsity-inducing réel est l'entropie de ligne `γ·H(M)` (ajouté en option).
+- **Tests** : `code/tests/test_softcam_transformer.py` (~10 tests pytest — shapes, somme=1, gradients finis, generate fonctionnel, explain).
+- **Notebook Colab** : `_generate_softcam_cluster4.py` génère `softcam-cluster4.ipynb` (33 cellules) — clone repo + import `src.models` + boucle entraînement avec monitoring des 3 composantes de loss + GATE H1.C (R²≥0.30, Spearman≥0.85) + extraction & visualisation des cartes M par fonction.
+- **Hyperparams H1 v1** : reconduits FAYAM (`d_model=32, ctx=240, layers=2, lr=6e-4`) + `α=0.0, β=1e-3, γ=1e-3`.
+- Suite → push GitHub, upload notebook sur Colab T4, lancer le run, vérifier le GATE.

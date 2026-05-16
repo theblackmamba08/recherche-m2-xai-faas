@@ -2,6 +2,37 @@
 
 > Format : date — décision — alternatives écartées — justification.
 
+## 2026-05-14 — HPO Path B (ciblée) sur le baseline Cluster 4 avant Phase 2
+
+- **Décision** : lancer une HPO ciblée d'Optuna (TPE + MedianPruner, 15 trials × 20 epochs) sur 4 hyperparamètres du `TimeSeriesTransformer` — `d_model`, `context_length`, `encoder_layers`, `lr` — avant de démarrer l'implémentation de H1 (SoftCAM-Transformer). Le retrain final utilise un **early stopping sur val R²** (patience=10, max 80 epochs) au lieu des 51 epochs fixes de FAYAM. Une **ablation per-function** sur la fonction 949 (la plus problématique, R²=0.15 en multi-task) est ajoutée pour diagnostiquer si elle est écrasée par le multi-task ou intrinsèquement difficile.
+- **Alternatives écartées** :
+  - **Path A — HPO complète** (~10 hyperparams, 30 trials, 1-2 semaines) : trop coûteux en temps de calendrier (<3 mois jusqu'à soutenance) ; oblige aussi à retuner SoftCAM avec le même budget pour comparaison équitable → double le travail futur.
+  - **Path C — Skip HPO, démarrer J1 du PLAN-ETUDE-ARCHITECTURE immédiatement** : laisse intacte la question légitime "pourquoi `d_model=32` ?" qui a déjà été posée par les encadreurs en séance et signale un manque de rigueur empirique sur la baseline.
+  - **Per-function comme stratégie principale** (5 modèles dédiés, 1 par fonction) : déviation méthodologique forte vs FAYAM (qui est multi-task) ; perd le transfert positif intra-cluster ; désaligne du design de H1 (SoftCAM exploite des embeddings encodeur partagés). Retenu uniquement comme ablation diagnostique sur la 949.
+- **Justification** :
+  1. La question "pourquoi `d_model=32` ?" en séance encadreur a révélé des lacunes conceptuelles (l'étudiant a répondu "des chiffres" sur le type des entrées) ; produire un résultat empirique chiffré sur l'optimalité de la baseline répond directement à l'attente.
+  2. La courbe de loss FAYAM plateau dès l'epoch 20-25 — les 51 epochs fixes sont du bruit ; passer à l'early stopping est une amélioration méthodologique gratuite.
+  3. Path B est borné (2-3 jours de calcul, 1 jour d'analyse) — si le gain est < 10pp R², on garde FAYAM original comme baseline et on mentionne la HPO en Discussion ; si > 20pp, on adopte l'optimisé comme nouvelle baseline (et on retunera SoftCAM en parallèle quand on y arrivera).
+  4. Le critère d'acceptation H1 (R²≥0.30, Spearman≥0.85) est déjà tenu par FAYAM C4 (0.37/0.92) — la HPO ne change pas la faisabilité de H1, elle renforce la crédibilité de la comparaison.
+- **Application** : notebook [`code/notebooks/optimized-cluster4.ipynb`](../../code/notebooks/optimized-cluster4.ipynb) (46 cellules) à lancer sur Colab T4 (~3-4h). Archivage attendu dans `code/experiments/runs/2026-05-14_optimized-cluster4/` avec `metrics_optimized.json`, `comparison_fayam_vs_optimized.csv`, `ablation_949.json`, `best_params.json`.
+
+## 2026-05-08 — Cadre standard pour la présentation des méthodes XAI aux encadreurs
+
+- **Décision** : adopter un canevas en 4 points pour **chaque** méthode XAI présentée en séance encadreur, et systématiquement annoncer la **plus-value** d'une méthode par rapport à celle qui la précède dans le récit.
+  1. **Contexte** de la méthode (origine, domaine d'application initial).
+  2. **Problèmes résolus** (lacune comblée à sa création).
+  3. **Transposabilité** (applicabilité à d'autres domaines, notamment séries temporelles / FaaS).
+  4. **Limites** (ce qui justifie la méthode suivante).
+  - **Plus-value de transition** (à chaque méthode qui suit) : qu'est-ce que la nouvelle méthode résout que la précédente ne résolvait pas ?
+- **Alternatives écartées** :
+  - Présentation technique par méthode (formalismes, équations détaillées) : jugée **trop technique** par Dr LACMOU lors du panorama du 28/04/2026 ; l'étudiant avait de la peine à la délivrer à l'oral.
+  - Présentation par groupes (post-hoc vs intrinsèque) sans fil de plus-value : ne montre pas la nécessité d'enchaîner les méthodes.
+- **Justification** :
+  1. Cadre prescrit par Dr LACMOU à la suite de la présentation du 28/04/2026.
+  2. Le canevas force un récit en chaîne pédagogique : chaque méthode comble un manque de la précédente, ce qui justifie naturellement le choix final (SoftCAM-Transformer = H1).
+  3. Aligne la défense orale sur la structure attendue d'un état de l'art de mémoire (contexte → problème → solutions → limites → contribution).
+- **Application** : ce cadre s'applique aux prochaines séances encadreurs ET au chapitre 2 (état de l'art) du mémoire LaTeX.
+
 ## 2026-04-27 — Pivot stratégique XAI : nouvelle H1 = SoftCAM-Transformer (intrinsèque)
 
 - **Décision** : reformuler l'ordonnancement des hypothèses après lecture de l'article SoftCAM (Djoumessi & Berens, arXiv:2505.17748v1, mai 2025) :
