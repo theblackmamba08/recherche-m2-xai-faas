@@ -80,22 +80,18 @@ git push
 )
 
 code(
-    """import os, sys, subprocess
+    """import os, sys
 
 REPO_URL = 'https://github.com/theblackmamba08/recherche-m2-xai-faas.git'
 REPO_DIR = '/content/recherche-m2-xai-faas'
 
-# Ne pas utiliser capture_output=True : git hérite du terminal Colab
-# (evite l'erreur "could not read Username" sur les repos publics)
+# get_ipython().system() = equivalent du ! Colab — accès complet au shell,
+# pas de problème de TTY/credentials comme avec subprocess
+ipy = get_ipython()
 if not os.path.isdir(REPO_DIR):
-    print('Clonage du dépôt...')
-    result = subprocess.run(['git', 'clone', REPO_URL, REPO_DIR])
-    if result.returncode != 0:
-        raise RuntimeError(f'git clone a échoué (code {result.returncode})')
-    print('Clone OK.')
+    ipy.system(f'git clone {REPO_URL} {REPO_DIR}')
 else:
-    print('Dépôt déjà présent — git pull...')
-    subprocess.run(['git', '-C', REPO_DIR, 'pull'])
+    ipy.system(f'git -C {REPO_DIR} pull')
 
 if f'{REPO_DIR}/code' not in sys.path:
     sys.path.insert(0, f'{REPO_DIR}/code')
