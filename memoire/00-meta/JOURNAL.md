@@ -2,6 +2,23 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-17 — Implémentation H1 v2 (diagnostic-friendly) (session 36)
+
+- **Durée** : ~30 min
+- **Fait** :
+  - Diagnostic du NO-GO v1 affiné : hypothèse principale = **information bottleneck**. v1 remplace `dec_output` par `bmm(M, enc_hidden)` → bypass complet du travail du décodeur (self-attn causale, cross-attn, FFN). `parameter_projection`, initialisé pour des stats `dec_output`, reçoit alors des combinaisons linéaires d'embeddings encodeur brutes.
+  - **Code v2** créé dans `code/src/models/softcam_transformer_v2.py` (~330 lignes, à part, v1 intact). Deux leviers diagnostiques :
+    - `use_evidence_layer: bool` — toggle off → comportement parent FAYAM strict (sanity check).
+    - `evidence_mix: float ∈ [0,1]` — interpolation `h = (1-mix)·dec_output + mix·bmm(M,enc)`. mix=0 ≡ FAYAM, mix=1 ≡ v1, intermédiaire = hybrid.
+  - `__init__.py` mis à jour : v1 et v2 exposés en parallèle. Compilation Python OK sur les 2.
+  - User a aussi pointé un écart méthodologique : v1 utilisait early stopping (patience 10) alors que FAYAM baseline tournait 51 epochs full. À aligner dans le notebook v2.
+- **Décision** : pas de pivot précipité vers H2. v2 permet 4 runs A/B :
+  1. `use=False`, 51 epochs full → reproduit FAYAM (R²=0.37 attendu, sinon bug pipeline)
+  2. `use=True, mix=0.0` → identique à run 1 + monitoring de M
+  3. `use=True, mix=1.0` → reproduit v1 (R²=-6.16 attendu)
+  4. `use=True, mix=0.3` → hybrid (validation hypothèse info bottleneck)
+- **Prochain pas** : décider avec user entre "notebook 4 runs chaînés" vs "Run 1 seul d'abord pour sanity check".
+
 ## 2026-05-17 — Premier run H1 SoftCAM-Transformer : NO-GO (session 35)
 
 - **Durée** : ~1h (run Colab 5.5 min + diagnostic + archivage)
