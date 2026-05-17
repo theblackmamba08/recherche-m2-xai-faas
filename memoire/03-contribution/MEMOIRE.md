@@ -54,6 +54,51 @@
 
 - Suite → implémenter `evidence_layer` dans `src/models/softcam_transformer.py` (Phase 2, J1-J2 du PLAN-ETUDE-ARCHITECTURE)
 
+## 2026-05-17 — Premier run H1 sur Colab : **NO-GO** sur GATE H1.C
+
+**Run** : [`code/experiments/runs/2026-05-17_04-52_softcam-cluster4-h1-v1/`](../../code/experiments/runs/2026-05-17_04-52_softcam-cluster4-h1-v1/run.md) (archive locale, gitignored ; HTML + iframes conservés).
+
+### Résultats
+
+| Critère GATE H1.C | Seuil | Mesuré | Statut |
+|-------------------|-------|--------|--------|
+| Test R² | ≥ 0.30 | **-6.1565** | **FAIL** (-652 pp vs FAYAM=0.37) |
+| Test Spearman | ≥ 0.85 | **-0.8731** | **FAIL** (-179 pp vs FAYAM=0.92) |
+
+- best val R² = 0.0837 à epoch 8, puis dégradation → early stop epoch 18.
+- Per-series Spearman ≈ -0.86 à -0.90 sur les 5 fonctions du Cluster 4 : **anti-corrélation systématique** (pas un bruit).
+- `argmax_mean ≈ 155-160 / 240` sur toutes les fonctions → le modèle regarde **le milieu du passé**, pas le passé immédiat ni un pattern journalier cohérent.
+
+### Diagnostic immédiat
+
+Le **Spearman = -0.87** est le signal critique : les prédictions sont **mathématiquement inversées** par rapport à la réalité. Hypothèses (ordre de plausibilité) :
+
+1. **Bug de sens dans `_evidence_layer()`** — signe inversé quelconque dans la chaîne `M = softmax(evidence_linear(dec_output)) → bmm(M, enc_hidden) → parameter_projection`.
+2. **`encoder_last_hidden_state` mal capturé par le forward_hook** lors des appels multiples de `output_params` durant `model.generate()` (num_parallel_samples=100).
+3. **Dégénérescence de M** : si toutes les lignes de M convergent vers le même vecteur (i.e. softmax constant), la combinaison linéaire revient à une moyenne fixe → constantes.
+
+### Conséquence pour H1
+
+**Pas de pivot précipité** — investigation obligatoire avant d'abandonner :
+
+1. **Sanity check forward-only** : lancer un forward du parent `TimeSeriesTransformerForPrediction` (sans hook, sans evidence layer) sur exactement le même setup. Si lui converge sur Cluster 4 → le bug est dans notre code H1.
+2. **Inspection visuelle de M** : si toutes les lignes sont identiques, la combinaison linéaire dégénère.
+3. **Test unitaire fin** : vérifier que `model.explain(...)` rend bien le même M qu'un `forward()` standard, et que les valeurs ont le bon signe.
+
+Si après ces 3 checks le bug n'est pas trouvé → **pivot H2 (TimeSHAP)** sans plus d'effort.
+
+### Hypothèses opératoires H1.A-H1.E (statut)
+
+| Hypothèse | Statut après v1 |
+|-----------|-----------------|
+| H1.A (M se concentre sur pic 17h-19h) | **Non testable** : modèle non convergent |
+| H1.B (attention décodeur sur lags 1440/2880) | **Non testable** |
+| **H1.C (non-dégradation R²≥0.30, Spearman≥0.85)** | **FAIL** (critère bloquant) |
+| H1.D (cohérence intra-cluster des M) | Curieusement **OK** : tous les argmax ≈ 155-160 → cohérent mais inutile, le modèle est dégénéré |
+| H1.E (best vs worst function) | Toutes échouent uniformément |
+
+- Suite immédiate → audit du forward + ablation du forward_hook + comparaison enc_hidden cache vs recomputed.
+
 ## 2026-05-16 — Implémentation H1 dans `code/src/models/` (session 32)
 
 - **Package créé** : `code/src/models/` avec `softcam_transformer.py`.
