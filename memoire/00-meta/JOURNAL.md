@@ -2,6 +2,13 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-17 — Notebook Run A pour sanity check pipeline (session 37)
+
+- **Durée** : ~20 min
+- **Fait** : Génération du notebook `code/notebooks/softcam-cluster4-v2-runA.ipynb` (28 cellules, via `_generate_softcam_cluster4_v2_runA.py`). Configure `SoftCAMTransformerV2ForPrediction(use_evidence_layer=False)` + protocole FAYAM exact (51 epochs full, pas d'early stopping). Cellule de verdict automatique : PASS si `|R²_test - 0.37| ≤ 10 pp` (pipeline saine → bug v1 isolé dans evidence layer), FAIL sinon (bug pipeline avant evidence layer).
+- **Décision** : avant de coder le notebook A/B 4-runs proposé en session 36, on isole une seule variable à la fois. Run A seul d'abord → décide la suite (Run B hybrid mix=0.3 si PASS, debug pipeline si FAIL).
+- **Prochaine étape** : user lance le notebook sur Colab T4 (~10-15 min), me communique R² + Spearman final.
+
 ## 2026-05-17 — Implémentation H1 v2 (diagnostic-friendly) (session 36)
 
 - **Durée** : ~30 min
