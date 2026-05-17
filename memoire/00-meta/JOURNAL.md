@@ -2,6 +2,12 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-17 — Fix git clone Colab v2 (session 34 — suite)
+
+- **Durée** : ~10 min
+- **Fait** : Identification de la vraie cause de l'erreur `fatal: could not read Username` — `capture_output=True` ferme stdin, empêchant git d'accéder au terminal même pour un repo public. Fix : suppression de `capture_output` dans `subprocess.run()`, git hérite du terminal Colab et clone sans friction. Générateur mis à jour, notebook régénéré et poussé (commit `c1b96f1`).
+- **Prochaine étape** : Runtime → Disconnect and delete runtime → re-upload notebook → T4 GPU → Run All → vérifier GATE H1.C.
+
 ## 2026-05-17 — Fix git clone Colab (session 34)
 
 - **Durée** : ~15 min
