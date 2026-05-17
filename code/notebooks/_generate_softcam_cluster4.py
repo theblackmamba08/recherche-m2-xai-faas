@@ -80,21 +80,43 @@ git push
 )
 
 code(
-    """import os, sys
+    """import os, sys, subprocess
 
-REPO_URL = 'https://github.com/theblackmamba08/recherche-m2-xai-faas.git'  # à adapter si besoin
+REPO_URL = 'https://github.com/theblackmamba08/recherche-m2-xai-faas.git'
 REPO_DIR = '/content/recherche-m2-xai-faas'
 
 if not os.path.isdir(REPO_DIR):
-    os.system(f'git clone {REPO_URL} {REPO_DIR}')
+    print('Clonage du dépôt...')
+    result = subprocess.run(
+        ['git', 'clone', REPO_URL, REPO_DIR],
+        capture_output=True, text=True
+    )
+    print(result.stdout)
+    if result.returncode != 0:
+        print('STDERR:', result.stderr)
+        raise RuntimeError(f'git clone a échoué (code {result.returncode}):\\n{result.stderr}')
+    print('Clone OK.')
 else:
-    os.system(f'cd {REPO_DIR} && git pull')
+    print('Dépôt déjà présent — git pull...')
+    result = subprocess.run(
+        ['git', '-C', REPO_DIR, 'pull'],
+        capture_output=True, text=True
+    )
+    print(result.stdout)
+    if result.returncode != 0:
+        print('AVERTISSEMENT git pull:', result.stderr)
 
 # Ajoute code/ au PYTHONPATH pour pouvoir faire `from src.models...`
 if f'{REPO_DIR}/code' not in sys.path:
     sys.path.insert(0, f'{REPO_DIR}/code')
 
-print('Repo prêt :', os.listdir(f'{REPO_DIR}/code/src/models'))"""
+models_dir = f'{REPO_DIR}/code/src/models'
+if not os.path.isdir(models_dir):
+    raise FileNotFoundError(
+        f'{models_dir} introuvable — le clone a peut-être échoué silencieusement.\\n'
+        'Essaie : Runtime → Disconnect and delete runtime, puis relance la cellule.'
+    )
+print('Repo prêt :', os.listdir(models_dir))"""
 )
 
 md("## 3 — Imports, seed, config")
