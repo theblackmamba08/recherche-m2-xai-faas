@@ -68,6 +68,13 @@
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
 
+## 2026-05-17 — Fix cellule git clone Colab (session 34)
+
+- Cellule "Récupération du repo" du notebook `softcam-cluster4.ipynb` corrigée : `os.system()` remplacé par `subprocess.run()` avec `capture_output=True`, vérification du `returncode`, et `FileNotFoundError` explicite si `code/src/models/` est absent après clone.
+- Script générateur `_generate_softcam_cluster4.py` mis à jour en conséquence — notebook régénéré (33 cellules, inchangé).
+- Commit `7aeef09` poussé — Colab peut maintenant voir le message d'erreur exact si le clone échoue.
+- Prochaine étape : upload le nouveau notebook sur Colab T4 → Runtime → Disconnect and delete runtime → Run All → vérifier GATE H1.C.
+
 ## 2026-05-02 — Experiment tracker + notebook Colab baseline
 
 - Run tracé : `code/experiments/runs/2026-05-02_11-15_baseline-fayam-transformer/` (run.md + command.sh + diff.patch)

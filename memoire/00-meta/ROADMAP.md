@@ -63,7 +63,19 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-16 (session 33)
+### Dernière session : 2026-05-17 (session 34)
+
+- **Phase actuelle** : Phase 2 — H1 SoftCAM-Transformer. Notebook prêt à tourner, bug Colab corrigé.
+- **Avancée récente** :
+  - Fix cellule git clone de `softcam-cluster4.ipynb` : `os.system()` → `subprocess.run()` avec capture et vérification du returncode (commit `7aeef09`).
+  - Notebook poussé sur GitHub — prêt pour Colab T4.
+- **Prochain pas** :
+  1. 🔴 Sur Colab : Runtime → Disconnect and delete runtime → re-upload notebook → T4 GPU → Run All
+  2. 🔴 Vérifier le **GATE H1.C** : R² ≥ 0.30 et Spearman ≥ 0.85 sur le test set
+  3. 🟡 Si GO → analyser heatmaps M + comparer à `cross_attentions` (gratuit)
+  4. 🟡 Si NO-GO → pivot immédiat vers H2 (TimeSHAP)
+
+### Session précédente : 2026-05-16 (session 33)
 
 - **Phase actuelle** : Phase 2 — H1 SoftCAM-Transformer. **Code implémenté**, prêt à tourner sur Colab T4.
 - **Avancée récente** :
