@@ -68,6 +68,14 @@
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
 
+## 2026-05-17 — Premier run H1 sur Colab : **NO-GO** (session 35)
+
+- Run `softcam-cluster4-h1-v1` exécuté sur Colab T4 (04:52, 5.5 min, early stop epoch 18/60).
+- **GATE H1.C échoué** : Test R²=-6.16 (vs FAYAM 0.37), Spearman=-0.87 (anti-corrélation systématique).
+- Archive locale : `code/experiments/runs/2026-05-17_04-52_softcam-cluster4-h1-v1/` (HTML + iframes + run.md complet — gitignored).
+- Synthèse + diagnostic 3 hypothèses (bug signe / forward_hook / softmax dégénéré) → `memoire/03-contribution/MEMOIRE.md`. Mémoire persistante `project_h1_v1_nogo.md` créée.
+- Prochaine étape : 3 checks (sanity forward parent / inspection M / test unitaire `_evidence_layer`) avant pivot H2.
+
 ## 2026-05-17 — Fix git clone Colab v3 (session 34 — fin)
 
 - Troisième et dernier fix cellule clone : `subprocess.run()` abandonné au profit de `get_ipython().system()` (équivalent Python du `!` Colab) — accès complet au shell, zéro problème TTY/credentials. Commit `83a843e`.

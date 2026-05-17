@@ -63,7 +63,22 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-17 (session 34 — fin)
+### Dernière session : 2026-05-17 (session 35 — premier run H1)
+
+- **Phase actuelle** : Phase 2 — H1 SoftCAM-Transformer. **GATE H1.C échoué**, investigation requise avant pivot.
+- **Résultats** :
+  - Test R² = **-6.1565** (FAYAM 0.37 → -652 pp)
+  - Test Spearman = **-0.8731** (FAYAM 0.92 → -179 pp)
+  - **Anti-corrélation systématique** (per-series -0.85 à -0.90) → bug architectural, pas un problème de convergence
+  - best val R² = 0.0837 (epoch 8), early stop epoch 18, training 5.5 min
+- **Archive** : `code/experiments/runs/2026-05-17_04-52_softcam-cluster4-h1-v1/` (HTML + run.md, gitignored)
+- **Prochain pas** :
+  1. 🔴 **Sanity check forward parent FAYAM** sur Cluster 4 sans evidence layer — si lui converge, bug 100% dans notre code H1
+  2. 🔴 **Inspection visuelle de M** (heatmaps `.npy` sur Drive) — détecter softmax dégénéré
+  3. 🔴 **Test unitaire fin** : `model.explain()` == forward standard ? Signes corrects ? `encoder_last_hidden_state` capturé au bon moment par le hook lors de `model.generate()` ?
+  4. 🟡 Si bug trouvé après 1-2 jours → H1 v2. Sinon → **pivot H2 (TimeSHAP)**.
+
+### Session précédente : 2026-05-17 (session 34 — fin)
 
 - **Phase actuelle** : Phase 2 — H1 SoftCAM-Transformer. Notebook définitivement prêt.
 - **Avancée** : Fix final cellule clone — `get_ipython().system()` remplace `subprocess.run()`. Colab peut maintenant cloner sans problème de TTY/credentials (commit `83a843e`).
