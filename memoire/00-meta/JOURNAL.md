@@ -2,6 +2,23 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-17 — Premier run H1 SoftCAM-Transformer : NO-GO (session 35)
+
+- **Durée** : ~1h (run Colab 5.5 min + diagnostic + archivage)
+- **Fait** :
+  - Run `softcam-cluster4-h1-v1` exécuté sur Colab T4 après résolution finale du clone (repo rendu public, ou alternative équivalente côté user).
+  - **GATE H1.C échoué massivement** : Test R²=-6.1565 (vs FAYAM 0.37, -652 pp), Test Spearman=-0.8731 (vs FAYAM 0.92, -179 pp).
+  - **Signal critique** : Spearman quasi -1 sur les 5 fonctions (per-series -0.85 à -0.90) → prédictions **mathématiquement inversées**. Pas un bruit de convergence, un bug systématique.
+  - best val R² = 0.0837 (epoch 8) puis dégradation → early stop epoch 18/60. Le modèle apprend quelque chose puis "déraille" — cohérent avec un bug architectural.
+  - Cartes M extraites : `argmax_mean ≈ 155-160 / 240` uniforme → le modèle regarde le milieu du passé, sans pattern journalier cohérent.
+  - **Archive complète** : `code/experiments/runs/2026-05-17_04-52_softcam-cluster4-h1-v1/` (HTML 744 Ko + iframes + `run.md` avec diagnostic 3 hypothèses, gitignored).
+  - **Synthèse** : entrée 2026-05-17 dans `memoire/03-contribution/MEMOIRE.md` + mémoire persistante `project_h1_v1_nogo.md`.
+- **Décision** : **pas de pivot précipité** — 3 checks d'investigation obligatoires d'abord :
+  1. Sanity forward parent FAYAM sur même setup (si lui converge → bug 100% dans notre code H1)
+  2. Inspection visuelle heatmaps M (détecter softmax dégénéré)
+  3. Test unitaire fin sur `_evidence_layer` (signes, hook timing avec `generate()`)
+- **Si bug pas trouvé après 1-2 jours** → pivot H2 (TimeSHAP).
+
 ## 2026-05-17 — Fix git clone Colab v3 (session 34 — fin)
 
 - **Durée** : ~10 min
