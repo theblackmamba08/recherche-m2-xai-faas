@@ -2,6 +2,13 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-17 — Fix git clone Colab (session 34)
+
+- **Durée** : ~15 min
+- **Fait** : Cellule "Récupération du repo" de `softcam-cluster4.ipynb` corrigée — `os.system()` remplacé par `subprocess.run()` avec `capture_output=True`, vérification du `returncode`, et `FileNotFoundError` explicite si `code/src/models/` est absent. Notebook régénéré via `_generate_softcam_cluster4.py` et poussé sur GitHub (commit `7aeef09`).
+- **Blocage levé** : l'erreur `FileNotFoundError: /content/recherche-m2-xai-faas/code/src/models` observée sur Colab était due au clone silencieux (pas d'output, pas d'exception en cas d'échec).
+- **Prochaine étape** : Runtime → Disconnect and delete runtime sur Colab → re-upload notebook → T4 GPU → Run All → vérifier GATE H1.C.
+
 ## 2026-05-16 — Implémentation H1 SoftCAM-Transformer (session 33)
 
 - **Durée** : ~3 h (dialogue pédagogique + implémentation)
