@@ -68,6 +68,15 @@
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
 
+## 2026-05-17 — Implémentation H1 v2 (diagnostic-friendly) (session 36)
+
+- Nouveau fichier `code/src/models/softcam_transformer_v2.py` (~330 lignes) — sous-classe `SoftCAMTransformerV2ForPrediction` avec 2 leviers diagnostiques :
+  - `use_evidence_layer: bool` — toggle off → comportement parent FAYAM strict
+  - `evidence_mix: float ∈ [0,1]` — interpolation `h = (1-mix)·dec_output + mix·bmm(M,enc)`. mix=0 = FAYAM, mix=1 = v1
+- v1 conservé intact. `__init__.py` mis à jour : expose v1 + v2 en parallèle.
+- Compilation Python OK sur les 2 fichiers.
+- Prochaine étape : décider du plan d'A/B test (4 runs : `use=False/51ep`, `use=True,mix=0`, `mix=1.0` reproduit v1, `mix=0.3` hybrid). User en attente d'arbitrage entre "notebook complet" vs "Run A seul d'abord".
+
 ## 2026-05-17 — Premier run H1 sur Colab : **NO-GO** (session 35)
 
 - Run `softcam-cluster4-h1-v1` exécuté sur Colab T4 (04:52, 5.5 min, early stop epoch 18/60).

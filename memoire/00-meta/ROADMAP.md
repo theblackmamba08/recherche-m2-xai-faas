@@ -63,7 +63,15 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-17 (session 35 — premier run H1)
+### Dernière session : 2026-05-17 (session 36 — H1 v2 code)
+
+- **Phase actuelle** : Phase 2 — H1 SoftCAM-Transformer **v2** (diagnostic-friendly).
+- **Avancée** :
+  - Diagnostic du NO-GO v1 : hypothèse principale = **information bottleneck** (v1 remplace `dec_output` par `bmm(M, enc_hidden)`, bypass tout le travail du décodeur ; `parameter_projection` reçoit des stats très différentes de ce pour quoi il était initialisé).
+  - Code v2 écrit dans `code/src/models/softcam_transformer_v2.py` (à part, v1 intact). Ajoute `use_evidence_layer: bool` (toggle parent FAYAM strict) et `evidence_mix: float ∈ [0,1]` (interpolation `h = (1-mix)·dec_output + mix·bmm(M,enc)`).
+- **Prochain pas** : décider entre 4 runs A/B chaînés dans un notebook ou Run A seul (sanity check parent FAYAM avec proto exact 51 epochs full, pas d'early stop).
+
+### Session précédente : 2026-05-17 (session 35 — premier run H1)
 
 - **Phase actuelle** : Phase 2 — H1 SoftCAM-Transformer. **GATE H1.C échoué**, investigation requise avant pivot.
 - **Résultats** :
