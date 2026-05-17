@@ -68,6 +68,10 @@
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
 
+## 2026-05-17 — Fix git clone Colab v3 (session 34 — fin)
+
+- Troisième et dernier fix cellule clone : `subprocess.run()` abandonné au profit de `get_ipython().system()` (équivalent Python du `!` Colab) — accès complet au shell, zéro problème TTY/credentials. Commit `83a843e`.
+
 ## 2026-05-17 — Fix git clone Colab v2 (session 34 — suite)
 
 - Deuxième fix cellule clone : `capture_output=True` supprimé — c'était la vraie cause (`fatal: could not read Username`). Sans capture, git hérite du terminal Colab et clone sans demander de credentials même sur repo public.

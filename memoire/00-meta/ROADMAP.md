@@ -63,7 +63,13 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-17 (session 34 — suite)
+### Dernière session : 2026-05-17 (session 34 — fin)
+
+- **Phase actuelle** : Phase 2 — H1 SoftCAM-Transformer. Notebook définitivement prêt.
+- **Avancée** : Fix final cellule clone — `get_ipython().system()` remplace `subprocess.run()`. Colab peut maintenant cloner sans problème de TTY/credentials (commit `83a843e`).
+- **Prochain pas** : Coller le code corrigé dans la cellule Colab → Run → vérifier GATE H1.C (R² ≥ 0.30, Spearman ≥ 0.85).
+
+### Session précédente : 2026-05-17 (session 34 — suite)
 
 - **Phase actuelle** : Phase 2 — H1 SoftCAM-Transformer. Notebook définitivement prêt pour Colab.
 - **Avancée** : Double fix cellule clone — `os.system()` → `subprocess.run()` (session 34), puis suppression de `capture_output=True` (session 34 suite) qui causait `fatal: could not read Username` même sur repo public.
