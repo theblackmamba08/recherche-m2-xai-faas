@@ -63,7 +63,13 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-17 (session 34)
+### Dernière session : 2026-05-17 (session 34 — suite)
+
+- **Phase actuelle** : Phase 2 — H1 SoftCAM-Transformer. Notebook définitivement prêt pour Colab.
+- **Avancée** : Double fix cellule clone — `os.system()` → `subprocess.run()` (session 34), puis suppression de `capture_output=True` (session 34 suite) qui causait `fatal: could not read Username` même sur repo public.
+- **Prochain pas** : relancer le notebook sur Colab T4 (Runtime → Disconnect and delete runtime → re-upload → Run All) → vérifier GATE H1.C.
+
+### Session précédente : 2026-05-17 (session 34)
 
 - **Phase actuelle** : Phase 2 — H1 SoftCAM-Transformer. Notebook prêt à tourner, bug Colab corrigé.
 - **Avancée récente** :

@@ -68,6 +68,11 @@
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
 
+## 2026-05-17 — Fix git clone Colab v2 (session 34 — suite)
+
+- Deuxième fix cellule clone : `capture_output=True` supprimé — c'était la vraie cause (`fatal: could not read Username`). Sans capture, git hérite du terminal Colab et clone sans demander de credentials même sur repo public.
+- Générateur `_generate_softcam_cluster4.py` mis à jour, notebook régénéré et poussé (commit `c1b96f1`).
+
 ## 2026-05-17 — Fix cellule git clone Colab (session 34)
 
 - Cellule "Récupération du repo" du notebook `softcam-cluster4.ipynb` corrigée : `os.system()` remplacé par `subprocess.run()` avec `capture_output=True`, vérification du `returncode`, et `FileNotFoundError` explicite si `code/src/models/` est absent après clone.
