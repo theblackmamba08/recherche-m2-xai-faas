@@ -68,6 +68,13 @@
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
 
+## 2026-05-17 — Notebook Run A (sanity check pipeline) (session 37)
+
+- Nouveau notebook `code/notebooks/softcam-cluster4-v2-runA.ipynb` (28 cellules, via générateur `_generate_softcam_cluster4_v2_runA.py`).
+- Configure `SoftCAMTransformerV2ForPrediction(use_evidence_layer=False)` → comportement parent FAYAM strict, et entraîne **51 epochs full sans early stopping** (aligné `baseline-cluster4.ipynb`).
+- Verdict automatique : PASS si `|R² - 0.37| ≤ 10 pp` → pipeline saine, bug v1 isolé dans evidence layer. FAIL sinon → bug pipeline à corriger avant tout.
+- En attente du run Colab par l'user (~10-15 min sur T4).
+
 ## 2026-05-17 — Implémentation H1 v2 (diagnostic-friendly) (session 36)
 
 - Nouveau fichier `code/src/models/softcam_transformer_v2.py` (~330 lignes) — sous-classe `SoftCAMTransformerV2ForPrediction` avec 2 leviers diagnostiques :
