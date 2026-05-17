@@ -85,35 +85,25 @@ code(
 REPO_URL = 'https://github.com/theblackmamba08/recherche-m2-xai-faas.git'
 REPO_DIR = '/content/recherche-m2-xai-faas'
 
+# Ne pas utiliser capture_output=True : git hérite du terminal Colab
+# (evite l'erreur "could not read Username" sur les repos publics)
 if not os.path.isdir(REPO_DIR):
     print('Clonage du dépôt...')
-    result = subprocess.run(
-        ['git', 'clone', REPO_URL, REPO_DIR],
-        capture_output=True, text=True
-    )
-    print(result.stdout)
+    result = subprocess.run(['git', 'clone', REPO_URL, REPO_DIR])
     if result.returncode != 0:
-        print('STDERR:', result.stderr)
-        raise RuntimeError(f'git clone a échoué (code {result.returncode}):\\n{result.stderr}')
+        raise RuntimeError(f'git clone a échoué (code {result.returncode})')
     print('Clone OK.')
 else:
     print('Dépôt déjà présent — git pull...')
-    result = subprocess.run(
-        ['git', '-C', REPO_DIR, 'pull'],
-        capture_output=True, text=True
-    )
-    print(result.stdout)
-    if result.returncode != 0:
-        print('AVERTISSEMENT git pull:', result.stderr)
+    subprocess.run(['git', '-C', REPO_DIR, 'pull'])
 
-# Ajoute code/ au PYTHONPATH pour pouvoir faire `from src.models...`
 if f'{REPO_DIR}/code' not in sys.path:
     sys.path.insert(0, f'{REPO_DIR}/code')
 
 models_dir = f'{REPO_DIR}/code/src/models'
 if not os.path.isdir(models_dir):
     raise FileNotFoundError(
-        f'{models_dir} introuvable — le clone a peut-être échoué silencieusement.\\n'
+        f'{models_dir} introuvable.\\n'
         'Essaie : Runtime → Disconnect and delete runtime, puis relance la cellule.'
     )
 print('Repo prêt :', os.listdir(models_dir))"""
