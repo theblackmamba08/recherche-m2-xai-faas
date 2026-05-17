@@ -2,6 +2,12 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-17 — Fix git clone Colab v3 (session 34 — fin)
+
+- **Durée** : ~10 min
+- **Fait** : Fix final cellule clone — `subprocess.run()` remplacé par `get_ipython().system()` (équivalent Python du `!` Colab). Cause racine identifiée : subprocess ne dispose pas d'un TTY complet dans le kernel Colab, ce qui fait échouer git même sur repo public (code 128). `get_ipython().system()` hérite du shell Colab complet. Générateur mis à jour, notebook régénéré, commit `83a843e` poussé.
+- **Prochaine étape** : coller le code corrigé dans Colab → Run → vérifier GATE H1.C.
+
 ## 2026-05-17 — Fix git clone Colab v2 (session 34 — suite)
 
 - **Durée** : ~10 min
