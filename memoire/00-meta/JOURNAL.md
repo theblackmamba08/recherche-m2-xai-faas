@@ -2,6 +2,15 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-18 — Comparaison FAYAM Table VII + correction seed (session 40)
+
+- **Durée** : ~15 min
+- **Fait** :
+  - Conclusion de la comparaison FAYAM Table VII (datasets minute) vs résultats Cluster 4 : R²=0.3701 cohérent avec la fourchette FAYAM (-0.164 → 0.958), Spearman=0.92 supérieur à 5/6 datasets FAYAM.
+  - Dernier écart corrigé : `SEED = 2026` → `SEED = 998` dans `_generate_softcam_cluster4_v2_runA.py`. Notebook régénéré, commit `459730b`.
+  - Le notebook `softcam-cluster4-v2-runA.ipynb` est maintenant 100 % aligné avec le protocole FAYAM (architecture 4+4, seed 998, 51 epochs).
+- **Prochaine étape** : upload notebook sur Colab T4 → Run All → PASS (R²≈0.37) attendu → puis Run B (`use_evidence_layer=True, mix=0.3`).
+
 ## 2026-05-18 — Fix Run A : bug architecture ENCODER/DECODER_LAYERS 2→4 (session 39)
 
 - **Durée** : ~30 min (comparaison + fix + commit)
