@@ -2,6 +2,17 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-18 — Vraie cause RNG drift trouvée (evidence_linear init) (session 45)
+
+- **Durée** : ~30 min
+- **Fait** :
+  - 4e exécution Run A (sans val_loader) analysée : R²=-0.025, Spearman=0.914. Mon hypothèse RNG drift via val_loader (sessions 43-44) était FAUSSE.
+  - Comparaison ligne par ligne baseline-cluster4 vs softcam-v2-runA (8 cellules examinées). Pipeline GluonTS, transforms, dataloaders, eval : identiques.
+  - Vraie cause : `evidence_linear = nn.Linear(32, 240)` créé dans `__init__` consomme ~7920 randoms de torch RNG, même quand `use_evidence_layer=False`. Décale tous les masques de dropout → divergence des poids.
+  - Fix : re-seed RNG juste avant `create_train_dataloader` et `AdamW`. Commit `9442c9f` poussé.
+- **Blocage / leçon** : j'ai diagnostiqué deux fois la mauvaise cause avant de faire une comparaison ligne par ligne. Trois échecs sur Colab du user à cause de mes hypothèses non vérifiées.
+- **Prochaine étape** : 5e exécution sur Colab. PASS attendu.
+
 ## 2026-05-18 — Retrait val_loader, strict baseline FAYAM (session 44)
 
 - **Durée** : ~15 min
