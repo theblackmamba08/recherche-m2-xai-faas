@@ -63,7 +63,19 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-18 (session 43 — Run A 3e exécution + diagnostic RNG drift)
+### Dernière session : 2026-05-18 (session 44 — Run A strict baseline, val_loader retiré)
+
+- **Phase actuelle** : Phase 2 — Run A reconstruit en strict baseline FAYAM, prêt pour 4e exécution.
+- **Avancée** :
+  - Retrait complet du val_loader (val_rows, val_dataset, val_loader, monitoring val_r2/val_spear, plot val) dans `_generate_softcam_cluster4_v2_runA.py`. Élimine la consommation de RNG par `.generate()` à chaque epoch.
+  - Notebook régénéré et poussé sur GitHub (commit `0b49075` sur main).
+- **Prochain pas** :
+  1. 🔴 Sur Colab : **File → Open → GitHub → main** → ouvrir `code/notebooks/softcam-cluster4-v2-runA.ipynb`.
+  2. 🔴 **Runtime → Disconnect and delete runtime** → **Run All** (~8-10 min sur T4).
+  3. 🟡 Si PASS (R²≈0.37, Spearman≈0.92) → pipeline saine, on lance Run B (`use_evidence_layer=True, mix=0.3`).
+  4. 🟡 Si encore FAIL → investigation plus poussée (lags, scaler, time features).
+
+### Session précédente : 2026-05-18 (session 43 — Run A 3e exécution + diagnostic RNG drift)
 
 - **Phase actuelle** : Phase 2 — sanity check Run A toujours FAIL, cause RNG identifiée.
 - **Résultats Run A (4+4, seed=998, train split corrigé)** :

@@ -230,6 +230,12 @@
 - **Cible H1 actée : C4** (cf. [`memoire/00-meta/DECISIONS.md`](../memoire/00-meta/DECISIONS.md), entrée 2026-05-05). Phase 1 close.
 - Suite → Phase 2 : étude architecture `TimeSeriesTransformer` HF (J1 de `PLAN-ETUDE-ARCHITECTURE.md`).
 
+## 2026-05-18 — Retrait val_loader Run A (strict baseline FAYAM) (session 44)
+
+- Retrait complet de `val_rows`, `val_dataset` et `val_loader` du notebook Run A pour éliminer le RNG drift induit par `.generate()` à chaque epoch.
+- Modifications dans `_generate_softcam_cluster4_v2_runA.py` : split data, boucle d'entraînement, courbes (train_loss seul), itération set_transform. Notebook régénéré, commit `0b49075` poussé sur GitHub.
+- Suite → recharger sur Colab depuis GitHub (main), Run All. PASS attendu (R²≈0.37) si l'hypothèse RNG drift est correcte.
+
 ## 2026-05-18 — Run A 3e exécution + diagnostic RNG drift (session 43)
 
 - 3e exécution Run A archivée dans `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/softcam-cluster4-v2-runA-corrected.html` : R²=0.0529 (vs 0.3701 FAYAM, -31.72 pp), Spearman=0.9052 (-1.49 pp). Forte amélioration vs runs précédents (R²=-0.46 → 0.05) mais toujours FAIL.
