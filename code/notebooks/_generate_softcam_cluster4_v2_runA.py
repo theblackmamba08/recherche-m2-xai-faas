@@ -116,7 +116,7 @@ from functools import lru_cache, partial
 from pathlib import Path
 from tqdm.notebook import tqdm
 
-SEED = 2026
+SEED = 998   # FAYAM seed
 random.seed(SEED); np.random.seed(SEED); torch.manual_seed(SEED)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(SEED)
