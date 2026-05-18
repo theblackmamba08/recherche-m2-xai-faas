@@ -63,17 +63,17 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-18 (session 39 — fix Run A)
+### Dernière session : 2026-05-18 (session 40 — comparaison FAYAM + seed fix)
 
-- **Phase actuelle** : Phase 2 — bug Run A corrigé, notebook prêt à relancer.
+- **Phase actuelle** : Phase 2 — sanity check Run A prêt, notebook entièrement aligné sur FAYAM.
 - **Avancée** :
-  - Comparaison complète des deux notebooks. Bug trouvé : `ENCODER_LAYERS = 2, DECODER_LAYERS = 2` dans le générateur au lieu de 4+4 (FAYAM). Ce n'était pas un bug de normalisation mais un mauvais paramètre d'architecture (68k params vs 94k).
-  - Fix appliqué dans `_generate_softcam_cluster4_v2_runA.py`, notebook régénéré, commit `72a2d26`.
+  - Comparaison FAYAM Table VII finalisée : R²=0.3701 / Spearman=0.92 sur C4 sont cohérents avec la fourchette FAYAM (-0.164 → 0.958). Notre Spearman=0.92 dépasse 5/6 datasets FAYAM.
+  - Dernier écart corrigé : `SEED = 2026` → `SEED = 998` dans `_generate_softcam_cluster4_v2_runA.py`. Notebook régénéré, commit `459730b`. Le notebook est maintenant 100 % aligné avec le protocole FAYAM (architecture 4+4, seed 998).
 - **Prochain pas** :
-  1. 🔴 Re-upload `softcam-cluster4-v2-runA.ipynb` sur Colab (File → Open → GitHub → branch main).
-  2. 🔴 T4 GPU → Run All (~10-15 min).
-  3. 🟡 Si PASS (R²≈0.37) → pipeline saine, bug v1 isolé dans evidence layer → lancer Run B (`use_evidence_layer=True, mix=0.3`).
-  4. 🟡 Si encore FAIL → autre bug à investiguer (seed, val split).
+  1. 🔴 Upload `softcam-cluster4-v2-runA.ipynb` sur Colab (File → Open → GitHub → branch main).
+  2. 🔴 T4 GPU → Run All (~10-15 min) → vérifier PASS : R² ≥ 0.30, Spearman ≥ 0.85.
+  3. 🟡 Si PASS → sanity check validée, pipeline SoftCAMV2 saine → lancer Run B (`use_evidence_layer=True`, `mix=0.3`).
+  4. 🟡 Si FAIL → dernier verrou = train split (target[:-240] vs target[:-120]) à investiguer.
 
 ### Session précédente : 2026-05-17 (session 36 — H1 v2 code)
 

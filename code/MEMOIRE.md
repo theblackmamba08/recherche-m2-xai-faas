@@ -230,6 +230,12 @@
 - **Cible H1 actée : C4** (cf. [`memoire/00-meta/DECISIONS.md`](../memoire/00-meta/DECISIONS.md), entrée 2026-05-05). Phase 1 close.
 - Suite → Phase 2 : étude architecture `TimeSeriesTransformer` HF (J1 de `PLAN-ETUDE-ARCHITECTURE.md`).
 
+## 2026-05-18 — Comparaison FAYAM Table VII + correction seed (session 40)
+
+- Comparaison FAYAM Table VII (datasets minute, R² Transformer : -0.164 → 0.958) vs nos résultats C4 (R²=0.3701, Spearman=0.92) : cohérence confirmée — notre R² est dans la fourchette FAYAM côté bas-moyen, notre Spearman=0.92 est supérieur à 5/6 datasets FAYAM.
+- Bug seed corrigé dans `_generate_softcam_cluster4_v2_runA.py` : `SEED = 2026` → `SEED = 998` (valeur FAYAM). Notebook `softcam-cluster4-v2-runA.ipynb` régénéré, commit `459730b`.
+- Suite → uploader `softcam-cluster4-v2-runA.ipynb` sur Colab T4, Run All → attendre PASS (R²≈0.37), puis lancer Run B (`use_evidence_layer=True`, `mix=0.3`).
+
 ## 2026-05-16 — Implémentation H1 SoftCAM-Transformer (session 32)
 
 - **Nouveau package** `code/src/models/` créé avec `softcam_transformer.py` (~360 lignes) :
