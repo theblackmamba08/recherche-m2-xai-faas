@@ -68,6 +68,12 @@
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
 
+## 2026-05-18 — Run A PASS + Run B généré (session 46)
+
+- **Run A fix5 validé** : R²=0.5299, Spearman=0.9176. Anti-corrélation éliminée, pipeline saine. HTML archivé dans `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/softcam-cluster4-v2-runA-fix5-reseed.html`. `run.md` mis à jour (historique 5 runs).
+- **Run B généré** : `code/notebooks/softcam-cluster4-v2-runB.ipynb` (36 cellules, commit `62e38ed`) — `use_evidence_layer=True`, `evidence_mix=0.3`, GATE H1.C, extraction M via `model.explain()`, heatmaps H1.A/H1.D.
+- Suite → lancer Run B sur Colab T4 (GATE : R²≥0.30, Spearman≥0.85).
+
 ## 2026-05-18 — Fix Run A : ENCODER/DECODER_LAYERS 2→4 (session 39)
 
 - Comparaison cellule par cellule `softcam-cluster4-v2-runA.ipynb` vs `baseline-cluster4.ipynb` : bug identifié dans le générateur `_generate_softcam_cluster4_v2_runA.py`.
