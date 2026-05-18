@@ -2,6 +2,15 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-18 — Run A 3e exécution + diagnostic RNG drift (session 43)
+
+- **Durée** : ~25 min
+- **Fait** :
+  - 3e exécution Run A archivée : R²=0.0529, Spearman=0.9052 — forte amélioration vs runs précédents (R²: -0.19 → -0.46 → 0.05) mais toujours FAIL (seuil R²≥0.30).
+  - Comparaison ligne par ligne `baseline-cluster4.ipynb` vs `softcam-cluster4-v2-runA.ipynb` : config modèle et splits identiques après les 3 fix. Code v2 avec `use_evidence_layer=False` mathématiquement identique au parent (vérifié ligne 269 de `softcam_transformer_v2.py`).
+  - Cause identifiée : le val_loader appelle `.generate()` (sampling stochastique 100 trajectoires) à chaque epoch → consomme du RNG → divergence des poids vs baseline qui n'a pas de val.
+- **Prochaine étape** : retirer val_loader du notebook Run A (strict baseline) avant la 4e exécution.
+
 ## 2026-05-18 — Fix train split, notebook 100 % aligné FAYAM (session 42)
 
 - **Durée** : ~20 min
