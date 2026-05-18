@@ -2,6 +2,15 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-18 — Archivage HTML Run A, détection cache Colab (session 41)
+
+- **Durée** : ~10 min
+- **Fait** :
+  - HTML du nouveau run téléchargé par le user archivé dans `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/`.
+  - Diagnostic : le HTML révèle `ENCODER_LAYERS = 2` — Colab a exécuté l'ancien notebook en cache, pas la version corrigée (4+4, seed=998). Résultats identiques : R²=-0.1861, Spearman=0.9190.
+- **Blocage** : run non valide car mauvaise version du notebook. Résolu en demandant au user de recharger depuis GitHub (File → Open → GitHub → main).
+- **Prochaine étape** : relancer Run All après ouverture depuis GitHub — vérifier `ENCODER_LAYERS = 4` dans la config avant lancement.
+
 ## 2026-05-18 — Comparaison FAYAM Table VII + correction seed (session 40)
 
 - **Durée** : ~15 min
