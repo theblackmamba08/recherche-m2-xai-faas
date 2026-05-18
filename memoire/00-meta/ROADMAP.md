@@ -63,7 +63,20 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-18 (session 42 — fix train split, notebook 100 % FAYAM)
+### Dernière session : 2026-05-18 (session 43 — Run A 3e exécution + diagnostic RNG drift)
+
+- **Phase actuelle** : Phase 2 — sanity check Run A toujours FAIL, cause RNG identifiée.
+- **Résultats Run A (4+4, seed=998, train split corrigé)** :
+  - R² = 0.0529 (FAYAM 0.3701, -31.72 pp)
+  - Spearman = 0.9052 (FAYAM 0.9201, -1.49 pp) → ordre quasi correct, magnitude sous-estimée
+  - Forte amélioration vs runs précédents (R² évolue de -0.19 → -0.46 → 0.05)
+- **Cause identifiée** : le baseline FAYAM n'a PAS de val_loader. Run A appelle `.generate()` (sampling stochastique 100 trajectoires) sur val à chaque epoch → consomme RNG → diverge la dynamique d'entraînement. Code v2 avec `use_evidence_layer=False` est mathématiquement identique au baseline (vérifié ligne 269 de `softcam_transformer_v2.py`).
+- **Prochain pas** :
+  1. 🔴 Retirer val_loader + val_dataset du notebook Run A (strict baseline).
+  2. 🔴 Régénérer notebook, push GitHub, recharger sur Colab, Run All.
+  3. 🟡 PASS attendu si l'hypothèse RNG est correcte.
+
+### Session précédente : 2026-05-18 (session 42 — fix train split, notebook 100 % FAYAM)
 
 - **Phase actuelle** : Phase 2 — sanity check Run A, 3e correctif appliqué.
 - **Avancée** :

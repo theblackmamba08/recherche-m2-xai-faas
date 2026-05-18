@@ -230,6 +230,12 @@
 - **Cible H1 actée : C4** (cf. [`memoire/00-meta/DECISIONS.md`](../memoire/00-meta/DECISIONS.md), entrée 2026-05-05). Phase 1 close.
 - Suite → Phase 2 : étude architecture `TimeSeriesTransformer` HF (J1 de `PLAN-ETUDE-ARCHITECTURE.md`).
 
+## 2026-05-18 — Run A 3e exécution + diagnostic RNG drift (session 43)
+
+- 3e exécution Run A archivée dans `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/softcam-cluster4-v2-runA-corrected.html` : R²=0.0529 (vs 0.3701 FAYAM, -31.72 pp), Spearman=0.9052 (-1.49 pp). Forte amélioration vs runs précédents (R²=-0.46 → 0.05) mais toujours FAIL.
+- Cause probable identifiée : le baseline FAYAM n'a PAS de val_loader, alors que Run A appelle `.generate()` (sampling stochastique de 100 trajectoires) chaque epoch sur val_loader → consomme du RNG → diverge la dynamique d'entraînement même avec le même seed.
+- Suite → retirer val_loader du notebook Run A (strict baseline) avant la 4e exécution.
+
 ## 2026-05-18 — Fix train split target[:-240]→target[:-120] (session 42)
 
 - Analyse du HTML v2.1 (4+4, seed=998) : R²=-0.4604, Spearman=0.8698 — encore FAIL. Dernier écart identifié : train split `target[:-2*PREDICTION_LENGTH]` (notre notebook) vs `target[:-PREDICTION_LENGTH]` (FAYAM). On entraînait sur 120 points de moins.
