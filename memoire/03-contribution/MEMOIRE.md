@@ -54,6 +54,47 @@
 
 - Suite → implémenter `evidence_layer` dans `src/models/softcam_transformer.py` (Phase 2, J1-J2 du PLAN-ETUDE-ARCHITECTURE)
 
+## 2026-05-17 — Run A (sanity check pipeline) : **FAIL — bug d'échelle**
+
+**Run** : [`code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/`](../../code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/run.md).
+
+### Résultats
+
+| Métrique | Valeur | Δ vs FAYAM |
+|----------|--------|------------|
+| Test R² | **-0.1861** | -55.62 pp |
+| Test Spearman | **0.9190** | -0.11 pp |
+
+**Verdict : FAIL** — écart R² > 10 pp. Mais profil radicalement différent du NO-GO v1.
+
+### Analyse différentielle v1 → Run A
+
+| Signal | H1 v1 | Run A |
+|--------|--------|-------|
+| Spearman | -0.87 (anti-corrélation) | **+0.919** (quasi FAYAM) |
+| R² | -6.16 | -0.19 |
+| Cause probable | Information bottleneck (bypass décodeur) | Bug d'**échelle** (normalisation) |
+
+→ `use_evidence_layer=False` a corrigé le problème d'ordre (Spearman retrouvé). Le résidu est uniquement un problème de magnitude des prédictions.
+
+### Diagnostic (hypothèse principale)
+
+**`inverse_transform` manquant ou mal appliqué** dans la cellule d'évaluation du notebook Run A. Spearman est invariant à l'échelle (corrélation de rang) ; R² est sensible à la variance résiduelle absolue. Si les prédictions sont dans l'espace normalisé et les actuals dans l'espace original (ou vice versa), R² s'effondre pendant que Spearman reste bon.
+
+**Action** : comparer cellule par cellule `softcam-cluster4-v2-runA.ipynb` vs `baseline-cluster4.ipynb` — chercher `scaler.inverse_transform()` ou la normalisation interne HuggingFace `TimeSeriesTransformerForPrediction.forward()`.
+
+### Hypothèses H1.A–H1.E (statut)
+
+| Hypothèse | Statut après Run A |
+|-----------|-------------------|
+| H1.A (M se concentre sur pic 17h-19h) | Non testable (R² pas encore atteint) |
+| H1.B (attention décodeur lags 1440/2880) | Non testable |
+| **H1.C (R²≥0.30, Spearman≥0.85)** | **FAIL R²** — mais Spearman OK, problème identifié (échelle) |
+| H1.D (cohérence intra-cluster des M) | Non testable |
+| H1.E (best/worst function 953 vs 949) | Non testable |
+
+- Suite → corriger le bug d'échelle dans l'évaluation, relancer Run A, vérifier PASS, puis Run B (mix=0.3).
+
 ## 2026-05-17 — Premier run H1 sur Colab : **NO-GO** sur GATE H1.C
 
 **Run** : [`code/experiments/runs/2026-05-17_04-52_softcam-cluster4-h1-v1/`](../../code/experiments/runs/2026-05-17_04-52_softcam-cluster4-h1-v1/run.md) (archive locale, gitignored ; HTML + iframes conservés).

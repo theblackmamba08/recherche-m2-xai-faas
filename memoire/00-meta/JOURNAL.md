@@ -2,6 +2,17 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-17 — Run A exécuté : FAIL — bug d'échelle identifié (session 38)
+
+- **Durée** : ~10 min (archivage)
+- **Fait** :
+  - Run `softcam-cluster4-v2-runA` exécuté sur Colab T4 (HTML téléchargé et archivé).
+  - **R²=-0.1861** (-55.62 pp vs FAYAM), **Spearman=0.9190** (-0.11 pp vs FAYAM) → **FAIL**.
+  - **Signal clé** : Spearman quasi identique à FAYAM (0.919 vs 0.920) → le modèle apprend le bon ordre. R² très négatif → magnitude fausse → bug de normalisation, PAS d'anti-corrélation comme v1.
+  - Archive : `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/` (HTML + run.md complet avec diagnostic per-series).
+- **Décision** : corriger le bug d'échelle avant de tester l'evidence layer. Cause probable : `inverse_transform` manquant dans la cellule d'évaluation du Run A. À comparer avec `baseline-cluster4.ipynb`.
+- **Prochaine étape** : inspecter les cellules d'évaluation (comment FAYAM dénormalise ses prédictions vs comment le notebook Run A le fait). Corriger, relancer.
+
 ## 2026-05-17 — Notebook Run A pour sanity check pipeline (session 37)
 
 - **Durée** : ~20 min

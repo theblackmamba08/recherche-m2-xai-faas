@@ -68,6 +68,15 @@
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
 
+## 2026-05-17 — Résultats Run A : FAIL — bug d'échelle (session 38)
+
+- Run `softcam-cluster4-v2-runA` exécuté sur Colab T4. Archive : `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/` (HTML + run.md).
+- **Résultats TEST** : R²=-0.1861 (-55.62 pp vs FAYAM=0.3701) ; Spearman=0.9190 (-0.11 pp vs FAYAM=0.9201) → **FAIL**.
+- **Signal clé** : Spearman ≈ 0.92 (quasi identique FAYAM) mais R² très négatif → le modèle prédit le **bon ordre** mais la **mauvaise échelle**. Ce n'est PAS le bug d'anti-corrélation de v1.
+- **Diagnostic** : problème de normalisation/dénormalisation à l'évaluation. Hypothèse principale : `inverse_transform` non appelé sur les prédictions (ou appelé différemment vs FAYAM `baseline-cluster4.ipynb`). À comparer cellule par cellule.
+- Per-series : 949 (R²=-0.649), 951 (-0.519), 952 (+0.058), 953 (+0.073), 954 (+0.108) — toutes FAIL R², toutes OK Spearman (≈0.88-0.96).
+- **Prochaine étape** : inspecter la cellule d'évaluation du notebook Run A vs `baseline-cluster4.ipynb` — chercher où FAYAM appelle `scaler.inverse_transform()` ou la dénormalisation interne HF.
+
 ## 2026-05-17 — Notebook Run A (sanity check pipeline) (session 37)
 
 - Nouveau notebook `code/notebooks/softcam-cluster4-v2-runA.ipynb` (28 cellules, via générateur `_generate_softcam_cluster4_v2_runA.py`).
