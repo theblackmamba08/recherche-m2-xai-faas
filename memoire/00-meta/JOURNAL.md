@@ -2,6 +2,15 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-18 — Fix train split, notebook 100 % aligné FAYAM (session 42)
+
+- **Durée** : ~20 min
+- **Fait** :
+  - Analyse du HTML v2.1 (4+4, seed=998) : R²=-0.4604 — encore FAIL malgré les deux premiers correctifs. Bug restant identifié : train split `target[:-240]` (notre code) au lieu de `target[:-120]` (FAYAM). On donnait 120 points de moins à l'entraînement.
+  - Fix appliqué dans `_generate_softcam_cluster4_v2_runA.py` ligne 217, notebook régénéré, commit `977073f`.
+  - Tableau récapitulatif des 3 bugs corrigés : architecture (4+4), seed (998), train split (target[:-120]).
+- **Prochaine étape** : recharger le notebook depuis GitHub et relancer sur Colab T4 — PASS (R²≈0.37) attendu.
+
 ## 2026-05-18 — Archivage HTML Run A, détection cache Colab (session 41)
 
 - **Durée** : ~10 min
