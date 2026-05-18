@@ -63,7 +63,20 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-18 (session 51 — Run B3 FAIL, découverte structurelle, Run B4 prêt)
+### Dernière session : 2026-05-18 (session 52 — Run B4 catastrophe, Run B5 prêt — dernier test)
+
+- **Phase actuelle** : Phase 2 — H1. 5 configurations FAIL. Run B5 est le dernier test avant pivot H2.
+- **Avancée** :
+  - Run B4 (mix=0.10 sans schedules) : R²=**−3.58**, Spearman=**0.44**. PIRE que Run B3 (−1.59). Sans warm-up, le décodeur n'apprend jamais proprement.
+  - **Diagnostic confirmé** : le warm-up est l'ingrédient critique. L'analyse linéaire que j'avais faite était incomplète (oubliait que dec_output évolue end-to-end avec h_evidence).
+  - **Run B5 généré** : warm-up + anneal γ + LayerNorm + **mix=0.05** (plus petit que tous les runs). C'est la meilleure combinaison testable.
+- **Prochain pas** :
+  1. 🔴 Push GitHub (Run B5).
+  2. 🔴 Colab : `softcam-cluster4-v3-runB5.ipynb` → Run All.
+  3. 🟡 PASS H1.C → H1 défendable (mix=0.05 + carte M exacte).
+  4. 🟡 FAIL → 5 configurations FAIL = preuve empirique d'incompatibilité architecturale. **Pivot H2 (TsSHAP / SHAPformer)** documenté comme contribution scientifique négative.
+
+### Session précédente : 2026-05-18 (session 51 — Run B3 FAIL, découverte structurelle, Run B4 prêt)
 
 - **Phase actuelle** : Phase 2 — H1 en cours. 4 variantes essayées, problème structurel identifié.
 - **Avancée majeure** :

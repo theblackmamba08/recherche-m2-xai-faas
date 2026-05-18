@@ -2,6 +2,16 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-18 — Run B4 FAIL catastrophique + Run B5 généré (session 52)
+
+- **Durée** : ~25 min
+- **Fait** :
+  - Run B4 exécuté sur Colab : **R²=−3.58, Spearman=0.44** — PIRE que Run B3 (−1.59). Mix=0.10 sans warm-up est catastrophique.
+  - **Leçon clé** : sans warm-up, R² s'effondre même avec mix petit. Le warm-up est l'ingrédient critique (mon analyse linéaire négligeait que `dec_output` évolue end-to-end avec h_evidence pendant l'entraînement).
+  - **Run B5 généré** : combine TOUS les bons ingrédients (warm-up + anneal γ + LayerNorm) avec mix cible = 0.05 (plus petit que tous les runs précédents). Notebook 36 cellules.
+  - Résultats archivés : `code/experiments/runs/2026-05-18_softcam-cluster4-v3-runB4/` (HTML + JSON + run.md), dossier B5 créé.
+- **Prochaine étape** : push GitHub → lancer Run B5 sur Colab. C'est le dernier test avant pivot H2.
+
 ## 2026-05-18 — Run B3 FAIL + analyse structurelle + Run B4 généré (session 51)
 
 - **Durée** : ~30 min

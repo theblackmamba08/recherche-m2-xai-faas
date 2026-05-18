@@ -68,6 +68,14 @@
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
 
+## 2026-05-18 — Run B4 FAIL catastrophique + Run B5 prêt (session 52)
+
+- **Run B4** (mix=0.10 constant, γ=0, v3) : R²=**−3.58**, Spearman=**0.44** — pire que B3 (−1.59). Sans warm-up, le décodeur ne converge jamais proprement même avec mix petit. M argmax=148, max_weight=0.18-0.23, cosine=0.992.
+- **Leçon** : mon analyse linéaire (`R² ≈ 0.9·R²(dec) + 0.1·R²(h_evi)`) était fausse car elle supposait dec_output figé. En réalité, dec_output évolue *avec* h_evidence pendant l'entraînement. Sans warm-up, ses représentations sont contaminées dès l'epoch 0.
+- **Run B5 généré** (`_generate_softcam_cluster4_v3_runB5.py` + notebook 36 cellules) : combine TOUS les bons ingrédients (warm-up mix + anneal γ + LayerNorm) avec mix cible = 0.05. Dernier test avant pivot.
+- Résultats archivés : `code/experiments/runs/2026-05-18_softcam-cluster4-v3-runB4/` (HTML + JSON + run.md).
+- Suite → push GitHub + lancer Run B5 sur Colab T4.
+
 ## 2026-05-18 — Run B3 FAIL + Run B4 généré (session 51)
 
 - **Run B3** (v3, warm-up + LayerNorm) : R²=−1.59, Spearman=0.78. M devient diffuse (max_weight 0.97→0.06, entropy 3.5→4.95) — le LayerNorm a fait son travail. Mais R² reste très négatif.
