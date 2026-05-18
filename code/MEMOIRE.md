@@ -68,6 +68,13 @@
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
 
+## 2026-05-18 — SoftCAM v3 + Run B3 généré (session 50)
+
+- Nouveau fichier `code/src/models/softcam_transformer_v3.py` : hérite v2, ajoute `evidence_norm = nn.LayerNorm(d_model)` appliqué sur `h_evidence` avant le mix (Fix #4). 2 lignes de code.
+- `code/src/models/__init__.py` mis à jour pour exposer v3.
+- Générateur `code/notebooks/_generate_softcam_cluster4_v3_runB3.py` créé + notebook `softcam-cluster4-v3-runB3.ipynb` (36 cellules). Commit `96b62a0`.
+- Suite → lancer Run B3 sur Colab T4 (GATE H1.C : R²≥0.30, Spearman≥0.85).
+
 ## 2026-05-18 — Run B2 FAIL + archivage (session 49)
 
 - **Run B** (mix=0.3 constant, γ=1e-3 constant) : R²=−2.8251, Spearman=0.3301. *Attention collapse* : M quasi-Dirac sur position s≈211, max_weight=0.85, cosine 0.997 entre fonctions.

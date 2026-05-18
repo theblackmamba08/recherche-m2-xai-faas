@@ -63,7 +63,17 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-18 (session 49 — Run B2 archivé, Fix #4 planifié)
+### Dernière session : 2026-05-18 (session 50 — SoftCAM v3 + Run B3 prêt)
+
+- **Phase actuelle** : Phase 2 — H1 en cours. Fix #4 implémenté dans `softcam_transformer_v3.py`, Run B3 prêt.
+- **Avancée** : `SoftCAMTransformerV3ForPrediction` créé (hérite v2 + `evidence_norm = LayerNorm(d_model)` sur `h_evidence` avant mix). Notebook Run B3 généré (36 cellules, commit `96b62a0`). Schedules Run B2 conservés.
+- **Prochain pas** :
+  1. 🔴 Sur Colab : **File → Open → GitHub → main** → `code/notebooks/softcam-cluster4-v3-runB3.ipynb`.
+  2. 🔴 **Runtime → Disconnect and delete runtime** → **Run All** (~15-20 min sur T4).
+  3. 🟡 PASS H1.C (R²≥0.30, Spearman≥0.85) → analyser cartes M, rédiger contribution.
+  4. 🟡 FAIL → pivot H2 (TsSHAP/SHAPformer).
+
+### Session précédente : 2026-05-18 (session 49 — Run B2 archivé, Fix #4 planifié)
 
 - **Phase actuelle** : Phase 2 — H1 en cours. Run B et Run B2 FAIL, Fix #4 architectural identifié.
 - **Avancée** :

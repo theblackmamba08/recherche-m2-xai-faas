@@ -2,6 +2,14 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-18 — SoftCAM v3 + Run B3 généré (session 50)
+
+- **Durée** : ~15 min
+- **Fait** :
+  - `code/src/models/softcam_transformer_v3.py` créé : hérite de v2, ajoute `evidence_norm = nn.LayerNorm(d_model)` appliqué sur `h_evidence` avant le mix (Fix #4 — corrige l'incompatibilité statistique identifiée en Run B2).
+  - `__init__.py` mis à jour, générateur Run B3 + notebook 36 cellules créés. Commit `96b62a0`.
+- **Prochaine étape** : lancer Run B3 sur Colab T4 (GATE H1.C : R²≥0.30, Spearman≥0.85).
+
 ## 2026-05-18 — Run B2 FAIL + archivage (session 49)
 
 - **Durée** : ~20 min
