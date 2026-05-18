@@ -429,9 +429,9 @@ print('Helper évaluation prêt.')"""
 md(
     """## 9 — Entraînement 51 epochs — monitoring des 3 composantes de loss
 
-On monitore `forecast_loss`, `elastic_loss` (L2 sur M), `entropy_loss` (entropie de Shannon sur M).
-La loss totale envoyée à l'optimiseur est `forecast_loss + elastic_loss - entropy_loss`
-(on maximise l'entropie → régularisation de sparsité).
+On monitore `forecast_loss`, `elastic_loss` (β·‖M‖²), `entropy_loss` (γ·H(M), entropie de Shannon par ligne de M).
+La loss totale envoyée à l'optimiseur est `forecast_loss + elastic_loss + entropy_loss`
+(on **minimise** l'entropie → M tend vers des distributions piquées → **sparsité** → interprétabilité).
 """
 )
 
@@ -503,10 +503,10 @@ code(
 ep = list(range(len(history['train_loss'])))
 
 pairs = [
-    (axes[0, 0], 'train_loss',    'steelblue',  'Loss totale (NLL + elastic - entropy)'),
+    (axes[0, 0], 'train_loss',    'steelblue',  'Loss totale (NLL + elastic + entropy)'),
     (axes[0, 1], 'forecast_loss', 'darkorange', 'Forecast loss (NLL)'),
     (axes[1, 0], 'elastic_loss',  'firebrick',  'Elastic loss (L2 sur M)'),
-    (axes[1, 1], 'entropy_loss',  'seagreen',   'Entropy H(M) (maximisée → sparsité)'),
+    (axes[1, 1], 'entropy_loss',  'seagreen',   'Entropy γ·H(M) (minimisée → sparsité)'),
 ]
 for ax, key, color, title in pairs:
     ax.plot(ep, history[key], lw=1.5, color=color)
