@@ -210,19 +210,17 @@ for s in all_series:
     print(f"  function_id={s['function_id']}  longueur={len(s['target_full'])}  "
           f"moy={s['target_full'].mean():.0f}  max={s['target_full'].max():.0f}")
 
-train_rows, val_rows, test_rows = [], [], []
+train_rows, test_rows = [], []
 for ts_idx, s in enumerate(all_series):
     base = {'start': START_DATE, 'feat_static_cat': [ts_idx],
             'cluster': s['cluster'], 'function_id': s['function_id']}
     train_rows.append({**base, 'target': s['target_full'][:-PREDICTION_LENGTH].tolist()})   # FAYAM: target[:-120]
-    val_rows.append(  {**base, 'target': s['target_full'][:-PREDICTION_LENGTH].tolist()})
     test_rows.append( {**base, 'target': s['target_full'].tolist()})
 
 train_dataset = Dataset.from_list(train_rows)
-val_dataset   = Dataset.from_list(val_rows)
 test_dataset  = Dataset.from_list(test_rows)
 
-print(f'\\nDatasets : train={len(train_dataset)}  val={len(val_dataset)}  test={len(test_dataset)}')"""
+print(f'\\nDatasets : train={len(train_dataset)}  test={len(test_dataset)}  (pas de val — strict baseline FAYAM)')"""
 )
 
 md("## 6 — Pipeline GluonTS (identique à FAYAM)")
@@ -250,7 +248,7 @@ def transform_start_field(batch, freq):
     batch['start'] = [convert_to_pandas_period(d, freq) for d in batch['start']]
     return batch
 
-for ds in (train_dataset, val_dataset, test_dataset):
+for ds in (train_dataset, test_dataset):
     ds.set_transform(partial(transform_start_field, freq=FREQ))
 
 print(f'Lags : {len(lags_sequence)} (max={max(lags_sequence)})')
@@ -429,11 +427,10 @@ code(
     """from torch.optim import AdamW
 
 train_loader = create_train_dataloader(cfg, FREQ, train_dataset, BATCH_SIZE_TRAIN, NUM_BATCHES_EPOCH)
-val_loader   = create_backtest_dataloader(cfg, FREQ, val_dataset, BATCH_SIZE_TEST)
 
 optimizer = AdamW(model.parameters(), lr=LR, betas=BETAS, weight_decay=WEIGHT_DECAY)
 
-history = {'train_loss': [], 'val_r2': [], 'val_spear': []}
+history = {'train_loss': []}
 ckpt_path = f'{DRIVE_BASE}/checkpoints/v2_runA_final.pt'
 
 for epoch in range(NUM_EPOCHS):
@@ -458,37 +455,27 @@ for epoch in range(NUM_EPOCHS):
         pbar.set_postfix({'loss': f'{out.loss.item():.3f}'})
 
     train_loss = float(np.mean(losses))
-    val_r2, val_spear, _, _ = evaluate(model, val_loader, val_dataset, cfg, device)
     history['train_loss'].append(train_loss)
-    history['val_r2'].append(val_r2)
-    history['val_spear'].append(val_spear)
-    print(f'Epoch {epoch:03d}  loss={train_loss:.4f}  val_r2={val_r2:.4f}  val_spear={val_spear:.4f}')
+    print(f'Epoch {epoch:03d}  loss={train_loss:.4f}')
 
-# Final checkpoint (pas de best — proto FAYAM)
+# Final checkpoint (pas de best — proto FAYAM, pas de val)
 torch.save({
     'epoch': NUM_EPOCHS - 1, 'model': model.state_dict(),
-    'val_r2': history['val_r2'][-1], 'val_spear': history['val_spear'][-1],
     'history': history, 'hyperparameters': cfg.to_dict(),
 }, ckpt_path)
-print(f'\\nEntraînement terminé — final val R² = {history[\"val_r2\"][-1]:.4f}')"""
+print(f'\\nEntraînement terminé — {NUM_EPOCHS} epochs')"""
 )
 
-md("## 10 — Courbes de loss + val R²")
+md("## 10 — Courbe de train loss")
 
 code(
-    """fig, axes = plt.subplots(1, 2, figsize=(13, 4.5))
+    """fig, ax = plt.subplots(1, 1, figsize=(7, 4.5))
 ep = list(range(len(history['train_loss'])))
 
-axes[0].plot(ep, history['train_loss'], lw=1.5, color='steelblue')
-axes[0].set_xlabel('Époque'); axes[0].set_ylabel('Train loss (NLL)')
-axes[0].set_title('Train loss')
-axes[0].grid(alpha=0.3)
-
-axes[1].plot(ep, history['val_r2'], lw=1.5, color='tomato', label='v2 (use=False) val R²')
-axes[1].axhline(FAYAM_BASELINE_R2, color='gray', lw=1, ls='--', label=f'FAYAM ({FAYAM_BASELINE_R2})')
-axes[1].set_xlabel('Époque'); axes[1].set_ylabel('R²')
-axes[1].set_title('Validation R²')
-axes[1].legend(); axes[1].grid(alpha=0.3)
+ax.plot(ep, history['train_loss'], lw=1.5, color='steelblue')
+ax.set_xlabel('Époque'); ax.set_ylabel('Train loss (NLL)')
+ax.set_title('Train loss — strict baseline FAYAM (pas de val)')
+ax.grid(alpha=0.3)
 
 plt.tight_layout()
 plt.savefig(f'{DRIVE_BASE}/results/training_curves.png', dpi=150)
