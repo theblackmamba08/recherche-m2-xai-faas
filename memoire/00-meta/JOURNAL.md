@@ -11,6 +11,7 @@
   - **Run B4 généré** : mix=0.10 constant (pas de warm-up), γ=0 (pas d'entropie), modèle v3. Estimation : R² ≈ 0.9×0.53 + 0.1×(-1) ≈ 0.38 → PASS. Notebook créé (34 cellules), run.md template prêt.
   - Résultats archivés : `code/experiments/runs/2026-05-18_softcam-cluster4-v3-runB3/` (HTML + JSON + run.md). Dossier `2026-05-18_softcam-cluster4-v3-runB4/` créé.
 - **Prochaine étape** : push GitHub puis lancer Run B4 sur Colab T4. Si FAIL → Run B5 (mix=0.05) ou Run B6 (architectural).
+- **Commit** : `e4c6f1d` — Run B4 généré et poussé sur GitHub.
 
 ## 2026-05-18 — SoftCAM v3 + Run B3 généré (session 50)
 
