@@ -2,6 +2,18 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-18 — Run B5 PASS H1.C — H1 défendu ✅ (session 53)
+
+- **Durée** : ~25 min
+- **Fait** :
+  - Run B5 exécuté sur Colab : **R²=0.6628, Spearman=0.9222** → ✅ **PASS H1.C** (gates ≥0.30 et ≥0.85 dépassés).
+  - R² meilleur que Run A (0.53) et FAYAM (0.37). Spearman au niveau de FAYAM.
+  - Per-series : toutes positives (R² 0.50-0.78), toutes Spearman élevés (0.89-0.96).
+  - **Recette gagnante** : warm-up mix + anneal γ + LayerNorm + mix=0.05. Les 4 ingrédients sont nécessaires, aucune sous-combinaison ne marche (prouvé par B, B2, B3, B4).
+  - M extractible : argmax ~93, max_weight ~0.19, entropy ~4.35 → modérément piquée, ni Dirac ni uniforme.
+  - Résultats archivés : `code/experiments/runs/2026-05-18_softcam-cluster4-v3-runB5/` (HTML + JSON + run.md détaillé).
+- **Prochaine étape** : analyser cartes M (H1.A profil argmax, interprétation), tester sur d'autres clusters, démarrer rédaction chapitre H1.
+
 ## 2026-05-18 — Run B4 FAIL catastrophique + Run B5 généré (session 52)
 
 - **Durée** : ~25 min

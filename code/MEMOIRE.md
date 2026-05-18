@@ -68,6 +68,16 @@
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
 
+## 2026-05-18 — Run B5 PASS H1.C ✅ — H1 validé sur Cluster 4 (session 53)
+
+- **Run B5** (v3 + warm-up + anneal + LayerNorm + mix=0.05) : **R²=0.6628, Spearman=0.9222** → ✅ **PASS H1.C**.
+- R² meilleur que Run A (0.5299) et FAYAM (0.3701). Spearman équivalent FAYAM (0.9201).
+- Per-series : 949 (R²=0.63, Sp=0.96), 951 (0.66, 0.96), 952 (0.78, 0.91), 953 (0.50, 0.89), 954 (0.74, 0.90) — toutes positives, toutes solides.
+- M extractible : argmax_mean=93/239, max_weight=0.19, row_entropy=4.35, cosine intra-cluster=0.993 → modérément piquée, ni effondrée ni uniforme.
+- **Recette gagnante** : 4 ingrédients combinés (warm-up mix + anneal γ + LayerNorm + mix=0.05). Aucune sous-combinaison ne marche (preuve : 4 runs FAIL avant celui-ci).
+- Résultats archivés : `code/experiments/runs/2026-05-18_softcam-cluster4-v3-runB5/` (HTML + JSON + run.md complet avec argument scientifique).
+- Suite → analyser cartes M, démarrer rédaction H1.
+
 ## 2026-05-18 — Run B4 FAIL catastrophique + Run B5 prêt (session 52)
 
 - **Run B4** (mix=0.10 constant, γ=0, v3) : R²=**−3.58**, Spearman=**0.44** — pire que B3 (−1.59). Sans warm-up, le décodeur ne converge jamais proprement même avec mix petit. M argmax=148, max_weight=0.18-0.23, cosine=0.992.

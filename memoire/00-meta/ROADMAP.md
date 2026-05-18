@@ -63,7 +63,21 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-18 (session 52 — Run B4 catastrophe, Run B5 prêt — dernier test)
+### Dernière session : 2026-05-18 (session 53 — **PASS H1.C** ✅ — H1 défendu)
+
+- **Phase actuelle** : Phase 2 — **H1 VALIDÉ sur Cluster 4**. SoftCAM-Transformer fonctionne.
+- **Avancée majeure** :
+  - **Run B5 PASS H1.C** : R²=**0.6628**, Spearman=**0.9222**. Les deux gates dépassés (≥0.30 et ≥0.85).
+  - R² > Run A (0.53) > FAYAM (0.37). Spearman = FAYAM.
+  - Toutes les 5 fonctions ont R² positif et Spearman ≥ 0.89.
+  - Recette gagnante : warm-up mix (→0.05) + anneal γ (→1e-3) + LayerNorm + mix très petit (0.05). Les 4 ingrédients sont nécessaires.
+- **Prochain pas** :
+  1. 🟢 Analyser cartes M (H1.A profil argmax, lecture interprétative).
+  2. 🟢 Tenter Cluster 0/8 si possible (sinon documenter limitations).
+  3. 🟢 Démarrer rédaction chapitre H1 (Méthode + Résultats).
+  4. 🟢 Préparer présentation pour l'encadreur (annonce du PASS).
+
+### Session précédente : 2026-05-18 (session 52 — Run B4 catastrophe, Run B5 prêt — dernier test)
 
 - **Phase actuelle** : Phase 2 — H1. 5 configurations FAIL. Run B5 est le dernier test avant pivot H2.
 - **Avancée** :
