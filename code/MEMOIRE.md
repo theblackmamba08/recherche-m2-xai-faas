@@ -230,6 +230,12 @@
 - **Cible H1 actée : C4** (cf. [`memoire/00-meta/DECISIONS.md`](../memoire/00-meta/DECISIONS.md), entrée 2026-05-05). Phase 1 close.
 - Suite → Phase 2 : étude architecture `TimeSeriesTransformer` HF (J1 de `PLAN-ETUDE-ARCHITECTURE.md`).
 
+## 2026-05-18 — Archivage Run A (ancien notebook — ENCODER_LAYERS=2) (session 41)
+
+- HTML téléchargé par le user archivé dans `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/` (écrase l'ancien HTML).
+- Diagnostic : le HTML montre `ENCODER_LAYERS = 2` → Colab a exécuté l'ancien notebook en cache, pas la version corrigée. Résultats identiques au run précédent (R²=-0.1861, Spearman=0.9190).
+- Suite → user doit ouvrir le notebook depuis GitHub (File → Open → GitHub → main) pour charger la version 4+4, seed=998, puis relancer.
+
 ## 2026-05-18 — Comparaison FAYAM Table VII + correction seed (session 40)
 
 - Comparaison FAYAM Table VII (datasets minute, R² Transformer : -0.164 → 0.958) vs nos résultats C4 (R²=0.3701, Spearman=0.92) : cohérence confirmée — notre R² est dans la fourchette FAYAM côté bas-moyen, notre Spearman=0.92 est supérieur à 5/6 datasets FAYAM.

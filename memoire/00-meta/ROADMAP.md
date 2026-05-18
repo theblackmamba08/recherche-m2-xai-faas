@@ -63,7 +63,18 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-18 (session 40 — comparaison FAYAM + seed fix)
+### Dernière session : 2026-05-18 (session 41 — archivage HTML Run A, Colab cache détecté)
+
+- **Phase actuelle** : Phase 2 — sanity check Run A pas encore validée.
+- **Avancée** :
+  - HTML du run Colab archivé dans `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/`.
+  - Diagnostic : Colab a exécuté l'ANCIEN notebook (cache) — `ENCODER_LAYERS=2` visible dans le HTML. Résultats inchangés : R²=-0.1861, Spearman=0.9190.
+- **Prochain pas** :
+  1. 🔴 Sur Colab : **File → Open → GitHub → branche main** → ouvrir `code/notebooks/softcam-cluster4-v2-runA.ipynb` (version corrigée 4+4, seed=998).
+  2. 🔴 **Runtime → Disconnect and delete runtime** puis **Run All**.
+  3. 🟡 Vérifier dans la cellule config que `ENCODER_LAYERS = 4` avant de lancer.
+
+### Session précédente : 2026-05-18 (session 40 — comparaison FAYAM + seed fix)
 
 - **Phase actuelle** : Phase 2 — sanity check Run A prêt, notebook entièrement aligné sur FAYAM.
 - **Avancée** :
