@@ -2,6 +2,16 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-18 — Fix Run A : bug architecture ENCODER/DECODER_LAYERS 2→4 (session 39)
+
+- **Durée** : ~30 min (comparaison + fix + commit)
+- **Fait** :
+  - Comparaison complète cellule par cellule entre `softcam-cluster4-v2-runA.ipynb` et `baseline-cluster4.ipynb`.
+  - Bug trouvé dans le générateur : `ENCODER_LAYERS = 2, DECODER_LAYERS = 2` au lieu de 4+4 (FAYAM). Le Run A tournait avec un modèle à 68k paramètres contre 94k pour FAYAM — deux architectures différentes. Ce n'était PAS un bug de normalisation/`inverse_transform` comme suspecté initialement.
+  - Le Spearman=0.919 confirmait que le modèle apprenait la bonne direction, mais R²=-0.19 révélait un problème de capacité pour calibrer les magnitudes.
+  - Fix : `ENCODER_LAYERS = 4, DECODER_LAYERS = 4` dans `_generate_softcam_cluster4_v2_runA.py`, notebook régénéré, commit `72a2d26`.
+- **Prochaine étape** : re-upload notebook corrigé sur Colab → Run All → PASS (R²≈0.37) attendu.
+
 ## 2026-05-17 — Run A exécuté : FAIL — bug d'échelle identifié (session 38)
 
 - **Durée** : ~10 min (archivage)
