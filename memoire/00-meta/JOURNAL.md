@@ -2,6 +2,15 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-18 — Audit Run B + fix docs entropie (session 47)
+
+- **Durée** : ~15 min
+- **Fait** :
+  - Audit ligne par ligne du générateur Run B + comparaison avec `softcam_transformer_v2.py`. Tous les fixes de Run A sont en place ; shapes et batch mismatch validés.
+  - 2 bugs de doc corrigés : `+ elastic − entropy` (faux) → `+ elastic + entropy` (réel), et « maximise entropie → sparsité » (logiquement faux) → « minimise entropie → sparsité » (correct). Commit `08be6b3`.
+  - Caveat noté : la fenêtre de test = 22h-24h (jour 14), pas 17h-19h. H1.A teste où M se concentre, pas le pic journalier en direct.
+- **Prochaine étape** : lancer Run B sur Colab T4.
+
 ## 2026-05-18 — Run A PASS + Run B généré (session 46)
 
 - **Durée** : ~20 min

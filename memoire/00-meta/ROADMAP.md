@@ -63,22 +63,32 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-18 (session 46 — Run A PASS + Run B généré)
+### Dernière session : 2026-05-18 (session 48 — archivage test_metrics.json Run A)
 
-- **Phase actuelle** : Phase 2 — Run A validé, Run B prêt à lancer.
-- **Résultats Run A fix5 (re-seed RNG)** : **R²=0.5299, Spearman=0.9176** — anti-corrélation éliminée, pipeline validée.
-  - Le notebook a affiché "FAIL" (|R²−0.37|>10 pp) mais c'est un faux négatif : R² est MEILLEUR que FAYAM (0.53 vs 0.37), pas pire. La différence vient du retrait du val_loader = plus de données d'entraînement. Spearman quasi-identique (−0.25 pp).
-- **Run B généré** : `code/notebooks/softcam-cluster4-v2-runB.ipynb` (36 cellules).
-  - `use_evidence_layer=True`, `evidence_mix=0.3` (70 % dec + 30 % evidence).
-  - Monitoring des 3 composantes de loss (NLL, elastic, entropy).
-  - GATE H1.C : R²≥0.30, Spearman≥0.85.
-  - Extraction evidence maps M par `model.explain()` + heatmaps + H1.A (argmax) + H1.D (cohérence).
-  - Commit `62e38ed` poussé.
+- **Phase actuelle** : Phase 2 — Run A entièrement archivé, Run B prêt à lancer.
+- **Avancée** : `test_metrics.json` (métriques complètes run 5 : R²=0.5299, Spearman=0.9176, 5 séries, hyperparamètres) déposé dans `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/`. `run.md` mis à jour.
 - **Prochain pas** :
   1. 🔴 Sur Colab : **File → Open → GitHub → main** → ouvrir `code/notebooks/softcam-cluster4-v2-runB.ipynb`.
   2. 🔴 **Runtime → Disconnect and delete runtime** → **Run All** (~15-20 min sur T4).
-  3. 🟡 PASS H1.C si R²≥0.30 ET Spearman≥0.85 → analyser les cartes M (H1.A/H1.D).
+  3. 🟡 PASS H1.C si R²≥0.30 ET Spearman≥0.85 → analyser cartes M (H1.A/H1.D).
   4. 🟡 FAIL H1.C → essayer mix=0.1 (Run C) avant pivot H2.
+
+### Session précédente : 2026-05-18 (session 47 — audit Run B + fix docs entropie)
+
+- **Phase actuelle** : Phase 2 — Run B audité au peigne fin, prêt à lancer sur Colab.
+- **Audit OK** : tous les fixes de Run A présents (re-seed RNG, 4+4 layers, seed=998, split [:-120], pas de val_loader). Shapes `model.explain()` et batch mismatch enc/dec vérifiés.
+- **Bugs de doc corrigés** : cellule 9 et plot cellule 10 affichaient `+ elastic − entropy → max entropie → sparsité`. Or le modèle calcule `forecast + elastic + entropy` (somme) — on **minimise** l'entropie pour obtenir des M piqués. Commit `08be6b3` poussé.
+- **Caveat noté** : fenêtre de test = 22h-24h (jour 14), pas 17h-19h. H1.A teste où M se concentre pour cette fenêtre, pas le pic journalier en direct.
+- **Prochain pas** :
+  1. 🔴 Sur Colab : **File → Open → GitHub → main** → ouvrir `code/notebooks/softcam-cluster4-v2-runB.ipynb`.
+  2. 🔴 **Runtime → Disconnect and delete runtime** → **Run All** (~15-20 min sur T4).
+  3. 🟡 PASS H1.C (R²≥0.30 ET Spearman≥0.85) → analyser cartes M (H1.A/H1.D).
+  4. 🟡 FAIL H1.C → essayer mix=0.1 (Run C) avant pivot H2.
+
+### Session précédente : 2026-05-18 (session 46 — Run A PASS + Run B généré)
+
+- Run A fix5 validé : R²=0.5299, Spearman=0.9176.
+- Run B notebook généré (36 cellules, commit `62e38ed`).
 
 ### Session précédente : 2026-05-18 (session 44 — Run A strict baseline, val_loader retiré)
 

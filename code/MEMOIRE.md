@@ -68,6 +68,19 @@
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
 
+## 2026-05-18 — Archivage test_metrics.json Run A (session 48)
+
+- `test_metrics.json` déposé dans `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/` : métriques complètes du run 5 définitif (R²=0.5299339, Spearman=0.9175744, valeurs par série × 5, hyperparamètres complets).
+- `run.md` mis à jour pour référencer le fichier JSON.
+- Suite → lancer Run B sur Colab T4 (GATE H1.C : R²≥0.30, Spearman≥0.85).
+
+## 2026-05-18 — Audit Run B + fix docs (session 47)
+
+- **Audit ligne par ligne** du générateur Run B : tous les fixes de Run A (re-seed RNG, 4+4 layers, seed=998, split [:-120], pas de val_loader) sont bien en place. Shapes `model.explain()`, gestion batch mismatch encoder/decoder vérifiées.
+- **2 bugs de doc corrigés** : le commentaire cellule 9 et le titre du plot cellule 10 disaient « + elastic − entropy → maximise entropie → sparsité ». Or le modèle (`softcam_transformer_v2.py:367`) calcule `forecast + elastic + entropy` — on **minimise** l'entropie pour piquer M. Commit `08be6b3`.
+- **À noter** : la fenêtre de test = 22h-24h (dernières 120 min de 14 jours à partir du 2021-01-01), pas 17h-19h. L'H1.A telle qu'écrite teste où M se concentre pour cette fenêtre, pas le pic journalier directement.
+- Suite → lancer Run B sur Colab T4 (GATE H1.C : R²≥0.30, Spearman≥0.85).
+
 ## 2026-05-18 — Run A PASS + Run B généré (session 46)
 
 - **Run A fix5 validé** : R²=0.5299, Spearman=0.9176. Anti-corrélation éliminée, pipeline saine. HTML archivé dans `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/softcam-cluster4-v2-runA-fix5-reseed.html`. `run.md` mis à jour (historique 5 runs).
