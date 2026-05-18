@@ -2,6 +2,17 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-18 — Run B2 FAIL + archivage (session 49)
+
+- **Durée** : ~20 min
+- **Fait** :
+  - Run B exécuté sur Colab T4 : **R²=−2.8251, Spearman=0.3301** → FAIL catastrophique. Diagnostic : *attention collapse* (M quasi-Dirac sur s≈211, max_weight=0.85, cosine intra-cluster=0.997). Cause : pénalité d'entropie active dès epoch 0 + mix=0.3 dès epoch 0 corrompent le décodeur.
+  - Run B2 conçu et exécuté : **warm-up mix** (0→0.3 sur epochs 0-35) + **annealing γ** (0→1e-3 sur epochs 0-40). Résultats : **R²=−1.9660, Spearman=0.8028** → toujours FAIL mais progrès majeur (+85 pp R², +47 pp Spearman vs Run B).
+  - Analyse Run B2 : Spearman=0.80 (proche du gate 0.85) → le modèle prédit le bon rang. R² reste négatif → la **magnitude** est fausse. Cause probable : `h_evidence = bmm(M, enc_hidden)` n'est pas dans le même espace statistique que `dec_output` (pas de LayerNorm).
+  - Résultats archivés : `code/experiments/runs/2026-05-18_softcam-cluster4-v2-runB/run.md` mis à jour, dossier `2026-05-18_softcam-cluster4-v2-runB2/` créé avec HTML + test_metrics.json + run.md.
+  - Générateur Run B2 créé : `code/notebooks/_generate_softcam_cluster4_v2_runB2.py` + notebook 36 cellules.
+- **Prochaine étape** : Run B3 — ajouter `LayerNorm` sur `h_evidence` avant le mix (Fix #4 architectural, 2 lignes dans `softcam_transformer_v2.py`).
+
 ## 2026-05-18 — Audit Run B + fix docs entropie (session 47)
 
 - **Durée** : ~15 min

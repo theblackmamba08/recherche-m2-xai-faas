@@ -68,6 +68,15 @@
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
 
+## 2026-05-18 — Run B2 FAIL + archivage (session 49)
+
+- **Run B** (mix=0.3 constant, γ=1e-3 constant) : R²=−2.8251, Spearman=0.3301. *Attention collapse* : M quasi-Dirac sur position s≈211, max_weight=0.85, cosine 0.997 entre fonctions.
+- **Run B2** (warm-up mix 0→0.3 epochs 0-35, annealing γ 0→1e-3 epochs 0-40) : R²=−1.9660, Spearman=0.8028. Progrès : +85.91 pp R², +47.27 pp Spearman vs Run B. Mais toujours FAIL. M encore effondrée (argmax_mean=25.9, max_weight=0.97).
+- **Diagnostic** : Spearman proche de 0.85 → le modèle classe correctement. R² très négatif → la magnitude est fausse. Cause probable : `h_evidence = bmm(M, enc_hidden)` n'a pas subi de LayerNorm — différence d'espace statistique avec `dec_output` (qui en a traversé plusieurs) → la tête `parameter_projection` génère une mauvaise échelle.
+- Résultats archivés : `code/experiments/runs/2026-05-18_softcam-cluster4-v2-runB/run.md` mis à jour (FAIL + diagnostic). `code/experiments/runs/2026-05-18_softcam-cluster4-v2-runB2/` créé (HTML + test_metrics.json + run.md).
+- Générateur créé : `code/notebooks/_generate_softcam_cluster4_v2_runB2.py` + notebook 36 cellules.
+- Suite → **Run B3 = Fix #4** : `nn.LayerNorm(d_model)` sur h_evidence avant le mix dans `softcam_transformer_v2.py`.
+
 ## 2026-05-18 — Archivage test_metrics.json Run A (session 48)
 
 - `test_metrics.json` déposé dans `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/` : métriques complètes du run 5 définitif (R²=0.5299339, Spearman=0.9175744, valeurs par série × 5, hyperparamètres complets).

@@ -63,15 +63,19 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-18 (session 48 — archivage test_metrics.json Run A)
+### Dernière session : 2026-05-18 (session 49 — Run B2 archivé, Fix #4 planifié)
 
-- **Phase actuelle** : Phase 2 — Run A entièrement archivé, Run B prêt à lancer.
-- **Avancée** : `test_metrics.json` (métriques complètes run 5 : R²=0.5299, Spearman=0.9176, 5 séries, hyperparamètres) déposé dans `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/`. `run.md` mis à jour.
+- **Phase actuelle** : Phase 2 — H1 en cours. Run B et Run B2 FAIL, Fix #4 architectural identifié.
+- **Avancée** :
+  - Run B (mix=0.3 constant, γ=1e-3 constant) : R²=−2.83, Spearman=0.33. *Attention collapse* : M quasi-Dirac sur s≈211, max_weight=0.85.
+  - Run B2 (warm-up mix + annealing γ) : R²=−1.97, Spearman=0.80 (progrès +85/+47 pp). M encore effondrée (s≈25, max_weight=0.97) mais Spearman proche du gate 0.85.
+  - Cause persistante : `h_evidence = bmm(M, enc_hidden)` n'est pas dans le même espace statistique que `dec_output` → la tête `parameter_projection` produit une mauvaise échelle → R² négatif mais Spearman OK.
+  - Résultats archivés : HTML + test_metrics.json + run.md dans `code/experiments/runs/2026-05-18_softcam-cluster4-v2-runB2/`.
 - **Prochain pas** :
-  1. 🔴 Sur Colab : **File → Open → GitHub → main** → ouvrir `code/notebooks/softcam-cluster4-v2-runB.ipynb`.
-  2. 🔴 **Runtime → Disconnect and delete runtime** → **Run All** (~15-20 min sur T4).
-  3. 🟡 PASS H1.C si R²≥0.30 ET Spearman≥0.85 → analyser cartes M (H1.A/H1.D).
-  4. 🟡 FAIL H1.C → essayer mix=0.1 (Run C) avant pivot H2.
+  1. 🔴 **Fix #4** : ajouter `nn.LayerNorm(d_model)` sur `h_evidence` avant le mix dans `softcam_transformer_v2.py` (2 lignes : `__init__` + `output_params`).
+  2. 🔴 Générer Run B3 (même schedules Run B2 + LayerNorm) + lancer sur Colab T4.
+  3. 🟡 Si PASS H1.C → analyser cartes M.
+  4. 🟡 Si FAIL → pivot H2 (TsSHAP/SHAPformer).
 
 ### Session précédente : 2026-05-18 (session 47 — audit Run B + fix docs entropie)
 
