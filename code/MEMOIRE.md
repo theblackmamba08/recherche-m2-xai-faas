@@ -230,6 +230,13 @@
 - **Cible H1 actée : C4** (cf. [`memoire/00-meta/DECISIONS.md`](../memoire/00-meta/DECISIONS.md), entrée 2026-05-05). Phase 1 close.
 - Suite → Phase 2 : étude architecture `TimeSeriesTransformer` HF (J1 de `PLAN-ETUDE-ARCHITECTURE.md`).
 
+## 2026-05-18 — Run A 4e exécution + diagnostic correct (drift RNG par evidence_linear init) (session 45)
+
+- 4e exécution Run A (sans val_loader) : R²=-0.0250, Spearman=0.9140. Mon hypothèse RNG drift (session 43-44) était FAUSSE — sans val_loader, c'est même pire que avec.
+- Vraie cause identifiée par comparaison ligne par ligne baseline-cluster4 vs softcam-v2-runA : `evidence_linear` est créé dans `__init__` même quand `use_evidence_layer=False`. Son init Kaiming consomme ~7920 nombres aléatoires de torch RNG → divergence de l'état RNG → dropout différent au premier batch → tout diverge.
+- Fix : re-seed (random, np.random, torch) juste avant `create_train_dataloader` et `AdamW`. Commit `9442c9f` poussé. Notebook régénéré.
+- Suite → recharger sur Colab, Run All, PASS attendu (R²≈0.37).
+
 ## 2026-05-18 — Retrait val_loader Run A (strict baseline FAYAM) (session 44)
 
 - Retrait complet de `val_rows`, `val_dataset` et `val_loader` du notebook Run A pour éliminer le RNG drift induit par `.generate()` à chaque epoch.

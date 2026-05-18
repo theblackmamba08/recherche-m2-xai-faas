@@ -63,7 +63,18 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-18 (session 44 — Run A strict baseline, val_loader retiré)
+### Dernière session : 2026-05-18 (session 45 — vraie cause identifiée : RNG drift par evidence_linear init)
+
+- **Phase actuelle** : Phase 2 — Run A, fix RNG poussé, en attente d'exécution.
+- **Résultats Run A v4 (sans val_loader)** : R²=-0.0250, Spearman=0.9140. Mon hypothèse RNG drift via val_loader (sessions 43-44) était FAUSSE.
+- **Vraie cause** : `evidence_linear = nn.Linear(32, 240)` créé dans `__init__` de `SoftCAMTransformerV2ForPrediction` consomme ~7920 nombres aléatoires de torch RNG après `super().__init__(config)`, même quand `use_evidence_layer=False`. Cela décale l'état du torch RNG d'autant → masques de dropout différents au 1er batch → gradients différents → poids finaux divergents.
+- **Fix appliqué** : re-seed (random, np.random, torch) juste avant `create_train_dataloader` et `AdamW` dans le notebook Run A. Commit `9442c9f` poussé.
+- **Prochain pas** :
+  1. 🔴 Sur Colab : **File → Open → GitHub → main** → recharger `softcam-cluster4-v2-runA.ipynb`.
+  2. 🔴 **Runtime → Disconnect and delete runtime** → **Run All**.
+  3. 🟡 PASS attendu (R²≈0.37, Spearman≈0.92). Si encore FAIL → réécrire v2 pour ne pas créer evidence_linear quand use_evidence_layer=False.
+
+### Session précédente : 2026-05-18 (session 44 — Run A strict baseline, val_loader retiré)
 
 - **Phase actuelle** : Phase 2 — Run A reconstruit en strict baseline FAYAM, prêt pour 4e exécution.
 - **Avancée** :
