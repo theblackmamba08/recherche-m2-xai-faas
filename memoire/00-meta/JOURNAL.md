@@ -11,6 +11,7 @@
   - HTML archivé dans `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/softcam-cluster4-v2-runA-fix5-reseed.html`.
   - `run.md` du Run A mis à jour avec l'historique complet des 5 runs.
   - **Notebook Run B généré** : `code/notebooks/softcam-cluster4-v2-runB.ipynb` (36 cellules). Commit `62e38ed`.
+  - `code/MEMOIRE.md` mis à jour (commit `a275a32`).
 - **Prochaine étape** : lancer Run B sur Colab T4 — GATE H1.C (R²≥0.30, Spearman≥0.85).
 
 ## 2026-05-18 — Vraie cause RNG drift trouvée (evidence_linear init) (session 45)
