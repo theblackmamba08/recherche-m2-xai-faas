@@ -2,6 +2,16 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-18 — Run B3 FAIL + analyse structurelle + Run B4 généré (session 51)
+
+- **Durée** : ~30 min
+- **Fait** :
+  - Run B3 (v3 LayerNorm) exécuté sur Colab T4 : **R²=−1.5894, Spearman=0.7771**. Le LayerNorm a corrigé le collapse de M (max_weight 0.97 → 0.06, row_entropy 3.5 → 4.95) mais R² ne remonte que de +37 pp. La cause n'était pas M.
+  - **Découverte structurelle** : `parameter_projection` étant linéaire, `parameter_projection(0.7·dec + 0.3·h_evidence) = 0.7·param_proj(dec) + 0.3·param_proj(h_evidence)`. h_evidence (single softmax) est structurellement plus pauvre que dec_output (cross-attention multi-tête × 4 couches + FFN). À mix=0.3, 30% de la prédiction vient d'une branche faible → R² ne peut pas remonter, indépendamment de M.
+  - **Run B4 généré** : mix=0.10 constant (pas de warm-up), γ=0 (pas d'entropie), modèle v3. Estimation : R² ≈ 0.9×0.53 + 0.1×(-1) ≈ 0.38 → PASS. Notebook créé (34 cellules), run.md template prêt.
+  - Résultats archivés : `code/experiments/runs/2026-05-18_softcam-cluster4-v3-runB3/` (HTML + JSON + run.md). Dossier `2026-05-18_softcam-cluster4-v3-runB4/` créé.
+- **Prochaine étape** : push GitHub puis lancer Run B4 sur Colab T4. Si FAIL → Run B5 (mix=0.05) ou Run B6 (architectural).
+
 ## 2026-05-18 — SoftCAM v3 + Run B3 généré (session 50)
 
 - **Durée** : ~15 min

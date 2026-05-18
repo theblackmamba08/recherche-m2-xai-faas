@@ -68,6 +68,14 @@
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
 
+## 2026-05-18 — Run B3 FAIL + Run B4 généré (session 51)
+
+- **Run B3** (v3, warm-up + LayerNorm) : R²=−1.59, Spearman=0.78. M devient diffuse (max_weight 0.97→0.06, entropy 3.5→4.95) — le LayerNorm a fait son travail. Mais R² reste très négatif.
+- **Découverte structurelle** : `parameter_projection` est linéaire → `param_proj(0.7·dec+0.3·h_evi) = 0.7·param_proj(dec) + 0.3·param_proj(h_evi)`. h_evidence (single softmax) est structurellement plus pauvre que dec_output (cross-attention multi-tête × 4 couches). À mix=0.3, 30% de la prédiction vient d'une branche faible → R² ne peut pas atteindre 0.30 indépendamment de la distribution de M.
+- **Run B4 généré** (`_generate_softcam_cluster4_v3_runB4.py` + notebook 34 cellules) : mix=0.10 constant (pas de warm-up), γ=0 (pas d'entropie), v3 (LayerNorm). Estimation : R² ≈ 0.9·0.53 + 0.1·(-1) ≈ 0.38 → PASS attendu.
+- Résultats archivés : `code/experiments/runs/2026-05-18_softcam-cluster4-v3-runB3/` (HTML + JSON + run.md). Dossier `2026-05-18_softcam-cluster4-v3-runB4/` créé.
+- Suite → push GitHub + lancer Run B4 sur Colab T4.
+
 ## 2026-05-18 — SoftCAM v3 + Run B3 généré (session 50)
 
 - Nouveau fichier `code/src/models/softcam_transformer_v3.py` : hérite v2, ajoute `evidence_norm = nn.LayerNorm(d_model)` appliqué sur `h_evidence` avant le mix (Fix #4). 2 lignes de code.

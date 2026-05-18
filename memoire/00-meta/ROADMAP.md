@@ -63,7 +63,20 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-18 (session 50 — SoftCAM v3 + Run B3 prêt)
+### Dernière session : 2026-05-18 (session 51 — Run B3 FAIL, découverte structurelle, Run B4 prêt)
+
+- **Phase actuelle** : Phase 2 — H1 en cours. 4 variantes essayées, problème structurel identifié.
+- **Avancée majeure** :
+  - Run B3 (v3 LayerNorm, warm-up + anneal) : R²=−1.59, Spearman=0.78. Le LayerNorm a bien corrigé le collapse de M (max_weight 0.97 → 0.06), mais R² ne remonte presque pas.
+  - **Analyse structurelle** : `parameter_projection(0.7·dec + 0.3·h_evidence)` est linéaire. h_evidence (single softmax) est structurellement plus pauvre que dec_output (cross-attention multi-tête multi-couches). À mix=0.3, on impose 30% de la prédiction à venir d'une branche faible → R² ne peut pas atteindre 0.30.
+  - **Run B4 généré** : mix=0.10 constant, γ=0, modèle v3. Estimation R² ≈ 0.9×0.53 + 0.1×(-1) ≈ 0.38 → PASS attendu.
+- **Prochain pas** :
+  1. 🔴 Push GitHub (notebook + v3 + run.md) — IMPORTANT.
+  2. 🔴 Sur Colab : `softcam-cluster4-v3-runB4.ipynb` → Disconnect → Run All (~15 min).
+  3. 🟡 PASS H1.C → H1 défendable avec petit mix : *« mix=0.10 préserve la précision tout en fournissant une carte M algébriquement exacte »*.
+  4. 🟡 FAIL → Run B5 (mix=0.05) ou Run B6 (architectural : M remplace la cross-attention du dernier décodeur).
+
+### Session précédente : 2026-05-18 (session 50 — SoftCAM v3 + Run B3 prêt)
 
 - **Phase actuelle** : Phase 2 — H1 en cours. Fix #4 implémenté dans `softcam_transformer_v3.py`, Run B3 prêt.
 - **Avancée** : `SoftCAMTransformerV3ForPrediction` créé (hérite v2 + `evidence_norm = LayerNorm(d_model)` sur `h_evidence` avant mix). Notebook Run B3 généré (36 cellules, commit `96b62a0`). Schedules Run B2 conservés.
