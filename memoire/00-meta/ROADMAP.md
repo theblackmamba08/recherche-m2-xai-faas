@@ -63,17 +63,17 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-17 (session 38 — Run A résultats)
+### Dernière session : 2026-05-18 (session 39 — fix Run A)
 
-- **Phase actuelle** : Phase 2 — H1 v2 sanity check exécuté, bug d'échelle identifié.
+- **Phase actuelle** : Phase 2 — bug Run A corrigé, notebook prêt à relancer.
 - **Avancée** :
-  - Run A exécuté sur Colab T4. **R²=-0.1861, Spearman=0.9190** → FAIL.
-  - **Signal diagnostique** : Spearman ≈ 0.92 (identique FAYAM) mais R² très négatif → bon ordre, mauvaise échelle → bug de normalisation dans l'évaluation.
-  - Archive : `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/` (HTML + run.md).
+  - Comparaison complète des deux notebooks. Bug trouvé : `ENCODER_LAYERS = 2, DECODER_LAYERS = 2` dans le générateur au lieu de 4+4 (FAYAM). Ce n'était pas un bug de normalisation mais un mauvais paramètre d'architecture (68k params vs 94k).
+  - Fix appliqué dans `_generate_softcam_cluster4_v2_runA.py`, notebook régénéré, commit `72a2d26`.
 - **Prochain pas** :
-  1. 🔴 **Inspecter cellule d'évaluation** de `softcam-cluster4-v2-runA.ipynb` vs `baseline-cluster4.ipynb` — chercher où FAYAM applique `inverse_transform` ou la dénormalisation interne HF.
-  2. 🔴 **Corriger le notebook** (ajouter/aligner `inverse_transform` sur les prédictions ET les actuals).
-  3. 🟡 Relancer Run A corrigé → PASS attendu. Puis Run B (mix=0.3 hybrid).
+  1. 🔴 Re-upload `softcam-cluster4-v2-runA.ipynb` sur Colab (File → Open → GitHub → branch main).
+  2. 🔴 T4 GPU → Run All (~10-15 min).
+  3. 🟡 Si PASS (R²≈0.37) → pipeline saine, bug v1 isolé dans evidence layer → lancer Run B (`use_evidence_layer=True, mix=0.3`).
+  4. 🟡 Si encore FAIL → autre bug à investiguer (seed, val split).
 
 ### Session précédente : 2026-05-17 (session 36 — H1 v2 code)
 

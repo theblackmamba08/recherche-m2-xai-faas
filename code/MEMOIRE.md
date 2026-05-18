@@ -68,6 +68,13 @@
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
 
+## 2026-05-18 — Fix Run A : ENCODER/DECODER_LAYERS 2→4 (session 39)
+
+- Comparaison cellule par cellule `softcam-cluster4-v2-runA.ipynb` vs `baseline-cluster4.ipynb` : bug identifié dans le générateur `_generate_softcam_cluster4_v2_runA.py`.
+- **Cause réelle du FAIL** : `ENCODER_LAYERS = 2, DECODER_LAYERS = 2` au lieu de 4+4 (FAYAM) — 68k params vs 94k params. Modèle trop petit pour calibrer les magnitudes, d'où R²=-0.19 malgré Spearman=0.92.
+- Correction : `ENCODER_LAYERS = 4, DECODER_LAYERS = 4` dans le générateur, notebook régénéré, commit `72a2d26`.
+- **Prochaine étape** : re-upload le notebook corrigé sur Colab T4 → Run All → PASS attendu (R²≈0.37).
+
 ## 2026-05-17 — Résultats Run A : FAIL — bug d'échelle (session 38)
 
 - Run `softcam-cluster4-v2-runA` exécuté sur Colab T4. Archive : `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/` (HTML + run.md).
