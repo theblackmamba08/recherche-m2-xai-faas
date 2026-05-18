@@ -63,7 +63,19 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-18 (session 41 — archivage HTML Run A, Colab cache détecté)
+### Dernière session : 2026-05-18 (session 42 — fix train split, notebook 100 % FAYAM)
+
+- **Phase actuelle** : Phase 2 — sanity check Run A, 3e correctif appliqué.
+- **Avancée** :
+  - Run v2.1 (4+4, seed=998) analysé : R²=-0.4604, Spearman=0.8698. Dernier bug identifié : train split `target[:-240]` au lieu de `target[:-120]` (FAYAM). On entraînait sur 120 points de moins.
+  - Fix : ligne 217 du générateur corrigée → `target[:-PREDICTION_LENGTH]`. Notebook régénéré, commit `977073f`.
+  - Tous les écarts vs FAYAM sont maintenant corrigés : architecture (4+4), seed (998), train split (target[:-120]).
+- **Prochain pas** :
+  1. 🔴 Sur Colab : **File → Open → GitHub → branche main** → `code/notebooks/softcam-cluster4-v2-runA.ipynb`.
+  2. 🔴 **Runtime → Disconnect and delete runtime** → **Run All**.
+  3. 🟡 PASS attendu : R²≈0.37, Spearman≈0.92. Si PASS → Run B (`use_evidence_layer=True, mix=0.3`).
+
+### Session précédente : 2026-05-18 (session 41 — archivage HTML Run A, Colab cache détecté)
 
 - **Phase actuelle** : Phase 2 — sanity check Run A pas encore validée.
 - **Avancée** :

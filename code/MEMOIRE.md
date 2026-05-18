@@ -230,6 +230,12 @@
 - **Cible H1 actée : C4** (cf. [`memoire/00-meta/DECISIONS.md`](../memoire/00-meta/DECISIONS.md), entrée 2026-05-05). Phase 1 close.
 - Suite → Phase 2 : étude architecture `TimeSeriesTransformer` HF (J1 de `PLAN-ETUDE-ARCHITECTURE.md`).
 
+## 2026-05-18 — Fix train split target[:-240]→target[:-120] (session 42)
+
+- Analyse du HTML v2.1 (4+4, seed=998) : R²=-0.4604, Spearman=0.8698 — encore FAIL. Dernier écart identifié : train split `target[:-2*PREDICTION_LENGTH]` (notre notebook) vs `target[:-PREDICTION_LENGTH]` (FAYAM). On entraînait sur 120 points de moins.
+- Fix appliqué dans `_generate_softcam_cluster4_v2_runA.py` (ligne 217), notebook régénéré, commit `977073f`. Le notebook est maintenant 100 % aligné avec FAYAM (4+4, seed=998, train split identique).
+- Suite → recharger le notebook depuis GitHub (File → Open → GitHub → main) et relancer Run All → PASS (R²≈0.37) attendu.
+
 ## 2026-05-18 — Archivage Run A (ancien notebook — ENCODER_LAYERS=2) (session 41)
 
 - HTML téléchargé par le user archivé dans `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/` (écrase l'ancien HTML).
