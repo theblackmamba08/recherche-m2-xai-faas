@@ -426,6 +426,15 @@ Protocole FAYAM exact : on enregistre uniquement le checkpoint final (epoch 50),
 code(
     """from torch.optim import AdamW
 
+# Re-seed RNG juste avant le training pour annuler le drift causé par
+# l'init de model.evidence_linear (présent même quand use_evidence_layer=False).
+# Garantit que dropout et sampling consomment exactement le même RNG que le baseline.
+random.seed(SEED)
+np.random.seed(SEED)
+torch.manual_seed(SEED)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(SEED)
+
 train_loader = create_train_dataloader(cfg, FREQ, train_dataset, BATCH_SIZE_TRAIN, NUM_BATCHES_EPOCH)
 
 optimizer = AdamW(model.parameters(), lr=LR, betas=BETAS, weight_decay=WEIGHT_DECAY)
