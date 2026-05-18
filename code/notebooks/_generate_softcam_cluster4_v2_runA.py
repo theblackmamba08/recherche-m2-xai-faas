@@ -214,7 +214,7 @@ train_rows, val_rows, test_rows = [], [], []
 for ts_idx, s in enumerate(all_series):
     base = {'start': START_DATE, 'feat_static_cat': [ts_idx],
             'cluster': s['cluster'], 'function_id': s['function_id']}
-    train_rows.append({**base, 'target': s['target_full'][:-2*PREDICTION_LENGTH].tolist()})
+    train_rows.append({**base, 'target': s['target_full'][:-PREDICTION_LENGTH].tolist()})   # FAYAM: target[:-120]
     val_rows.append(  {**base, 'target': s['target_full'][:-PREDICTION_LENGTH].tolist()})
     test_rows.append( {**base, 'target': s['target_full'].tolist()})
 
