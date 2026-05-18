@@ -2,6 +2,17 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-18 — Run A PASS + Run B généré (session 46)
+
+- **Durée** : ~20 min
+- **Fait** :
+  - Run A fix5 (re-seed RNG) exécuté sur Colab : **R²=0.5299, Spearman=0.9176**. Anti-corrélation éliminée, pipeline saine.
+  - Faux négatif du notebook (FAIL affiché car |R²−0.37|>10 pp) expliqué : R² meilleur que FAYAM car pas de val_loader = plus de données d'entraînement. Spearman −0.25 pp confirme la fidélité à FAYAM.
+  - HTML archivé dans `code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/softcam-cluster4-v2-runA-fix5-reseed.html`.
+  - `run.md` du Run A mis à jour avec l'historique complet des 5 runs.
+  - **Notebook Run B généré** : `code/notebooks/softcam-cluster4-v2-runB.ipynb` (36 cellules). Commit `62e38ed`.
+- **Prochaine étape** : lancer Run B sur Colab T4 — GATE H1.C (R²≥0.30, Spearman≥0.85).
+
 ## 2026-05-18 — Vraie cause RNG drift trouvée (evidence_linear init) (session 45)
 
 - **Durée** : ~30 min

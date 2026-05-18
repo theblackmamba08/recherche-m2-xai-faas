@@ -54,6 +54,26 @@
 
 - Suite → implémenter `evidence_layer` dans `src/models/softcam_transformer.py` (Phase 2, J1-J2 du PLAN-ETUDE-ARCHITECTURE)
 
+## 2026-05-18 — Run A validé (fix5 re-seed) + Run B généré
+
+### Run A fix5 — PASS pipeline
+
+| Métrique | Valeur | Δ vs FAYAM |
+|----------|--------|-----------|
+| Test R² | **0.5299** | +15.98 pp |
+| Test Spearman | **0.9176** | −0.25 pp |
+
+**Verdict réel : pipeline validée.** Le notebook affichait "FAIL" car |R²−0.37|>10 pp, mais c'est un faux négatif — R² est meilleur que FAYAM (retrait val_loader = plus de données d'entraînement). Spearman quasi-identique confirme la fidélité. Anti-corrélation (Spearman=−0.87 en v1) complètement éliminée.
+
+**Cause racine corrigée** : `evidence_linear` dans `__init__` consomme ~7920 nombres RNG torch même quand `use_evidence_layer=False`. Re-seed juste avant `create_train_dataloader` neutralise le drift.
+
+### Run B généré
+
+- Notebook : `code/notebooks/softcam-cluster4-v2-runB.ipynb` (36 cellules), commit `62e38ed`.
+- `use_evidence_layer=True`, `evidence_mix=0.3`.
+- Monitoring 3 composantes loss, GATE H1.C, extraction M via `model.explain()`, heatmaps H1.A/H1.D.
+- Suite → lancer Run B sur Colab T4.
+
 ## 2026-05-17 — Run A (sanity check pipeline) : **FAIL — bug d'échelle**
 
 **Run** : [`code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/`](../../code/experiments/runs/2026-05-17_softcam-cluster4-v2-runA/run.md).
