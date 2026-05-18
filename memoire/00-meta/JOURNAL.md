@@ -2,6 +2,14 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-18 — Retrait val_loader, strict baseline FAYAM (session 44)
+
+- **Durée** : ~15 min
+- **Fait** :
+  - Retrait de `val_rows`, `val_dataset`, `val_loader`, monitoring `val_r2`/`val_spear` et plot val dans `_generate_softcam_cluster4_v2_runA.py`. Objectif : éliminer le RNG drift induit par `.generate()` (100 trajectoires stochastiques) à chaque epoch.
+  - 4 sections modifiées : split data, set_transform, boucle d'entraînement, courbes. Notebook régénéré (28 cellules), commit `0b49075` poussé sur GitHub.
+- **Prochaine étape** : recharger depuis GitHub sur Colab + Run All. PASS attendu (R²≈0.37) si l'hypothèse RNG est correcte.
+
 ## 2026-05-18 — Run A 3e exécution + diagnostic RNG drift (session 43)
 
 - **Durée** : ~25 min
