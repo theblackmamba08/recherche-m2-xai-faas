@@ -12,6 +12,7 @@
   - Résultats archivés : `code/experiments/runs/2026-05-18_softcam-cluster4-v2-runB/run.md` mis à jour, dossier `2026-05-18_softcam-cluster4-v2-runB2/` créé avec HTML + test_metrics.json + run.md.
   - Générateur Run B2 créé : `code/notebooks/_generate_softcam_cluster4_v2_runB2.py` + notebook 36 cellules.
 - **Prochaine étape** : Run B3 — ajouter `LayerNorm` sur `h_evidence` avant le mix (Fix #4 architectural, 2 lignes dans `softcam_transformer_v2.py`).
+- **Commit** : `83f1e4b` — générateur + notebook + run.md + JSON + meta poussés.
 
 ## 2026-05-18 — Audit Run B + fix docs entropie (session 47)
 
