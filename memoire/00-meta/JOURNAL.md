@@ -13,6 +13,7 @@
   - M extractible : argmax ~93, max_weight ~0.19, entropy ~4.35 → modérément piquée, ni Dirac ni uniforme.
   - Résultats archivés : `code/experiments/runs/2026-05-18_softcam-cluster4-v3-runB5/` (HTML + JSON + run.md détaillé).
 - **Prochaine étape** : analyser cartes M (H1.A profil argmax, interprétation), tester sur d'autres clusters, démarrer rédaction chapitre H1.
+- **Commit** : `3fca1e2` — Run B5 PASS archivé et documenté.
 
 ## 2026-05-18 — Run B4 FAIL catastrophique + Run B5 généré (session 52)
 
