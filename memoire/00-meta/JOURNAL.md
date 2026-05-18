@@ -11,6 +11,7 @@
   - **Run B5 généré** : combine TOUS les bons ingrédients (warm-up + anneal γ + LayerNorm) avec mix cible = 0.05 (plus petit que tous les runs précédents). Notebook 36 cellules.
   - Résultats archivés : `code/experiments/runs/2026-05-18_softcam-cluster4-v3-runB4/` (HTML + JSON + run.md), dossier B5 créé.
 - **Prochaine étape** : push GitHub → lancer Run B5 sur Colab. C'est le dernier test avant pivot H2.
+- **Commit** : `3650e20` — Run B5 généré et poussé sur GitHub.
 
 ## 2026-05-18 — Run B3 FAIL + analyse structurelle + Run B4 généré (session 51)
 
