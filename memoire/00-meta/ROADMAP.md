@@ -63,7 +63,60 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-19 (session 56 — H1.F + H1.G formalisés, notebook d'analyse H1 prêt)
+### Dernière session : 2026-05-19 (session 60 — Ablation mix exécutée → BUG CRITIQUE dans `generate()`)
+
+- **Phase actuelle** : Phase 2 — H1. **Crise méthodologique** : la couche d'évidence est inactive à l'inférence sur toutes les runs antérieures.
+- **Trouvaille** :
+  - Mix sweep exécuté sur Colab T4. Résultat : R²=0.6646 et Spearman=0.9188 *identiques aux 9 valeurs* de mix ∈ [0.0 … 1.0], y compris mix=1.0.
+  - Diagnostic : HuggingFace `generate()` (ligne 1679 de `modeling_time_series_transformer.py`) appelle `parameter_projection` directement, court-circuitant notre override `output_params`. **L'Evidence Layer n'est pas active à l'inférence.**
+  - HTML archivé dans `code/experiments/runs/2026-05-19_softcam-cluster4-v3-mix-ablation/`.
+- **Impact sur l'existant** :
+  - H1.C (R²=0.6628, ρ=0.9222 de B5) n'évalue pas réellement la SoftCAM ; seulement un Transformer entraîné sous pression evidence dont l'inférence est baseline-équivalente.
+  - Différences B5/B6/B7 reflètent les régimes d'entraînement, pas l'effet du mix à l'inférence.
+  - H1.A/D/E restent valides (teacher-forced via `model.explain()`).
+- **Prochain pas** :
+  1. 🔴 Override `generate()` dans `SoftCAMTransformerV3ForPrediction` → copier la boucle HF + remplacer `parameter_projection` par `output_params`.
+  2. 🔴 Re-charger checkpoint B5, lancer ré-évaluation avec le `generate()` patché (sanity check : R² doit rester ≥ 0.30 — sinon SoftCAM dégrade vraiment).
+  3. 🔴 Relancer le notebook mix-ablation avec le fix → vrai verdict A/B.
+  4. 🟡 Décider en fonction des résultats : poursuivre H1 tel quel, reformuler la contribution, ou pivoter.
+
+### Session précédente : 2026-05-19 (session 59 — Notebook ablation `evidence_mix` créé)
+
+- **Phase actuelle** : Phase 2 — H1. Question causale ouverte : M implique-t-elle la prédiction, ou est-elle un sous-produit de `dec_output` ?
+- **Avancée** :
+  - Discussion conceptuelle : H1.F/G inconclants à mix=0.05 ne distinguent pas Scénario A (M causale, plafond mécanique) de Scénario B (M cosmétique, prédiction passe par `dec_output`). Distinction posée : *interprétabilité structurelle* (M révèle des patterns) vs *interprétabilité causale* (M pilote la décision).
+  - Décision : avant rédaction, faire l'ablation directe `model.evidence_mix=0.0` en inférence sur B5 — test gratuit, ~1h Colab, zéro réentraînement.
+  - Notebook `softcam-cluster4-v3-mix-ablation.ipynb` créé (32 cellules) : sanity check + balayage 9 valeurs mix ∈ [0.0 … 1.0] + verdict automatique (seuil ΔR² 3pp / 5% relatif) + per-function + visualisations + prédictions `.npy` sauvegardées.
+- **Prochain pas** :
+  1. 🔴 Push GitHub → ouvrir `softcam-cluster4-v3-mix-ablation.ipynb` sur Colab T4 → Run All (~10-15 min).
+  2. 🔴 Récupérer HTML + `mix_ablation.json` + figures → archiver dans `code/experiments/runs/2026-05-19_softcam-cluster4-v3-mix-ablation/`.
+  3. 🔴 Interpréter le verdict empirique Scénario A vs B → ajuster la narration du chapitre H1 en conséquence.
+  4. 🟢 Démarrer rédaction chapitre H1 sur la base du verdict.
+
+### Session précédente : 2026-05-19 (session 58 — Résultats H1.A–H1.G analysés)
+
+- **Phase actuelle** : Phase 2 — H1 complète. Toutes les hypothèses évaluées.
+- **Verdicts** :
+  - H1.A ✅ : argmax M dans pic 17-19h = 37% vs baseline 25% — M oriente vers le pic journalier.
+  - H1.B ⚠️ : ρ moyen argmax(M) vs argmax(CA) = 0.16 — hétérogène (fn953 ρ=0.86, fn949 ρ=-0.65).
+  - H1.D ✅✅ : Pearson hors-diag = 0.992 — M est cluster-level, argument le plus fort.
+  - H1.E ✅ : Spearman R²↔entropy = -0.80 — M plus piquée pour meilleures prédictions.
+  - H1.F/G ⚠️ : ceiling effect confirmé à mix=0.05 — impact prédictif non mesurable (~3% max).
+- **Prochain pas** :
+  1. 🔴 Créer `run.md` dans le dossier de run avec le bilan complet H1.A–H1.G.
+  2. 🔴 Démarrer rédaction chapitre H1 (Méthode + Résultats + Discussion).
+  3. 🟡 Mettre à jour `memoire/00-meta/JOURNAL.md`.
+
+### Session précédente : 2026-05-19 (session 57 — HTML h1-analysis archivé)
+
+- **Phase actuelle** : Phase 2 — H1. Résultats du notebook d'analyse disponibles (HTML), JSON manquant.
+- **Avancée** : HTML `softcam-cluster4-v3-h1-analysis` archivé dans `code/experiments/runs/2026-05-19_softcam-cluster4-v3-h1-analysis/`.
+- **Prochain pas** :
+  1. 🔴 Récupérer `h1_analysis.json` depuis Drive → déposer dans `results/` → analyser les verdicts H1.A–H1.G.
+  2. 🔴 Créer `run.md` dans le dossier de run avec les chiffres clés.
+  3. 🟢 Démarrer rédaction chapitre H1.
+
+### Session précédente : 2026-05-19 (session 56 — H1.F + H1.G formalisés, notebook d'analyse H1 prêt)
 
 - **Phase actuelle** : Phase 2 — H1 VALIDÉ (H1.C). Outillage de vérification des hypothèses H1.A–H1.G prêt à tourner sur Colab.
 - **Avancée** :

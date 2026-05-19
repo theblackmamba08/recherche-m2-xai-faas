@@ -1,5 +1,31 @@
 # Mémoire — code
 
+## 2026-05-19 — Ablation mix exécutée → BUG CRITIQUE détecté dans `generate()` (session 60)
+
+- Notebook `softcam-cluster4-v3-mix-ablation` exécuté sur Colab T4, HTML archivé dans `code/experiments/runs/2026-05-19_softcam-cluster4-v3-mix-ablation/`.
+- **Résultat brut suspect** : R²=0.6646 et Spearman=0.9188 *strictement identiques* sur les 9 valeurs de mix ∈ [0.0 … 1.0], y compris mix=1.0. Δ R² vs B5 = +0.00 pp partout.
+- **Diagnostic** : HuggingFace `TimeSeriesTransformerForPrediction.generate()` (ligne 1679, `modeling_time_series_transformer.py`) appelle `self.parameter_projection(...)` directement au lieu de `self.output_params(...)`. Notre override de `output_params` (qui contient toute la logique Evidence Layer) est **court-circuité pendant generate()**. La couche d'évidence est donc inactive à l'inférence sur toutes les runs antérieures (A, B…B7).
+- **Impact** : H1.C (R²=0.6628 / ρ=0.9222 de B5) n'a jamais réellement évalué la SoftCAM-Transformer à l'inférence — seulement un Transformer dont les poids ont été façonnés par une pression d'entraînement evidence. H1.A/D/E restent valides (mesurés via `model.explain()` teacher-forced qui passe bien par `output_params`).
+- **Suite** : override `generate()` dans `SoftCAMTransformerV3ForPrediction` pour qu'il appelle `output_params` ; ré-évaluer B5 avec le fix (sanity check) ; refaire l'ablation mix sur le `generate()` patché.
+
+## 2026-05-19 — Notebook ablation `evidence_mix` créé (session 59)
+
+- Discussion conceptuelle approfondie : sur H1.F/G, identification du problème causal (M et prédiction sont des frères dérivés de `dec_output`, M n'implique pas la prédiction au sens fort). Distinction *interprétabilité structurelle* vs *causale* posée.
+- Décision : avant rédaction, faire l'ablation directe `evidence_mix=0.0` en inférence sur B5 (test gratuit, ~1h Colab, zéro réentraînement) pour trancher empiriquement Scénario A (M causale) vs Scénario B (M cosmétique).
+- Générateur `_generate_softcam_cluster4_v3_mix_ablation.py` créé → notebook `softcam-cluster4-v3-mix-ablation.ipynb` (32 cellules) : sanity check + balayage de 9 valeurs mix ∈ [0.0 … 1.0] + verdict automatique avec seuils + per-function + visualisations + JSON synthèse. Prédictions médianes sauvegardées en `.npy` pour analyses post-hoc.
+- Suite → push GitHub → Run All Colab T4 → interpréter le verdict.
+
+## 2026-05-19 — Résultats H1.A–H1.G analysés (session 58)
+
+- `h1_analysis.json` archivé dans `code/experiments/runs/2026-05-19_softcam-cluster4-v3-h1-analysis/results/`.
+- Verdicts : H1.A ✅ (37% argmax dans pic vs 25% baseline), H1.D ✅✅ (Pearson=0.992), H1.E ✅ (Spearman R²↔entropy=-0.80), H1.B ⚠️ (ρ moyen=0.16), H1.F/G ⚠️ (ceiling effect confirmé à mix=0.05).
+- Suite → créer `run.md` + démarrer rédaction chapitre H1.
+
+## 2026-05-19 — HTML run H1-analysis archivé (session 57)
+
+- HTML du notebook `softcam-cluster4-v3-h1-analysis` archivé dans `code/experiments/runs/2026-05-19_softcam-cluster4-v3-h1-analysis/`.
+- JSON `h1_analysis.json` non encore récupéré depuis Drive — à déposer dans `results/` pour analyse.
+
 ## 2026-05-19 — H1.F + H1.G formalisés, notebook d'analyse H1 prêt (session 56)
 
 - Extension `softcam_transformer_v3.py` : ajout `_M_override` + méthode `predict_with_M_override()` permettant d'injecter une M arbitraire dans `output_params` (forward teacher-forced) pour tester comprehensiveness / sufficiency.
