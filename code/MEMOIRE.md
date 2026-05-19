@@ -1,5 +1,12 @@
 # Mémoire — code
 
+## 2026-05-19 — H1.F + H1.G formalisés, notebook d'analyse H1 prêt (session 56)
+
+- Extension `softcam_transformer_v3.py` : ajout `_M_override` + méthode `predict_with_M_override()` permettant d'injecter une M arbitraire dans `output_params` (forward teacher-forced) pour tester comprehensiveness / sufficiency.
+- Générateur `_generate_softcam_cluster4_v3_h1_analysis.py` créé → `softcam-cluster4-v3-h1-analysis.ipynb` (38 cellules) : sanity check sur checkpoint B5 + H1.A (argmax → heures du jour) + H1.B (M vs cross_attentions) + H1.D (Pearson 5 fonctions) + H1.E (entropy vs R²) + H1.F (mask top-k) + H1.G (keep top-k only) + JSON synthèse.
+- Mémoire persistante mise à jour : H1.F (comprehensiveness) et H1.G (sufficiency) ajoutés aux hypothèses opératoires, avec note explicite sur le *ceiling effect* à 5% lié à mix=0.05.
+- Suite → cf. [STEPS.md](STEPS.md) : push + Run All Colab (pas de réentraînement) + interprétation manuelle.
+
 ## 2026-04-26 — Setup initial
 
 - Squelette créé : `src/` (avec `__init__.py`), `tests/`, `notebooks/`, `experiments/`.
@@ -67,6 +74,21 @@
 - Tous les fichiers de suivi mis à jour : `ROADMAP.md`, `JOURNAL.md`, `DECISIONS.md`, `QUESTIONS-OUVERTES.md`, `memory/project_phase1_eda.md`.
 - `memoire/02-baseline/EDA_RAPPORT.md` réécrit : remplacé la synthèse scientifique par un **guide cellule par cellule** des 49 cellules du notebook (justification de chaque cellule, résultats attendus, fil narratif pour présentation encadreurs).
 - Suite → lancer `src/baseline/fayam/tsf_transf.py` sur les 4 clusters.
+
+## 2026-05-19 — Runs B6 + B7 archivés + analyse (session 55)
+
+- Résultats B6 (mix=0.10) : **R²=0.4782, Spearman=0.9171** → PASS H1.C mais −18 pp vs B5. 949 et 951 régressent fortement (R²=0.22/0.18 vs 0.63/0.66 en B5). M plus diffuse (max_weight 0.19→0.09).
+- Résultats B7 (mix=0.15) : **R²=−1.6244, Spearman=0.7685** → FAIL H1.C. Effondrement complet (toutes séries négatives). Bascule non-linéaire entre 0.10 et 0.15 : −210 pp de R².
+- **Conclusion définitive** : B5 (mix=0.05) est l'optimum. La relation mix→R² est strictement décroissante et non-linéaire. Maximiser le mix n'est pas le bon objectif — M à mix=0.05 est déjà une explication fidèle par construction.
+- Dossiers archivés : `code/experiments/runs/2026-05-19_softcam-cluster4-v3-runB6/` et `runB7/` (HTML + JSON + run.md).
+- Suite → analyser cartes M de B5 (H1.A profil argmax, lecture interprétative), démarrer rédaction chapitre H1.
+
+## 2026-05-18 — Runs B6 + B7 générés — exploration mix=0.10 et 0.15 (session 54)
+
+- Générateurs `_generate_softcam_cluster4_v3_runB6.py` et `_generate_softcam_cluster4_v3_runB7.py` créés à partir de la recette gagnante Run B5.
+- Seul changement entre B5/B6/B7 : `EVIDENCE_MIX_TARGET` = 0.05 / 0.10 / 0.15. Tous les autres paramètres identiques (warm-up, anneal γ, LayerNorm v3, SEED=998, 51 epochs, beta_l2=1e-3).
+- Objectif : vérifier si un mix légèrement plus grand améliore R² au-delà de B5=0.6628. Hypothèse : la tendance B3 (mix=0.30 → R²=-1.59) suggère une dégradation probable, mais le warm-up change la donne (B4 sans warm-up, mix=0.10 → R²=-3.58 ; avec warm-up peut rester positif).
+- Suite → lancer B6 et/ou B7 sur Colab T4, comparer à B5.
 
 ## 2026-05-18 — Run B5 PASS H1.C ✅ — H1 validé sur Cluster 4 (session 53)
 

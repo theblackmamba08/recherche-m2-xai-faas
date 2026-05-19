@@ -2,6 +2,35 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages.
 
+## 2026-05-19 — H1.F + H1.G formalisés, notebook d'analyse H1 prêt (session 56)
+
+- **Durée** : ~45 min
+- **Fait** :
+  - Discussion critique : H1.C seul (gate prédictif) ne rend pas le travail défendable. Les hypothèses H1.A/B/D/E restaient ouvertes. Ajout formel de **H1.F (comprehensiveness)** et **H1.G (sufficiency)** aux hypothèses opératoires, avec note explicite sur le *ceiling effect* à 5% (mix=0.05 ⇒ même M détruite ne peut bouger la prédiction que de ~5%).
+  - Mémoire persistante `project_phase1_baseline_results.md` mise à jour (H1.F et H1.G ajoutés, H1.C marqué passé).
+  - Extension `softcam_transformer_v3.py` : nouvel attribut `_M_override` + méthode `predict_with_M_override()` (forward teacher-forced avec M injectée) pour pouvoir tester comprehensiveness / sufficiency sans réentraîner.
+  - Générateur `_generate_softcam_cluster4_v3_h1_analysis.py` créé → notebook `softcam-cluster4-v3-h1-analysis.ipynb` (38 cellules) : sanity check checkpoint B5, extraction M en `.npy`, H1.A (argmax→heures du jour), H1.B (M vs cross_attentions), H1.D (Pearson cross-fn), H1.E (entropy vs R²), H1.F/G (k-sweep), JSON synthèse.
+- **Prochaine étape** : push GitHub → Run All Colab (pas de réentraînement) → interprétation manuelle des verdicts H1.A–H1.G.
+
+## 2026-05-19 — Runs B6 + B7 archivés + analyse définitive du mix (session 55)
+
+- **Durée** : ~20 min
+- **Fait** :
+  - B6 (mix=0.10) : R²=**0.4782**, Spearman=0.9171 → PASS H1.C mais −18 pp vs B5. 949 (0.22) et 951 (0.18) régressent fortement ; 952/953/954 restent corrects. M plus diffuse (max_weight 0.09 vs 0.19 en B5).
+  - B7 (mix=0.15) : R²=**−1.6244**, Spearman=0.7685 → FAIL H1.C. Effondrement complet, toutes séries négatives. Bascule non-linéaire entre 0.10 et 0.15 (−210 pp).
+  - HTML archivés dans `code/experiments/runs/2026-05-19_softcam-cluster4-v3-runB6/` et `runB7/` avec JSON + run.md.
+  - **Conclusion** : B5 (mix=0.05) est définitivement l'optimum. Maximiser mix n'est pas le bon objectif — M à mix=0.05 est déjà une explication fidèle par construction. La branche h_evidence est structurellement plus faible que dec_output ; au-delà de 5%, sa contribution nuit à la prédiction.
+- **Prochaine étape** : analyser les cartes M de B5 (H1.A profil argmax), démarrer rédaction chapitre H1.
+
+## 2026-05-18 — Runs B6 + B7 générés — exploration mix=0.10 et 0.15 (session 54)
+
+- **Durée** : ~10 min
+- **Fait** :
+  - Générateurs `_generate_softcam_cluster4_v3_runB6.py` (mix=0.10) et `_generate_softcam_cluster4_v3_runB7.py` (mix=0.15) créés à partir du template Run B5. Notebooks correspondants générés (36 cellules chacun).
+  - Seul `EVIDENCE_MIX_TARGET` change par rapport à B5. Tous les autres réglages identiques : warm-up (epochs 0-14→0, 15-34→ramp, 35+→cible), anneal γ (epochs 0-24→0, 25-39→ramp, 40+→1e-3), LayerNorm v3, SEED=998, 51 epochs, beta_l2=1e-3.
+  - Question empirique : mix plus grand améliore-t-il R² au-delà de B5=0.6628, ou la tendance B3 (mix=0.30→R²=-1.59) s'applique-t-elle dès 0.10 ?
+- **Prochaine étape** : push GitHub → lancer B6 sur Colab T4 → si meilleur que B5, lancer B7 ; sinon, B5 reste le best et on démarre l'analyse des cartes M + rédaction H1.
+
 ## 2026-05-18 — Run B5 PASS H1.C — H1 défendu ✅ (session 53)
 
 - **Durée** : ~25 min

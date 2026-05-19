@@ -63,7 +63,46 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-18 (session 53 — **PASS H1.C** ✅ — H1 défendu)
+### Dernière session : 2026-05-19 (session 56 — H1.F + H1.G formalisés, notebook d'analyse H1 prêt)
+
+- **Phase actuelle** : Phase 2 — H1 VALIDÉ (H1.C). Outillage de vérification des hypothèses H1.A–H1.G prêt à tourner sur Colab.
+- **Avancée** :
+  - Discussion critique : H1.C seul ne rend pas le travail crédible. H1.A/B/D/E restaient ouverts ; H1.F (comprehensiveness) et H1.G (sufficiency) ont été ajoutés formellement aux hypothèses opératoires, avec note sur le ceiling effect à 5% (mix=0.05).
+  - `softcam_transformer_v3.py` étendu : `_M_override` + `predict_with_M_override()` (forward teacher-forced avec M injectée) pour pouvoir tester H1.F / H1.G sans réentraîner.
+  - Générateur `_generate_softcam_cluster4_v3_h1_analysis.py` → notebook `softcam-cluster4-v3-h1-analysis.ipynb` (38 cellules) : charge checkpoint B5 depuis Drive (pas de réentraînement), sanity check, extraction M en `.npy`, H1.A (argmax→heures), H1.B (M vs cross_attentions), H1.D (Pearson 5 fn), H1.E (entropy vs R²), H1.F/G (k-sweep mask/keep top-k), JSON synthèse.
+- **Prochain pas** :
+  1. 🔴 Push GitHub (v3 modifié + notebook H1 analyse + générateur).
+  2. 🔴 Sur Colab : ouvrir `softcam-cluster4-v3-h1-analysis.ipynb` → T4 → Run All (~5-10 min, pas de réentraînement).
+  3. 🔴 Télécharger HTML + `h1_analysis.json` + figures → interpréter manuellement les verdicts H1.A–H1.G.
+  4. 🟢 Démarrer rédaction chapitre H1 sur la base des résultats.
+
+### Session précédente : 2026-05-19 (session 55 — Runs B6 + B7 archivés + analyse définitive mix)
+
+- **Phase actuelle** : Phase 2 — H1 VALIDÉ. Exploration mix terminée. B5 (mix=0.05) est l'optimum confirmé.
+- **Résultats** :
+  - B6 (mix=0.10) : R²=**0.4782**, Spearman=0.9171 → PASS mais −18 pp vs B5. 949/951 régressent fortement.
+  - B7 (mix=0.15) : R²=**−1.6244**, Spearman=0.7685 → FAIL. Bascule non-linéaire entre 0.10 et 0.15.
+  - Confirmation : maximiser mix n'est pas le bon objectif — M à mix=0.05 est déjà fidèle par construction.
+  - M de B6/B7 plus diffuse (max_weight 0.092/0.089 vs 0.19 en B5) — le gradient aplatit M pour limiter son impact.
+- **Prochain pas** :
+  1. 🔴 Analyser cartes M de B5 (H1.A : profil argmax, lecture interprétative).
+  2. 🔴 Démarrer rédaction chapitre H1 (Méthode + Résultats).
+  3. 🟡 Tenter un autre cluster (C0 ou C8) si le temps le permet.
+
+### Session précédente : 2026-05-18 (session 54 — Runs B6 + B7 générés — exploration mix)
+
+- **Phase actuelle** : Phase 2 — H1 VALIDÉ. Exploration de mix=0.10 et 0.15 pour chercher un éventuel gain marginal.
+- **Avancée** :
+  - `_generate_softcam_cluster4_v3_runB6.py` (mix=0.10) et `_generate_softcam_cluster4_v3_runB7.py` (mix=0.15) créés à partir du template B5.
+  - Seul `EVIDENCE_MIX_TARGET` change (0.05 → 0.10 / 0.15). Tous les autres réglages identiques (warm-up, anneal γ, LayerNorm v3, SEED=998, 51 epochs).
+  - Notebooks générés : `softcam-cluster4-v3-runB6.ipynb` et `softcam-cluster4-v3-runB7.ipynb`.
+- **Prochain pas** :
+  1. 🔴 Push GitHub (nouveaux notebooks + générateurs).
+  2. 🔴 Lancer B6 sur Colab T4 → comparer R² à B5 (0.6628).
+  3. 🟡 Si B6 meilleur → lancer B7. Si B6 pire → B5 reste le best et on passe à l'analyse des cartes M.
+  4. 🟢 Quand exploration terminée : analyser cartes M (H1.A), démarrer rédaction H1.
+
+### Session précédente : 2026-05-18 (session 53 — **PASS H1.C** ✅ — H1 défendu)
 
 - **Phase actuelle** : Phase 2 — **H1 VALIDÉ sur Cluster 4**. SoftCAM-Transformer fonctionne.
 - **Avancée majeure** :
