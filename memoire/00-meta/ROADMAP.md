@@ -63,7 +63,134 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-19 (session 60 — Ablation mix exécutée → BUG CRITIQUE dans `generate()`)
+### Dernière session : 2026-05-20 (session 68 — Revue critique H1.A→H1.G + brief encadreurs)
+
+- **Phase actuelle** : Phase 2 — H1 verrouillée. Revue critique complète de toutes les hypothèses. Brief présentation encadreurs prêt.
+- **Avancée** :
+  - Revue au peigne fin de H1.G → H1.A dans l'ordre inverse, avec nuances méthodologiques :
+    - H1.A : test diagonal (même heure de la journée) manquant — résultat 37% vs 25% indicatif seulement.
+    - H1.B : reframé — divergence M/cross-attention attendue et souhaitable (comparer M à cross-attention est circulaire vu Jain & Wallace 2019). Mix d'inférence n'affecte pas M en teacher-forced.
+    - H1.D : Pearson=0.992 partiellement confondant (paramètres partagés + inputs similaires par construction du cluster). Comparaison inter-clusters manquante.
+    - H1.C : gain décomposé (+13.46 pp régularisation + 9.17 pp utilisation M).
+    - H1.E : ρ=−0.80 clair, pas de nuance majeure.
+    - H1.F/G : ✅ à mix=0.25, ceiling effect bien compris.
+  - `H1-narration.md` mis à jour : grille reformatée (H1.F/G séparés), section "Nuances par hypothèse" ajoutée, section 7 (limites) étendue à 6 points.
+  - Brief encadreurs créé : `presentations/2026-05-20-resultats-h1-softcam/BRIEF.md` (5 points clés, 5 questions anticipées, 3 demandes).
+- **Bilan H1.A → H1.G final** :
+
+  | H | Verdict | Note |
+  |---|---------|------|
+  | A | ✅ indicatif | test diagonal manquant — limite à mentionner |
+  | B | ⚠️ reframé | divergence M/cross-att attendue (Jain & Wallace) |
+  | C | ✅✅ | R²=0.7563, Spearman=0.9169 |
+  | D | ✅ nuancé | Pearson=0.992 — confondant partiel avec setup |
+  | E | ✅ | ρ R²↔entropy = -0.80 |
+  | F | ✅ | +5.37% Δ MAE max à mix=0.25 |
+  | G | ✅ | 97.13% préservation à k=1 |
+
+- **Prochain pas** :
+  1. 🔴 Démarrer rédaction LaTeX chapitre H1 (`redaction/`) sur la base de `H1-narration.md`.
+  2. 🔴 Remplir `slides.tex` et fixer date avec encadreurs pour présentation H1.
+  3. 🟡 Mettre à jour `JOURNAL.md` (entrée session 68).
+  4. 🟢 (Optionnel) Tester H1.F sans renormalisation pour quantifier redondance temporelle.
+
+### Session précédente : 2026-05-20 (session 66 — Notebook H1.F/G revisités à mix multiples)
+
+- **Phase actuelle** : Phase 2 — H1. Validation rétrospective des hypothèses initiales en commençant par la fin (H1.G → H1.F → H1.E → H1.D → H1.C → H1.B → H1.A).
+- **Avancée** :
+  - Discussion sur H1.G d'abord : le verdict ⚠️ initial venait du ceiling effect à mix=0.05 (h_evidence pèse 5% → impact prédictif plafonné à ~5%). À mix=0.25 (config finale), le plafond passe à ~25% et le test devient informatif.
+  - Notebook `softcam-cluster4-v3-h1fg-revisited.ipynb` créé (33 cellules) : 3 mix [0.05, 0.10, 0.25] × 7 k × 5 fonctions × 2 hypothèses = 210 forwards teacher-forced (~5 min Colab T4). Plafonds théoriques tracés en figure. Verdicts auto : H1.F PASS si Δ MAE max > 5%, H1.G PASS si préservation > 90% à k=10.
+  - Note méthodologique : `predict_with_M_override` passe par `forward()` teacher-forced — Fix #5 ne joue pas (seul `model.evidence_mix` configure le régime).
+  - Commit `e7c7813` + push.
+- **Prochain pas** :
+  1. 🔴 Colab T4 Run All sur `softcam-cluster4-v3-h1fg-revisited.ipynb` (~5 min).
+  2. 🔴 Archiver HTML + JSON dans `code/experiments/runs/2026-05-20_softcam-cluster4-v3-h1fg-revisited/`.
+  3. 🔴 Interpréter verdicts à mix=0.25 — mettre à jour `H1-narration.md` avec les nouveaux chiffres.
+  4. 🟡 Enchaîner sur H1.E (entropy vs R²) — déjà validée ✅ mais à passer au peigne fin.
+
+### Session précédente : 2026-05-20 (session 65 — Consolidation documentaire H1)
+
+- **Phase actuelle** : Phase 2 — H1 verrouillée + capitalisée. Prête pour rédaction LaTeX.
+- **Avancée** :
+  - Discussion sur la self-explainability de la dissociation entraînement/inférence → défense en 4 points formalisée.
+  - 4 écritures consolidatrices : `DECISIONS.md` (entrée 2026-05-20), `memory/project_h1_finalized_config.md` (nouvelle mémoire persistante), `memory/project_phase1_baseline_results.md` (chiffres corrigés post Fix #5), `memoire/03-contribution/notes/H1-narration.md` (squelette argumentatif chapitre H1).
+  - Tableau de comparaison final consigné : FAYAM 0.3701 → Run A 0.5299 → B5+mix=0 0.6646 → **B5+mix=0.25 = 0.7563**. Gain décomposé : +13.46 pp régularisation + 9.17 pp utilisation effective de M.
+- **Prochain pas** :
+  1. 🟢 Récupérer `reeval_fix5.json` détaillé depuis Drive (per-function).
+  2. 🔴 Démarrer rédaction LaTeX chapitre H1 dans `redaction/` sur la base de `H1-narration.md`.
+  3. 🟡 Créer `run.md` consolidé dans `2026-05-20_softcam-cluster4-v3-reeval-fix5/`.
+  4. 🟡 Mettre à jour `memoire/03-contribution/MEMOIRE.md` avec la configuration finale.
+
+### Session précédente : 2026-05-20 (session 64 — Ré-évaluation exécutée : B5+mix=0.25 reste champion)
+
+- **Phase actuelle** : Phase 2 — H1. Configuration finale verrouillée : **B5 + inférence mix=0.25 → R²=0.7563**. Pas de retrain B8.
+- **Résultats Fix #5** (R² optimal par checkpoint) :
+
+  | Modèle | Entraîné mix | Mix optimal | R² | Δ vs B5+0.25 |
+  |--------|--------------|-------------|-----|--------------|
+  | **B5** | 0.05 | **0.25** | **+0.7563** | — |
+  | B6 | 0.10 | 0.50 | +0.5975 | −15.88 pp |
+  | B7 | 0.15 | 0.50 | +0.4684 | −28.79 pp |
+
+- **Trouvailles majeures** :
+  - B7 récupéré : R² passé de −1.62 (buggé) à +0.4684 — `h_evidence` portait l'essentiel masqué par le bug.
+  - Pattern : optimum d'inférence ≈ 5× mix d'entraînement.
+  - Monter le mix d'entraînement dégrade monotone le R² pic → retrain à mix élevé non viable.
+- **R² final SoftCAM** : 0.7563 vs FAYAM 0.37 → **+103 pp**. Contribution causale de M : +9 pp (mix=0 → mix=0.25 sur B5).
+- **Prochain pas** :
+  1. 🟢 Récupérer JSON détaillé `reeval_fix5.json` depuis Drive (per-function R²/Spearman).
+  2. 🔴 Mettre à jour les mémoires persistantes : configuration finale H1 verrouillée.
+  3. 🔴 Démarrer rédaction chapitre H1 : Méthode (SoftCAM-Transformer) + Résultats (H1.A/C/D/E + ré-évaluation) + Discussion (mix d'inférence ≠ mix d'entraînement, distinction structurelle/causale).
+  4. 🟡 Créer `run.md` consolidé dans le dossier reeval-fix5.
+
+### Session précédente : 2026-05-20 (session 63 — Notebook ré-évaluation B5/B6/B7 Fix #5)
+
+- **Phase actuelle** : Phase 2 — H1. Décision retrain B8 mise en attente du diagnostic Fix #5 sur B6/B7.
+- **Scrutation** :
+  - B5 n'utilise PAS d'early stopping — le checkpoint est l'état brut après 51 epochs, pas une sélection par métrique fausse. Le bug `generate()` n'a corrompu que la métrique finale rapportée, pas le checkpoint.
+  - R²=0.48 de B6 et R²=-1.62 de B7 mesuraient `dec_output` seul (mix_eff=0 à cause du bug). Diagnostic en creux : plus mix d'entraînement monte, plus `dec_output` s'effondre.
+- **Avancée** : notebook `softcam-cluster4-v3-reeval-fix5.ipynb` créé (31 cellules) : 3 checkpoints × 7 mix = 21 évaluations, matrice + figures, décision automatique selon que B5+mix=0.25 (R²=0.7563) est battu. Sanity checks au démarrage (Fix #5 actif + existence des 3 checkpoints). Commit `f21d3a0` + push.
+- **Prochain pas** :
+  1. 🔴 Colab T4 Run All sur `softcam-cluster4-v3-reeval-fix5.ipynb` (~10 min, zéro réentraînement).
+  2. 🔴 Archiver HTML + JSON + figures dans `code/experiments/runs/2026-05-20_softcam-cluster4-v3-reeval-fix5/`.
+  3. 🔴 Décider B8 : si B6 ou B7 dépasse B5+mix=0.25 → fini. Sinon → fine-tune B8 mix=0.05→0.25.
+
+### Session précédente : 2026-05-20 (session 62 — Ablation mix Fix #5 : SCÉNARIO A confirmé)
+
+- **Phase actuelle** : Phase 2 — H1. Question causale tranchée. M contribue réellement.
+- **Résultats** (checkpoint B5, `generate()` patché) :
+
+  | mix | R² | Δ vs mix=0 |
+  |-----|-----|------------|
+  | 0.000 | 0.6646 | — |
+  | 0.050 | 0.7130 | +4.8 pp ← entraîné |
+  | 0.250 | 0.7563 | +9.2 pp ← pic |
+  | 0.500 | 0.4367 | −22.8 pp |
+  | 1.000 | −0.1332 | — |
+
+- **Verdicts** :
+  - **Scénario A confirmé** : M est causalement nécessaire (+4.84 pp R² quand Evidence Layer active).
+  - Vrai R² de B5 = **0.7130** (pas 0.6628 — qui était mesuré avec le bug generate()).
+  - Zone optimale non exploitée : pic à mix=0.25 (R²=0.7563) alors que modèle entraîné à mix=0.05.
+  - H1.C se renforce : +93 pp au-dessus de FAYAM (0.37).
+- **Prochain pas** :
+  1. 🔴 Décider : utiliser mix=0.25 en inférence sur B5 (gratuit, +4.3 pp) OU retrain B8 avec mix cible=0.25 (plus cohérent) ?
+  2. 🔴 Mettre à jour `JOURNAL.md` + mémoire persistante.
+  3. 🟡 Créer `run.md` bilan dans le dossier mix-ablation.
+  4. 🟢 Démarrer rédaction chapitre H1.
+
+### Session précédente : 2026-05-19 (session 61 — Fix #5 : override `generate()` + push)
+
+- **Phase actuelle** : Phase 2 — H1. Fix #5 déployé, en attente des vrais résultats de l'ablation mix.
+- **Avancée** :
+  - Override `generate()` implémenté dans `SoftCAMTransformerV3ForPrediction` : seul changement vs HF = `output_params(dec_last_hidden[:, -1:])` à la place de `parameter_projection(...)`. L'Evidence Layer est maintenant active à l'inférence.
+  - Commit `3f0c51c` + push GitHub. Inclut le notebook `softcam-cluster4-v3-mix-ablation.ipynb`.
+- **Prochain pas** :
+  1. 🔴 Colab : Disconnect & delete runtime → T4 → `git pull` → Run All sur `softcam-cluster4-v3-mix-ablation.ipynb`.
+  2. 🔴 Récupérer HTML + `mix_ablation.json` → archiver dans `code/experiments/runs/2026-05-19_softcam-cluster4-v3-mix-ablation/`.
+  3. 🔴 Interpréter le vrai verdict A/B → adapter la narration du chapitre H1.
+
+### Session précédente : 2026-05-19 (session 60 — Ablation mix exécutée → BUG CRITIQUE dans `generate()`)
 
 - **Phase actuelle** : Phase 2 — H1. **Crise méthodologique** : la couche d'évidence est inactive à l'inférence sur toutes les runs antérieures.
 - **Trouvaille** :

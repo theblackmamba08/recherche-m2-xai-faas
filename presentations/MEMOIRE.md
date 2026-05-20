@@ -21,6 +21,7 @@
 | 2026-04-25 | Soft-CAM : Rendre les Modèles Boîtes Noires Auto-Explicables *(incomplète — à recompléter)* | Dr LACMOU ZEUTOUO | [dossier](2026-04-25-softcam-presentation/) |
 | 2026-04-28 | Explicabilité : Panorama des méthodes XAI (LIME → SHAP → CAM → SoftCAM) | Dr LACMOU ZEUTOUO | [dossier](2026-04-28-explicabilite-panorama-methodes/) |
 | 2026-05-09 | Panorama XAI v2 — canevas Dr LACMOU + zooms SHAPformer/SoftCAM + architecture SoftCAM-Transformer | Dr LACMOU ZEUTOUO | [dossier](2026-05-09-panorama-xai-v2/) |
+| 2026-05-20 | Résultats H1 SoftCAM-Transformer — validation complète H1.A→H1.G + dissociation entraînement/inférence *(à présenter)* | Encadreurs | [dossier](2026-05-20-resultats-h1-softcam/) |
 
 ## 2026-04-27 — Ajout présentation #1
 
@@ -76,6 +77,12 @@
 - Retour Dr LACMOU : présentation **trop technique**, méthodes exposées comme blocs isolés sans fil conducteur. Étudiant en peine à l'oral.
 - **Cadre prescrit pour les futures présentations XAI** : 4 points par méthode (contexte / problèmes résolus / transposabilité / limites) + **plus-value de transition** vers la méthode suivante. Acté dans [`DECISIONS.md`](../memoire/00-meta/DECISIONS.md) (entrée 2026-05-08) et mémoire persistante.
 - Action items : reprendre les slides selon ce cadre, réduire le formalisme, construire le fil de plus-values jusqu'à SoftCAM-Transformer.
+
+## 2026-05-20 — Brief présentation résultats H1 (session 68)
+
+- Dossier `2026-05-20-resultats-h1-softcam/` créé : `BRIEF.md` pré-rempli + `slides.tex` squelette (8 sections).
+- Brief couvre : architecture Evidence Layer, R²=0.7563, dissociation entraînement/inférence, grille H1.A→H1.G avec nuances, 5 questions anticipées, 3 demandes encadreurs.
+- Suite → remplir les slides `.tex`, fixer date avec encadreurs, compiler PDF.
 
 ## 2026-05-09 — Présentation Panorama XAI v2 (canevas Dr LACMOU appliqué)
 

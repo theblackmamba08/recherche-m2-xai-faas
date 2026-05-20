@@ -1,5 +1,70 @@
 # Mémoire — code
 
+## 2026-05-20 — H1.F/G revisités exécutés : les deux ⚠️ deviennent ✅ (session 67)
+
+- Notebook `softcam-cluster4-v3-h1fg-revisited` exécuté sur Colab T4 (~5 min). HTML archivé dans `code/experiments/runs/2026-05-20_softcam-cluster4-v3-h1fg-revisited/`.
+- **Verdicts à mix=0.25** :
+  - **H1.F ✅ PASS** (modeste) : Δ MAE max = 5.37% (vs plafond théorique 25%). M est causalement utilisée (~21% du plafond atteint). L'effet reste modéré par la renormalisation post-masque qui redistribue la masse sur les voisins.
+  - **H1.G ✅ PASS** (fort) : préservation = 97.13% à k=1, 100.23% à k=50. M est **top-1 sparse-fidèle** — une seule position par ligne suffit à reproduire 97% de la prédiction.
+- Lecture combinée : M est très parcimonieuse (H1.G) ET ses positions clés sont utilisées (H1.F), avec une redondance temporelle locale (les voisins portent un signal corrélé).
+- Observation secondaire : à k=50, préservation > 100% → la queue de M (positions 51-240) porte du bruit ; tronquer améliore légèrement. Point à mentionner en Discussion.
+- Suite → enchaîner sur H1.E (calibration entropie ↔ R²) ou raffiner H1.F sans renormalisation.
+
+## 2026-05-20 — Notebook H1.F/G revisités à mix=0.05/0.10/0.25 (session 66)
+
+- Discussion ciblée sur H1.G d'abord (puis enchaînement sur H1.F par symétrie) : le verdict ⚠️ initial était dû au ceiling effect à mix=0.05 (h_evidence pèse 5% → plafond mécanique de dégradation à ~5%). À mix=0.25 (config finale), le plafond passe à ~25% et le test devient informatif.
+- Note méthodologique : `predict_with_M_override` utilise `forward()` teacher-forced, qui appelle correctement `output_params` — Fix #5 ne joue donc pas pour ce test. Seul `model.evidence_mix` configure le régime.
+- Générateur `_generate_softcam_cluster4_v3_h1fg_revisited.py` créé → notebook `softcam-cluster4-v3-h1fg-revisited.ipynb` (33 cellules) : 3 mix × 7 k × 5 fonctions × 2 hypothèses = 210 forwards teacher-forced (~5 min Colab T4). Plafonds théoriques tracés. Verdicts H1.F (PASS si Δ MAE max > 5%) et H1.G (PASS si préservation > 90% à k=10) automatiques.
+- Commit `e7c7813` + push GitHub.
+- Suite → Colab T4 Run All → interpréter verdict à mix=0.25 → enchaîner sur H1.E.
+
+## 2026-05-20 — Consolidation documentaire H1 (session 65)
+
+- Discussion étendue sur la self-explainability de la configuration finale (B5 + mix=0.25 inférence vs mix=0.05 entraînement). Formalisation de la défense en 4 points.
+- 4 écritures consolidatrices :
+  1. Entrée dédiée dans `memoire/00-meta/DECISIONS.md` (2026-05-20) : configuration H1 finalisée + alternatives écartées + décomposition du gain (+13.46 pp régularisation + 9.17 pp utilisation effective de M).
+  2. Nouvelle mémoire persistante `memory/project_h1_finalized_config.md` (chiffres post Fix #5, défense self-explainability, mode d'emploi `model.evidence_mix=0.25`).
+  3. Mise à jour `memory/project_phase1_baseline_results.md` (H1.C corrigé : 0.7563 au lieu de 0.6628) + index `memory/MEMORY.md`.
+  4. Note narrative `memoire/03-contribution/notes/H1-narration.md` : squelette argumentatif complet du chapitre H1 (motivation, architecture, expérimentation, résultats, trouvaille dissociation, limites, plan suggéré).
+
+## 2026-05-20 — Ré-évaluation B5/B6/B7 exécutée → B5+mix=0.25 reste champion (session 64)
+
+- Notebook ré-évaluation exécuté sur Colab T4 (~10 min). HTML archivé dans `code/experiments/runs/2026-05-20_softcam-cluster4-v3-reeval-fix5/`.
+- **Résultats** (R² optimal avec Fix #5 actif) :
+  - B5 (entraîné 0.05) optimum @ mix=0.25 → **R²=0.7563** ← champion
+  - B6 (entraîné 0.10) optimum @ mix=0.50 → R²=0.5975 (−15.88 pp vs B5)
+  - B7 (entraîné 0.15) optimum @ mix=0.50 → R²=0.4684 (−28.79 pp vs B5)
+- **Trouvailles** :
+  - B6 récupéré : +12 pp vs chiffre buggé (0.48 → 0.5975)
+  - B7 récupéré : +210 pp vs chiffre buggé (−1.62 → 0.4684) — `h_evidence` portait l'essentiel du signal, masqué par le bug
+  - Pattern empirique : optimum d'inférence ≈ 5× mix d'entraînement
+  - Trend monotone défavorable au retrain : monter mix d'entraînement dégrade le R² pic (B5→B6→B7)
+- **Décision** : pas de retrain B8. On garde B5 + inférence mix=0.25. R² final SoftCAM = 0.7563 vs FAYAM 0.37 (+103 pp).
+- Suite → récupérer JSON détaillé depuis Drive (per-function) puis démarrer rédaction chapitre H1.
+
+## 2026-05-20 — Notebook ré-évaluation B5/B6/B7 (Fix #5) créé + push (session 63)
+
+- Scrutation approfondie du générateur B5 : confirmation que B5 n'utilise PAS d'early stopping (juste 51 epochs + save final state_dict), donc le bug `generate()` n'a pas pollué la sélection du checkpoint — seulement la métrique finale rapportée.
+- Diagnostic des chiffres B6/B7 contaminés par le bug : R²=0.48 et R²=-1.62 mesuraient `dec_output` seul (mix_eff=0). Lecture en creux : plus le mix d'entraînement augmente, plus `dec_output` se dégrade.
+- Décision : ré-évaluer B5/B6/B7 avec Fix #5 actif AVANT toute décision de retrain B8 — 10 min Colab gratuites pour potentiellement éviter 1-4h de fine-tune.
+- Générateur `_generate_softcam_cluster4_v3_reeval_fix5.py` créé → notebook `softcam-cluster4-v3-reeval-fix5.ipynb` (31 cellules) : 3 checkpoints × 7 valeurs de mix d'inférence = 21 évaluations, matrice R²/Spearman, figures comparatives, décision automatique selon que B5+mix=0.25 (R²=0.7563) est battu.
+- Sanity checks au démarrage : §3 vérifie `generate.__qualname__` (assertion Fix #5), §5 vérifie l'existence des 3 checkpoints.
+- Commit `f21d3a0` + push GitHub.
+- Suite → Colab T4 Run All (~10 min) → décider du retrain B8 selon résultats.
+
+## 2026-05-20 — Ablation mix (Fix #5) : SCÉNARIO A confirmé (session 62)
+
+- Notebook `softcam-cluster4-v3-mix-ablation` re-exécuté avec `generate()` patché. HTML archivé sous `softcam-cluster4-v3-mix-ablation-fix5.html`.
+- **Verdict : SCÉNARIO A — M contribue causalement.** R²(mix=0.0)=0.6646 vs R²(mix=0.05)=0.7130 → Δ=+4.84 pp. Le vrai R² de B5 à l'inférence est 0.7130 (pas 0.6628 mesuré avec le bug). Pic à mix=0.25 : R²=0.7563.
+- Suite → décider : utiliser mix=0.25 à l'inférence sur B5 (gratuit) ou retrain avec mix cible=0.25 ?
+
+## 2026-05-19 — Fix #5 : override `generate()` dans v3 + push (session 61)
+
+- Override `generate()` ajouté dans `SoftCAMTransformerV3ForPrediction` : copie exacte de la boucle HF avec un seul changement, `output_params(dec_last_hidden[:, -1:])` à la place de `parameter_projection(...)`. Le batch mismatch `batch_size` vs `batch_size × num_parallel_samples` est géré par `_compute_evidence_map` via `repeat_interleave` (déjà en place).
+- Import `SampleTSPredictionOutput` ajouté dans v3. Syntaxe vérifiée (`ast.parse` OK).
+- Commit `3f0c51c` + push GitHub. Notebook `softcam-cluster4-v3-mix-ablation.ipynb` inclus.
+- Suite → Colab : Disconnect & delete runtime → T4 → Run All sur le notebook d'ablation mix.
+
 ## 2026-05-19 — Ablation mix exécutée → BUG CRITIQUE détecté dans `generate()` (session 60)
 
 - Notebook `softcam-cluster4-v3-mix-ablation` exécuté sur Colab T4, HTML archivé dans `code/experiments/runs/2026-05-19_softcam-cluster4-v3-mix-ablation/`.

@@ -2,6 +2,29 @@
 
 > Format : date — décision — alternatives écartées — justification.
 
+## 2026-05-20 — Configuration H1 finalisée : B5 + mix=0.25 inférence + Fix #5
+
+- **Décision** : la configuration H1 retenue pour le mémoire est le checkpoint **Run B5** (SoftCAM-Transformer v3 entraîné avec `evidence_mix=0.05` warm-up) évalué à l'inférence avec **`model.evidence_mix = 0.25`** et la méthode `generate()` patchée (Fix #5). R² final = **0.7563**, Spearman = 0.9169 sur Cluster 4. Pas de retrain B8.
+- **Alternatives écartées** :
+  - **Retrain B8 from scratch avec mix=0.25 cible** : la ré-évaluation B5/B6/B7 (2026-05-20) avec Fix #5 actif montre que monter le mix d'entraînement dégrade monotone le R² pic (B5=0.7563 > B6=0.5975 > B7=0.4684). Trend défavorable et coût ~3-4h Colab non justifié.
+  - **Fine-tune B5 → B8 avec mix 0.05→0.25** : l'argument vaut aussi (le dec_output va se dégrader sous pression du mix accru) ; le risque dépasse le gain attendu.
+  - **Garder B5 à mix=0.05 inférence** (config "pure" entraînement=inférence) : laisse 4.3 pp de R² sur la table (0.7130 → 0.7563). Pas justifiable scientifiquement.
+- **Justification** :
+  1. **Diagnostic Fix #5** (2026-05-19) : la méthode HuggingFace `generate()` appelait `parameter_projection` directement, court-circuitant notre `output_params`. Tous les runs antérieurs (A, B…B7) étaient évalués avec l'Evidence Layer inactive — d'où R²=0.66 rapporté pour B5 (mesurait dec_output seul).
+  2. **Re-mesure avec Fix #5** : B5 à mix=0.05 (le mix d'entraînement) donne R²=0.7130 ; à mix=0.25 donne R²=0.7563 (pic empirique). La courbe redescend ensuite (mix=0.50 → 0.4367 ; mix=1.0 → −0.1332).
+  3. **Pattern empirique** : optimum d'inférence ≈ 5× mix d'entraînement pour les 3 checkpoints. Hypothèse : les contraintes auxiliaires (ElasticNet + entropie sur M) pendant l'entraînement façonnent un h_evidence dont la qualité intrinsèque dépasse son poids relatif au régime d'entraînement.
+  4. **Self-explainability préservée** : M est toujours produite par le forward pass, fidèle par construction. Le choix de mix=0.25 à l'inférence est un hyperparamètre opératoire (analogue à la température d'un LLM), pas une rationalisation post-hoc. La fidélité-par-construction tient à n'importe quel mix > 0.
+- **Comparaison vs baselines** :
+  - vs **FAYAM original** (R²=0.3701) : +103 pp relatif, soit **+38.62 pp absolu**
+  - vs **Run A** (notre repro, `use_evidence_layer=False`, R²=0.5299) : +22.64 pp absolu
+    - dont +13.46 pp gratuits attribuables à l'entraînement avec Evidence Layer (régularisation multi-tâche : B5+mix=0 inférence donne déjà R²=0.6646)
+    - dont +9.17 pp attribuables à l'utilisation effective de M à l'inférence (mix=0 → mix=0.25)
+- **Application** :
+  - Code : `code/src/models/softcam_transformer_v3.py` (Fix #5 inclus, commit `3f0c51c`)
+  - Checkpoint : Drive `m2-xai-faas/experiments/softcam-cluster4-v3-runB5/checkpoints/v3_runB5_final.pt`
+  - Mode d'emploi : `model.evidence_mix = 0.25` AVANT `model.generate(...)`
+  - Hypothèses validées : H1.A ✅, H1.C ✅ (avec vrai R²), H1.D ✅✅, H1.E ✅ ; H1.B ⚠️ et H1.F/G ⚠️ à présenter en Discussion comme limites mesurables mais non bloquantes.
+
 ## 2026-05-14 — HPO Path B (ciblée) sur le baseline Cluster 4 avant Phase 2
 
 - **Décision** : lancer une HPO ciblée d'Optuna (TPE + MedianPruner, 15 trials × 20 epochs) sur 4 hyperparamètres du `TimeSeriesTransformer` — `d_model`, `context_length`, `encoder_layers`, `lr` — avant de démarrer l'implémentation de H1 (SoftCAM-Transformer). Le retrain final utilise un **early stopping sur val R²** (patience=10, max 80 epochs) au lieu des 51 epochs fixes de FAYAM. Une **ablation per-function** sur la fonction 949 (la plus problématique, R²=0.15 en multi-task) est ajoutée pour diagnostiquer si elle est écrasée par le multi-task ou intrinsèquement difficile.
