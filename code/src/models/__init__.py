@@ -27,6 +27,10 @@ from .softcam_transformer_v4 import (
     SoftCAMTransformerV4Config,
     SoftCAMTransformerV4ForPrediction,
 )
+from .softcam_transformer_v5 import (
+    SoftCAMTransformerV5Config,
+    SoftCAMTransformerV5ForPrediction,
+)
 
 __all__ = [
     "SoftCAMTransformerConfig",
@@ -39,4 +43,6 @@ __all__ = [
     "SoftCAMTransformerV3ForPrediction",
     "SoftCAMTransformerV4Config",
     "SoftCAMTransformerV4ForPrediction",
+    "SoftCAMTransformerV5Config",
+    "SoftCAMTransformerV5ForPrediction",
 ]
