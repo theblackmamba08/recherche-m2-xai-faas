@@ -2,6 +2,15 @@
 
 > Format : date — décision — alternatives écartées — justification.
 
+## 2026-05-25 — Retours encadreurs : révision architecturale + renommage + évaluation explicabilité
+
+- **Décision** : suite à la présentation du 2026-05-25, trois chantiers majeurs sont ouverts :
+  1. **Révision architecturale** : explorer le remplacement du mélange additif par un dot product entre `dec_output` et M. Toute modification doit être précédée d'une justification théorique tirée de la littérature.
+  2. **Renommage du modèle** : "SoftCAM-Transformer" crée de la confusion — à remplacer par un nom référençant exactement ce qui est fait (options : `TemporalEvidenceTransformer`, `EvidenceLayerTransformer`).
+  3. **Évaluation de l'explicabilité** : compléter avec évaluation quantitative (activation precision/sensitivity) ET qualitative (visualisations M sur exemples, interprétation expert).
+- **Règle imposée par les encadreurs** : pattern obligatoire pour toute décision architecturale = **théorie (littérature) → application → résultats → interprétation**. Tatonnement non acceptable.
+- **Fallback** : si les résultats du dot product sont décevants, présenter les résultats actuels (R²=0.7563) avec cadre théorique renforcé.
+
 ## 2026-05-20 — Configuration H1 finalisée : B5 + mix=0.25 inférence + Fix #5
 
 - **Décision** : la configuration H1 retenue pour le mémoire est le checkpoint **Run B5** (SoftCAM-Transformer v3 entraîné avec `evidence_mix=0.05` warm-up) évalué à l'inférence avec **`model.evidence_mix = 0.25`** et la méthode `generate()` patchée (Fix #5). R² final = **0.7563**, Spearman = 0.9169 sur Cluster 4. Pas de retrain B8.

@@ -1,6 +1,138 @@
 # Journal de bord
 
-> Une entrée par session significative. Format : date, durée, contenu, blocages.
+> Une entrée par session significative. Format : date, durée, contenu, blocages, prochaine étape.
+
+## 2026-05-23 — Q&A Run B collapse vulgarisé (session 86)
+
+- **Durée** : ~5 min
+- **Fait** : Explication du collapse Run B reformulée en français simple via analogie moniteur de conduite — M non structurée à l'init + mix=0.3 dès le départ = rétropropagation déstabilisée → effondrement. Argument dissociation entraînement/inférence consolidé pédagogiquement.
+- **Prochaine étape** : reformuler H1.A ; relire SPEECH.md.
+
+## 2026-05-23 — Q&A méthodes post-hoc par perturbation + TFT (session 85)
+
+- **Durée** : ~10 min
+- **Fait** : LIME / SHAP / TimeSHAP / TsSHAP / WindowSHAP expliqués — principe perturbation, coût 2^n, lien H2 de repli. TFT (Lim 2019) défini : concurrent direct interprétabilité, mais attention non régularisée → argument Jain & Wallace pour défendre M (contrainte ElasticNet) face au jury.
+- **Prochaine étape** : reformuler H1.A (test diagonal) ; relire SPEECH.md.
+
+## 2026-05-23 — Q&A méthodes post-hoc par gradient (session 84)
+
+- **Durée** : ~10 min
+- **Fait** : Tour d'horizon Vanilla Gradients / SmoothGrad / Integrated Gradients / GradCAM — principe commun (∂ŷ/∂x comme proxy d'importance), limites (sensibilité locale ≠ fidélité). GradCAM identifié comme ancêtre direct de SoftCAM. Argument : les gradients mesurent une approximation locale, pas le raisonnement réel — justification supplémentaire pour M interne.
+- **Prochaine étape** : reformuler H1.A (test diagonal) ; relire SPEECH.md.
+
+## 2026-05-23 — Q&A interprétabilité/explicabilité + correction slide 4 (session 83)
+
+- **Durée** : ~10 min
+- **Fait** : Distinction interprétabilité (propriété intrinsèque) / explicabilité (artefact post-hoc) formalisée. Rudin : expliquer un modèle interprétable est redondant et peut introduire de la confusion. Slide 4 : "Débogage" → "Diagnostic" (terme plus fidèle à Rudin 2019).
+- **Prochaine étape** : reformuler H1.A (test diagonal) ; relire SPEECH.md.
+
+## 2026-05-23 — Q&A Rudin 2019 : propriétés d'une vraie explication (session 82)
+
+- **Durée** : ~5 min
+- **Fait** : Explication des 3 propriétés Rudin (simulable / features signifiantes / fidèle par construction) à partir de la fiche `2019_Rudin_StopExplaining.md`. Lien établi avec H1 : l'Evidence Layer M satisfait la fidélité par construction que SHAP/LIME ne peuvent pas revendiquer — argument clé pour la soutenance.
+- **Prochaine étape** : continuer la lecture des fiches littérature ; reformuler H1.A (test diagonal) dans le tableau slide 26.
+
+## 2026-05-28 — PLAN-MEMOIRE.md enrichi retours encadreurs + plus-value (session 85)
+
+- **Durée** : ~20 min
+- **Fait** : `PLAN-MEMOIRE.md` enrichi — section plus-value (tableau 3 axes vs FAYAM/TimeSHAP/TFT), tableau comparatif XAI §2.7, pattern théorie→application→résultats→interprétation rendu obligatoire (§3.1.4), §4.2.4 seuil R² dans la littérature, §4.3.7 mesure de confiance en M (3 pistes : stabilité inter-runs, bootstrap, calibration), §4.4 évaluation qualitative renforcée (3 exemples typés + figures notebooks obligatoires), checklist 8 points retours encadreurs.
+- **Prochaine étape** : soumettre plan aux encadreurs ; trancher nom modèle + dot product ; commencer Chap4.
+
+## 2026-05-28 — Template Dschang + PLAN-MEMOIRE.md (session 84)
+
+- **Durée** : ~20 min
+- **Fait** : Template Dschang intégré dans `redaction/Thesis-Template/`. `redaction/PLAN-MEMOIRE.md` créé — plan complet 4 chapitres (FaaS, XAI, Contribution, Résultats), contenu attendu par section, références clés (16 entrées), volume estimé 85–100 pages, ordre de rédaction conseillé (Chap4 d'abord), décisions en attente documentées (nom modèle, dot product).
+- **Prochaine étape** : soumettre le plan aux encadreurs ; trancher nom + dot product ; commencer Chap4.
+
+## 2026-05-25 — Q&A XAI fondamental + correction slide (session 83)
+
+- **Durée** : ~40 min
+- **Fait** : Q&A approfondi sur les fondements XAI — Rudin 2019 (3 propriétés d'une vraie explication, distinction interprétabilité vs explicabilité), méthodes post-hoc par gradient (Vanilla Gradients, SmoothGrad, Integrated Gradients, GradCAM), méthodes par perturbation (LIME, SHAP, TimeSHAP, TsSHAP), TFT comme concurrent. Explications techniques : Spearman, R², sparse vs concentré, H1.E, H1.F limite (5.37%/25%), Run B collapse (simple + technique), γ anneal, correction formule loss (α/β/γ). Slide fixes.tex : "Débogage" → "Diagnostic" (ligne 139), recompilation 43 pages 0 erreur.
+- **Prochaine étape** : justification théorique dot product dans la littérature ; noms alternatifs au modèle ; compléter évaluation explicabilité.
+
+## 2026-05-25 — Débrief présentation encadreurs + retours majeurs (session 82)
+
+- **Durée** : ~30 min
+- **Fait** : Présentation tenue aux encadreurs. DEBRIEF.md créé. Retours majeurs documentés : (1) théorie avant application imposée comme pattern, (2) révision architecturale dot product demandée, (3) renommage "SoftCAM-Transformer" requis, (4) évaluation explicabilité quantitative+qualitative manquante, (5) schémas visuels réels notebooks obligatoires, (6) seuil R² et confiance en M à creuser. QUESTIONS-OUVERTES.md et DECISIONS.md mis à jour.
+- **Prochaine étape** : chercher la justification théorique du dot product dans la littérature ; proposer 2-3 noms alternatifs aux encadreurs ; compléter l'évaluation explicabilité.
+
+## 2026-05-22 — SPEECH.md complet slide par slide (session 81)
+
+- **Durée** : ~20 min
+- **Fait** : Création de `presentations/2026-05-20-resultats-h1-softcam/SPEECH.md` — script de présentation complet pour les 35 slides. Un paragraphe par slide, première personne, français naturel. Couvre : titre → contexte → panorama XAI → architecture → résultats H1.A→H1.G → positions/limites → demandes aux encadreurs.
+- **Prochaine étape** : relire le speech slide par slide pour l'affiner ; préparer la présentation réelle aux encadreurs.
+
+## 2026-05-21 — Slide 35 restructuré + Q&A conceptuel (session 80)
+
+- **Durée** : ~15 min
+- **Fait** : Slide 35 — priorités reformulées en questions ciblées pour les encadreurs (2 blocs : feedback sur ce qui est proposé + décisions ouvertes). Q&A : "idiosyncratique" expliqué (pattern non généralisable), "calibrated self-explainability" défini (entre native et post-hoc, honnête sur la dissociation mix).
+- **Prochaine étape** : reformuler H1.A test diagonal ; slides 32+ ; confirmer chiffre FAYAM.
+
+## 2026-05-21 — Diagramme TikZ architecture + slide loss simplifié + Q&A (session 79)
+
+- **Durée** : ~25 min
+- **Fait** : Slide 7 — architecture TikZ maison (5 blocs verticaux, flèche enc_hidden tiretée en softcam, badge "nouveauté H1"). Slide 8 — reformulé sans jargon : problème d'abord, tableau analogies (surligneur/stabilisateur/filtre), formule dans l'interpbox. Slide 4 — 4 stakeholders avec descriptions concrètes. Q&A : définition stakeholder, différence Run A / Run B, explication gap 0.37→0.53 (C4 seul + HPO).
+- **Prochaine étape** : reformuler H1.A test diagonal ; slides 32+ bilan ; confirmer chiffre FAYAM.
+
+## 2026-05-21 — Finitions slides + réécriture "positions et limites" (session 78)
+
+- **Durée** : ~20 min
+- **Fait** : Slide 30 (H1.F) — verdictbox rendue explicite (5.37%/25%≈21%) puis reformulée en français simple sans symboles. Slides 33/34/35 — réécrits intégralement à la 1ère personne, méta-instructions supprimées, titres humanisés ("La question que vous allez me poser", "Ce que ce travail ne fait pas encore", "Ce que j'attends de vous aujourd'hui"). Slide 7 — placeholder architecture remplacé par `\includegraphics` sur `architecture-globale-revisee.pdf`. Slide 9 — figures TikZ ajoutées puis supprimées sur décision. 43 pages, 0 erreur.
+- **Prochaine étape** : reformuler H1.A (test diagonal) ; slides 32+ (bilan) ; confirmer chiffre FAYAM.
+
+## 2026-05-21 — Figures TikZ slides 30/31 H1.F/H1.G (session 77)
+
+- **Durée** : ~20 min
+- **Fait** : Slide 30 (H1.F comprehensiveness) — courbe ΔMAE vs k avec zone ombrée sous la courbe (softcam!15), ligne plafond pointillée warning 25%, bracket bilatéral fayam montrant l'écart "79% restant", annotation "+5.37%" sur le point max. Axe x non-linéaire (k=0,1,10,100,max). Slide 31 (H1.G sufficiency) — bar chart avec axe y zoomé (90%–105%, 5 unités TikZ = 5%) indiqué par double-barre brisée ; 4 barres k=1/5/10/50 en softcam, ligne 100% pointillée success, valeurs au-dessus des barres ; message visuel "une seule position préserve 97%". Compilation 43 pages, 0 erreur.
+- **Prochaine étape** : slides 32+ (conclusion, bilan H1.A–H1.G) ; reformuler H1.A avec test diagonal dans le tableau slide 26 ; confirmer chiffre dataset FAYAM.
+
+## 2026-05-21 — Figures TikZ slides 27/28/29 + discussion H1.E (session 76)
+
+- **Durée** : ~30 min
+- **Fait** : Slide 27 (H1.C) — bar chart TikZ R²/Spearman avec seuils en ligne blanche pointillée intérieure, delta `✓ +0.456` / `✓ +0.067` ; bug `\fi` (mot réservé LaTeX) corrigé en `\fn`. Slide 28 (H1.D) — heatmaps schématiques retirées sur décision de l'étudiant, slide simplifié pleine largeur (Pearson=0.992 encadré + interpbox + problembox). Slide 29 (H1.E) — scatter plot R² vs entropy(M), 5 points construits pour Spearman ρ=-0.80, droite de régression grise pointillée, annotation ρ en fayam. Discussion méthodologique : avec n=5, ρ=-0.80 non significatif statistiquement (seuil α=0.05 requiert ρ≈1.0) — H1.E à qualifier de tendance indicative, appuyée par H1.F/G.
+- **Prochaine étape** : figures slides 30 (H1.F comprehensiveness) et 31 (H1.G sufficiency) ; reformuler H1.A avec test diagonal.
+
+## 2026-05-21 — Figures TikZ slides 22/24/25 + tableau hypothèses slide 26 (session 75)
+
+- **Durée** : ~40 min
+- **Fait** : Slide 22 — coordonnées des 3 courbes B5/B6/B7 et tous les marqueurs remappés à la nouvelle échelle x (scale=12.8/unité, x→9, scale TikZ 0.75). Slides 24 et 25 — waterfall chart TikZ 4 paliers (FAYAM 0.37→RunA 0.53→B5mix=0 0.66→B5mix=0.25 0.7563, deltas flottants +15.98/+13.46/+9.17 pp) et bar chart FAYAM vs B5+mix=0.25 avec ligne TFT pointillée annotée "non mesuré". Slide 26 — 7 hypothèses reformulées en propositions déclaratives avec critère de validation dans un tableau booktabs (2 bugs LaTeX Beamer résolus : `\begin{footnotesize}` invalide → `{\footnotesize ...}` ; `p{}` colonnes → colonnes `l` avec minipage). Discussion H1.A : test argmax/17-19h identifié comme partiel — le test rigoureux (alignement diagonal `argmax(M[t]) ≈ heure(t)`) reste à faire.
+- **Prochaine étape** : reformuler H1.A avec test diagonal dans slides.tex + H1-narration.md ; figures slides 27+ ; confirmer chiffre dataset FAYAM.
+
+## 2026-05-21 — Figures TikZ slides 12-13 + explications pédagogiques (session 74)
+
+- **Durée** : ~25 min
+- **Fait** : Slide 12 (Run B2) — figure schedule mix/γ corrigée selon le vrai notebook (`_generate_softcam_cluster4_v2_runB2.py`) : plateau à 0 (époques 0–14 pour mix, 0–24 pour γ), rampes linéaires, puis plateaux cibles ; époque 40 (fin rampe γ) ajoutée sur l'axe. Slide 13 (Run B3 LayerNorm) — courbes lisses remplacées par deux histogrammes TikZ côte à côte : Avant LN (spike collapse à 0.97) vs Après LN (distribution uniforme max=0.06). Explication pédagogique fournie : LayerNorm transforme M d'un artifact numérique en vraie carte d'attention utile.
+- **Prochaine étape** : produire les figures placeholders restants (slides 14+) ; confirmer chiffre dataset FAYAM.
+
+## 2026-05-21 — Affinages slides 5-6 + explications pédagogiques (session 73)
+
+- **Durée** : ~20 min
+- **Fait** : Slide 5 enrichi — exemples ajoutés pour les 3 familles XAI (post-hoc gradient : Vanilla Gradients, SmoothGrad, Grad-CAM ; intrinsèque : CAM, Concept Bottleneck Models, SoftCAM) avec compression des espaces pour éviter le débordement. Slide 6 (attention ≠ explication) : tentative de restructuration en tableau puis 3 colonnes rejetée (erreurs `\insert@pcolumn` Beamer) — retour à la version bullet list originale sur demande. Explication pédagogique en français simple de "distribution d'attention adversariale" (Jain & Wallace 2019) : même prédiction avec attention totalement différente → l'attention ne reflète pas le raisonnement réel du modèle.
+- **Prochaine étape** : continuer la lecture des slides suivants ; produire les figures ; confirmer chiffre dataset FAYAM.
+
+## 2026-05-21 — Affinages slides 4-5 + explications pédagogiques (session 72)
+
+- **Durée** : ~20 min
+- **Fait** : Slide 4 affiné — bullet Débogage enrichi (vrai pattern vs artifact de données, ressources gaspillées) ; Stakeholders revenus à la version simple (Opérateur cloud + Développeur uniquement, Auditeur retiré). Explication pédagogique du slide 5 ("Panorama XAI temporel") fournie sans modifier le .tex : positionnement des 3 familles (post-hoc gradient → approximation locale, post-hoc perturbation → coût computationnel élevé, intrinsèque → fidélité par construction) et pourquoi ce slide est stratégique pour les encadreurs.
+- **Prochaine étape** : continuer la lecture des slides suivants ; produire les figures placeholders ; confirmer chiffre dataset FAYAM.
+
+## 2026-05-21 — Correction slide 3 + explication slide 4 (session 71)
+
+- **Durée** : ~15 min
+- **Fait** : Chiffre "~1900 fonctions Lambda" retiré de la slide 3 (non vérifiable dans les fichiers du projet) — remplacé par "33 clusters DBSCAN" seul, en attente de confirmation encadreurs. Explication pédagogique du slide 4 ("Pourquoi expliquer la prédiction ?") : structure en deux blocs (3 motivations universelles Lipton/Rudin/EU AI Act + stakeholders FaaS), lien implicite vers le gap FAYAM (slide 5).
+- **Prochaine étape** : confirmer le nombre de fonctions FAYAM ; produire les figures placeholders ; fixer date de présentation.
+
+## 2026-05-20 — Contenu complet slides H1 + footer noir/blanc (session 70)
+
+- **Durée** : ~30 min
+- **Fait** : `slides.tex` entièrement meublé — les 35 frames passent de squelette à contenu réel (textes, tableaux deux colonnes, boîtes tcolorbox, TikZ run timeline, citations `\source{}`). Compile à 44 pages, 967 Ko, 0 erreur. Footer ajusté : section centrale ("Validation H1 : SoftCAM-Transformer") en noir sur fond blanc via `\setbeamercolor{title in head/foot}{fg=black,bg=white}`. Erreur détectée slide 3 : chiffre "~1900 fonctions Lambda" non vérifiable — à confirmer dans le mémoire FAYAM avant présentation.
+- **Prochaine étape** : vérifier le nombre de fonctions FAYAM (slide 3) ; produire les ~10 figures placeholders ; fixer date de présentation avec les encadreurs.
+
+## 2026-05-20 — Squelette présentation H1 35 slides + 15 articles intégrés (session 69)
+
+- **Durée** : ~2h
+- **Fait** : 15 nouveaux articles déposés dans `memoire/01-litterature/articles/` avec nomenclature `YYYY_Auteur_MotClé.pdf` (controverse attention Jain/Wiegreffe/Serrano, Vaswani Transformer, ERASER, Rudin, Ba LayerNorm, Zou&Hastie ElasticNet, Zhou CAM, Selvaraju GradCAM, Lundberg SHAP, Sundararajan IG, He BagOfTricks, Lipton Mythos, Jacovi&Goldberg Faithful) ; 15 fiches de lecture créées en parallèle, chacune avec lien explicite vers les slides de la présentation. Plan détaillé de présentation H1 élaboré (35 slides / 7 actes / ~40 min, citations partout). `slides.tex` squelette complet posé : préambule hérité du panorama explicabilité (Madrid+seahorse, tcolorbox, tikz, pifont ajouté), boîtes thématiques (`constatbox/problembox/verdictbox/interpbox`), commandes `\ok/\fail/\warn`, 35 frames vides avec titres + `\source{}` placeholder. Compile à 44 pages, 440 Ko, 0 erreur. Commit `2baf747` poussé sur main (42 fichiers, 1627 insertions).
+- **Prochaine étape** : meubler Acte I (slides 2-8) pour valider le style avant de propager.
 
 ## 2026-05-20 — Revue critique H1.A→H1.G + brief encadreurs (session 68)
 

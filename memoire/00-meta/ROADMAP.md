@@ -63,7 +63,236 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-20 (session 68 — Revue critique H1.A→H1.G + brief encadreurs)
+### Dernière session : 2026-05-23 (session 86 — Q&A Run B collapse vulgarisé)
+
+- **Phase actuelle** : Phase 2 — préparation orale, consolidation des explications pédagogiques.
+- **Avancée** : Explication Run B collapse reformulée en français simple (analogie conduite/rétroviseur). Argument dissociation entraînement/inférence consolidé pédagogiquement.
+- **Prochain pas** :
+  1. 🔴 Reformuler H1.A (test diagonal `argmax(M[t]) ≈ heure(t)`) dans le tableau slide 26.
+  2. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
+  3. 🟡 Débriefer après la présentation réelle aux encadreurs.
+  4. 🟡 Trancher : garder "SoftCAM-Transformer" ou renommer "Temporal Evidence Map".
+
+### Dernière session : 2026-05-23 (session 85 — Q&A perturbation + TFT)
+
+- **Phase actuelle** : Phase 2 — consolidation des arguments XAI pour la soutenance.
+- **Avancée** : LIME/SHAP/TimeSHAP expliqués (coût 2^n, fidélité approximée). TFT défini comme concurrent direct — argument : attention non régularisée vs M contrainte par ElasticNet.
+- **Prochain pas** :
+  1. 🔴 Reformuler H1.A (test diagonal `argmax(M[t]) ≈ heure(t)`) dans le tableau slide 26.
+  2. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
+  3. 🟡 Débriefer après la présentation réelle aux encadreurs.
+  4. 🟡 Trancher : garder "SoftCAM-Transformer" ou renommer "Temporal Evidence Map".
+
+### Dernière session : 2026-05-23 (session 84 — Q&A méthodes post-hoc par gradient)
+
+- **Phase actuelle** : Phase 2 — lecture littérature XAI en parallèle de la finalisation présentation.
+- **Avancée** : Vanilla Gradients / SmoothGrad / Integrated Gradients / GradCAM expliqués. Lien GradCAM→SoftCAM consolidé. Argument fidélité par construction réaffirmé contre les gradients.
+- **Prochain pas** :
+  1. 🔴 Reformuler H1.A (test diagonal `argmax(M[t]) ≈ heure(t)`) dans le tableau slide 26.
+  2. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
+  3. 🟡 Débriefer après la présentation réelle aux encadreurs.
+  4. 🟡 Trancher : garder "SoftCAM-Transformer" ou renommer "Temporal Evidence Map".
+
+### Dernière session : 2026-05-23 (session 83 — Q&A interprétabilité/explicabilité + correction slide 4)
+
+- **Phase actuelle** : Phase 2 — finalisation présentation + lecture littérature.
+- **Avancée** : Distinction interprétabilité/explicabilité clarifiée (Rudin). Slide 4 corrigé : "Débogage" → "Diagnostic".
+- **Prochain pas** :
+  1. 🔴 Reformuler H1.A (test diagonal `argmax(M[t]) ≈ heure(t)`) dans le tableau slide 26.
+  2. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
+  3. 🟡 Débriefer après la présentation réelle aux encadreurs.
+  4. 🟡 Trancher : garder "SoftCAM-Transformer" ou renommer "Temporal Evidence Map".
+
+### Dernière session : 2026-05-23 (session 82 — Q&A Rudin 2019)
+
+- **Phase actuelle** : Phase 2 — lecture littérature en parallèle de la finalisation présentation.
+- **Avancée** : Explication des 3 propriétés Rudin (simulable / features signifiantes / fidèle par construction). Lien avec H1 : M satisfait la fidélité par construction — argument défensif contre SHAP/LIME.
+- **Prochain pas** :
+  1. 🔴 Reformuler H1.A (test diagonal `argmax(M[t]) ≈ heure(t)`) dans le tableau slide 26.
+  2. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
+  3. 🟡 Débriefer après la présentation réelle aux encadreurs.
+  4. 🟡 Trancher : garder "SoftCAM-Transformer" ou renommer "Temporal Evidence Map".
+
+### Dernière session : 2026-05-28 (session 85 — PLAN-MEMOIRE.md enrichi)
+
+- **Phase actuelle** : Phase 5 (rédaction) — plan finalisé, prêt à soumettre aux encadreurs.
+- **Avancée** : `PLAN-MEMOIRE.md` enrichi avec retours encadreurs : plus-value 3 axes, tableau comparatif XAI, pattern théorie→application obligatoire, §4.2.4 seuil R², §4.3.7 confiance en M, évaluation qualitative renforcée, checklist 8 points.
+- **Prochain pas** :
+  1. 🔴 Soumettre `PLAN-MEMOIRE.md` aux encadreurs pour validation.
+  2. 🔴 Trancher : nom du modèle + dot product vs mélange.
+  3. 🔴 Commencer rédaction Chap4 (résultats disponibles).
+  4. 🟡 Exporter figures notebooks (§4.4 évaluation qualitative).
+  5. 🟡 Documenter seuil R² dans la littérature (§4.2.4).
+
+### Dernière session : 2026-05-28 (session 84 — Template Dschang + PLAN-MEMOIRE.md)
+
+- **Phase actuelle** : Phase 5 (rédaction) amorcée — plan soumis aux encadreurs.
+- **Avancée** : Template Dschang intégré dans `redaction/`. `PLAN-MEMOIRE.md` créé — 4 chapitres, contenu par section, références, volume estimé, ordre de rédaction.
+- **Prochain pas** :
+  1. 🔴 Soumettre `PLAN-MEMOIRE.md` aux encadreurs pour validation.
+  2. 🔴 Trancher : nom du modèle + dot product vs mélange (décisions bloquantes pour Chap3).
+  3. 🔴 Commencer la rédaction par Chap4 (résultats disponibles).
+  4. 🟡 Exporter figures notebooks pour Chap4 §4.4 (évaluation qualitative).
+
+### Dernière session : 2026-05-25 (session 83 — Q&A XAI fondamental + correction slide)
+
+- **Phase actuelle** : Phase 2 — révision architecturale et évaluation explicabilité en attente.
+- **Avancée** : Q&A approfondi sur les fondements XAI (Rudin, méthodes gradient/perturbation, TFT, Spearman, R², sparse/concentré). Slide corrigé : "Débogage" → "Diagnostic". Recompilation OK (43 pages, 0 erreur).
+- **Prochain pas** :
+  1. 🔴 Chercher la justification théorique du dot product dans la littérature (avant tout code).
+  2. 🔴 Proposer 2-3 noms alternatifs à "SoftCAM-Transformer" aux encadreurs.
+  3. 🔴 Compléter l'évaluation explicabilité : quantitatif (activation precision/sensitivity) + qualitatif (visualisations M).
+  4. 🔴 Exporter figures notebooks pour les prochaines présentations.
+  5. 🟡 Si dot product décevant → présenter résultats actuels avec cadre théorique renforcé.
+
+### Dernière session : 2026-05-25 (session 82 — Débrief présentation encadreurs)
+
+- **Phase actuelle** : Phase 2 — révision architecturale et évaluation explicabilité demandées.
+- **Avancée** : Présentation tenue. DEBRIEF.md créé. Retours encadreurs documentés dans QUESTIONS-OUVERTES.md et DECISIONS.md.
+- **Prochain pas** :
+  1. 🔴 Chercher justification théorique du dot product dans la littérature (avant tout code).
+  2. 🔴 Proposer 2-3 noms alternatifs à "SoftCAM-Transformer" aux encadreurs.
+  3. 🔴 Compléter l'évaluation de l'explicabilité : quantitatif (activation precision/sensitivity) + qualitatif (visualisations M).
+  4. 🔴 Exporter figures notebooks pour les prochaines présentations.
+  5. 🟡 Si dot product décevant → présenter résultats actuels (R²=0.7563) avec cadre théorique renforcé.
+
+### Dernière session : 2026-05-22 (session 81 — SPEECH.md complet)
+
+- **Phase actuelle** : Phase 2 — présentation H1 prête, speech disponible.
+- **Avancée** : `SPEECH.md` créé — script intégral 35 slides en français naturel, première personne. Présentation maintenant outillée pour la soutenance encadreurs.
+- **Prochain pas** :
+  1. 🔴 Reformuler H1.A (test diagonal `argmax(M[t]) ≈ heure(t)`) dans le tableau slide 26.
+  2. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
+  3. 🟡 Débriefer après la présentation réelle (questions encadreurs).
+  4. 🟡 Trancher : garder "SoftCAM-Transformer" ou renommer "Temporal Evidence Map".
+
+### Dernière session : 2026-05-21 (session 80 — Slide 35 restructuré + Q&A conceptuel)
+
+- **Phase actuelle** : Phase 2 — présentation H1 en cours de finalisation.
+- **Avancée** : Slide 35 restructuré en questions ciblées (feedback encadreurs + décisions ouvertes). Q&A : "idiosyncratique", "calibrated self-explainability" expliqués.
+- **Prochain pas** :
+  1. 🔴 Reformuler H1.A (test diagonal) dans le tableau slide 26.
+  2. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
+  3. 🔴 Finir slides de conclusion/bilan H1.A–H1.G (slides 32+).
+  4. 🟡 Fixer date de présentation avec les encadreurs.
+
+### Dernière session : 2026-05-21 (session 79 — Diagramme TikZ architecture + slide loss + Q&A)
+
+- **Phase actuelle** : Phase 2 — présentation H1 en cours de finalisation.
+- **Avancée** : Slide 7 — architecture redessinée en TikZ (5 blocs, flèche enc_hidden, badge H1). Slide 8 — loss reformulée en français simple avec analogies. Slide 4 — 4 stakeholders complets. Q&A : Run A vs Run B expliqués, gap R²=0.37→0.53 justifié (C4 seul + HPO).
+- **Prochain pas** :
+  1. 🔴 Reformuler H1.A (test diagonal `argmax(M[t]) ≈ heure(t)`) dans le tableau slide 26.
+  2. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
+  3. 🔴 Finir slides de conclusion/bilan H1.A–H1.G (slides 32+).
+  4. 🟡 Fixer date de présentation avec les encadreurs.
+
+### Dernière session : 2026-05-21 (session 78 — Finitions slides + réécriture "positions et limites")
+
+- **Phase actuelle** : Phase 2 — présentation H1 en cours de finalisation.
+- **Avancée** : Slide 30 simplifié en français courant. Slides 33/34/35 réécrits à la 1ère personne (ton humain). Slide 7 : figure architecture PDF incluse. Session Q&A amorcée.
+- **Prochain pas** :
+  1. 🔴 Reformuler H1.A (test diagonal) dans le tableau slide 26.
+  2. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
+  3. 🔴 Finir slides de conclusion/bilan H1.A–H1.G.
+  4. 🟡 Fixer date de présentation avec les encadreurs.
+
+### Dernière session : 2026-05-21 (session 77 — Figures TikZ slides 30/31 H1.F/H1.G)
+
+- **Phase actuelle** : Phase 2 — présentation H1 en cours de finalisation.
+- **Avancée** : Slide 30 (H1.F) — courbe ΔMAE vs k (échelle log-manuelle), zone softcam!15, plafond warning 25%, bracket fayam "79% restant", max "+5.37%". Slide 31 (H1.G) — bar chart 4 valeurs (k=1/5/10/50) avec axe y zoomé 90–105% et marque brisée, ligne 100% success, message visuel "97% avec k=1 seul". 43 pages, 0 erreur.
+- **Prochain pas** :
+  1. 🔴 Reformuler H1.A (test diagonal `argmax(M[t]) ≈ heure(t)`) dans le tableau slide 26 + `H1-narration.md`.
+  2. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
+  3. 🔴 Finir les slides de conclusion/bilan H1.A–H1.G (slides 32+).
+  4. 🟡 Fixer date de présentation avec les encadreurs.
+
+### Session précédente : 2026-05-21 (session 76 — Figures TikZ slides 27/28/29 + discussion H1.E)
+
+- **Phase actuelle** : Phase 2 — présentation H1 en cours de finalisation.
+- **Avancée** : Bar chart H1.C (seuils vs résultats), slide H1.D simplifié (heatmaps schématiques retirées), scatter H1.E (ρ=-0.80, n=5). Limite n=5 identifiée : ρ non significatif statistiquement — H1.E à présenter comme tendance indicative appuyée par H1.F/G.
+- **Prochain pas** :
+  1. 🔴 Produire figures slides 30 (H1.F comprehensiveness) et 31 (H1.G sufficiency).
+  2. 🔴 Reformuler H1.A (test diagonal `argmax(M[t]) ≈ heure(t)`) dans `slides.tex`.
+  3. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
+  4. 🟡 Fixer date de présentation avec les encadreurs.
+
+### Session précédente : 2026-05-21 (session 75 — Figures TikZ slides 22/24/25 + réforme hypothèses slide 26)
+
+- **Phase actuelle** : Phase 2 — présentation H1 en cours de finalisation.
+- **Avancée** : 4 figures TikZ produites (slide 22 recalibré à scale=12.8/unité ; waterfall 4 paliers slide 24 ; bar chart FAYAM vs B5 + ligne TFT slide 25 ; tableau booktabs hypothèses slide 26). H1.A identifiée comme mal formulée — le test diagonal `argmax(M[t]) ≈ heure(t)` reste à faire.
+- **Prochain pas** :
+  1. 🔴 Reformuler H1.A (test diagonal) dans `slides.tex` et `H1-narration.md`.
+  2. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
+  3. 🔴 Produire les figures restantes (slides 27+).
+  4. 🟡 Fixer date de présentation avec les encadreurs.
+
+### Session précédente : 2026-05-21 (session 74 — Figures TikZ slides 12-13)
+
+- **Phase actuelle** : Phase 2 — présentation H1 en cours de finalisation.
+- **Avancée** : Figures TikZ produites pour slides 12 (schedules mix/γ avec vraies époques du notebook) et 13 (histogrammes Avant/Après LayerNorm montrant le collapse vs distribution de M).
+- **Prochain pas** :
+  1. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
+  2. 🔴 Produire les figures placeholders restantes (slides 14+).
+  3. 🟡 Fixer date de présentation avec les encadreurs.
+
+### Session précédente : 2026-05-21 (session 73 — Affinages slides 5-6 + explications pédagogiques)
+
+- **Phase actuelle** : Phase 2 — présentation H1 en cours de finalisation.
+- **Avancée** : Exemples enrichis sur slides 5 (panorama XAI) pour les 3 familles. Slide 6 (attention ≠ explication) testée en tableau/colonnes — rejetée pour erreurs Beamer, retour à la version bullet. Explication en français simple de "distribution adversariale" (Jain & Wallace 2019).
+- **Prochain pas** :
+  1. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
+  2. 🔴 Produire les ~10 figures placeholders.
+  3. 🟡 Continuer la lecture/explication des slides suivants.
+  4. 🟡 Fixer date de présentation avec les encadreurs.
+
+### Session précédente : 2026-05-21 (session 72 — Affinages slides 4-5 + explications pédagogiques)
+
+- **Phase actuelle** : Phase 2 — présentation H1 en cours de finalisation.
+- **Avancée** : Slide 4 affiné (Débogage plus concret, Auditeur retiré des Stakeholders). Explication pédagogique des 3 familles XAI temporelles (slide 5) : post-hoc gradient, post-hoc perturbation, intrinsèque — positionnement stratégique de H1.
+- **Prochain pas** :
+  1. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
+  2. 🔴 Produire les ~10 figures placeholders.
+  3. 🟡 Continuer la lecture/explication des slides suivants.
+  4. 🟡 Fixer date de présentation avec les encadreurs.
+
+### Session précédente : 2026-05-21 (session 71 — Correction slide 3 + lecture slide 4)
+
+- **Phase actuelle** : Phase 2 — présentation H1 en cours de finalisation.
+- **Avancée** : Chiffre "~1900 fonctions Lambda" retiré de la slide 3 (non vérifiable dans nos fichiers). Explication du slide 4 ("Pourquoi expliquer ?") : 3 motivations universelles (Lipton 2018, Rudin 2019, EU AI Act 2024) + stakeholders FaaS.
+- **Prochain pas** :
+  1. 🔴 Confirmer le nombre exact de fonctions FAYAM auprès des encadreurs → compléter slide 3.
+  2. 🔴 Produire les ~10 figures placeholders.
+  3. 🟡 Fixer date de présentation avec les encadreurs.
+
+### Session précédente : 2026-05-20 (session 70 — Contenu complet slides H1 + footer noir/blanc)
+
+- **Phase actuelle** : Phase 2 — H1 verrouillée. Présentation encadreurs finalisée (contenu).
+- **Avancée** :
+  - `slides.tex` entièrement meublé (35 frames → contenu réel : textes, tableaux, boîtes tcolorbox, TikZ, citations). Compile : 44 pages, 967 Ko.
+  - Footer ajusté : section centrale en noir sur fond blanc (`\setbeamercolor{title in head/foot}{fg=black,bg=white}`).
+  - ⚠️ Erreur détectée slide 3 : "~1900 fonctions Lambda" non vérifiable dans nos fichiers — à confirmer dans le mémoire FAYAM avant présentation.
+- **Prochain pas** :
+  1. 🔴 Vérifier le nombre exact de fonctions dans le dataset FAYAM (mémoire FAYAM ou encadreurs) — corriger slide 3.
+  2. 🔴 Produire les ~10 figures placeholders (waterfall MAE, bar charts H1.C/E/F/G, schémas TikZ run timeline).
+  3. 🟡 Fixer date de présentation avec encadreurs.
+  4. 🟢 Démarrer rédaction LaTeX chapitre H1 (`redaction/`).
+
+### Session précédente : 2026-05-20 (session 69 — Squelette présentation H1 35 slides + 15 articles)
+
+- **Phase actuelle** : Phase 2 — H1 verrouillée. Production des supports de présentation et de la bibliographie élargie.
+- **Avancée** :
+  - 15 nouveaux articles intégrés au corpus (`memoire/01-litterature/articles/`) avec fiches de lecture (`memoire/01-litterature/fiches/`) : controverse attention (Jain/Wiegreffe/Serrano), Vaswani Transformer, ERASER, Rudin, LayerNorm, ElasticNet, CAM/GradCAM, SHAP, IG, Bag of Tricks, Lipton, Jacovi & Goldberg. PDFs renommés selon nomenclature projet.
+  - Plan détaillé de présentation à 35 slides élaboré (7 actes, ~40 min, citations partout).
+  - `slides.tex` squelette complet posé : préambule hérité du panorama explicabilité + 35 frames vides avec titres et citations placeholder. Compile à 44 pages, 440 Ko.
+  - Décision : meubler par Acte I d'abord (slides 2-8) pour valider style avant de propager.
+- **Commit** : `2baf747` poussé sur main (42 fichiers, 1627 insertions).
+- **Prochain pas** :
+  1. 🔴 Meubler Acte I (slides 2-8) : contexte FaaS, motivation XAI, controverse attention, architecture, loss.
+  2. 🟡 Puis Actes II→VII en propageant le style validé.
+  3. 🟡 Produire les ~10 figures synthétiques (waterfall, bar charts, schémas TikZ).
+  4. 🟢 Démarrer rédaction LaTeX chapitre H1 en parallèle de la finalisation slides.
+
+### Session précédente : 2026-05-20 (session 68 — Revue critique H1.A→H1.G + brief encadreurs)
 
 - **Phase actuelle** : Phase 2 — H1 verrouillée. Revue critique complète de toutes les hypothèses. Brief présentation encadreurs prêt.
 - **Avancée** :

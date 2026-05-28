@@ -2,6 +2,21 @@
 
 > À traiter avec les encadreurs ou à creuser. Statut : 🔴 ouverte / 🟡 en cours / 🟢 résolue.
 
+## Retours présentation 2026-05-25 — encadreurs (Dr LACMOU, Dr DJOUMESSI, Pr KENGNE)
+
+- 🔴 **Renommer le modèle** : "SoftCAM-Transformer" crée de la confusion. Trouver un nom qui référence exactement ce qui est fait. Options : `TemporalEvidenceTransformer` (TET), `EvidenceLayerTransformer` (ELT), autre. À trancher avec encadreurs.
+- 🔴 **Révision architecturale — dot product** : remplacer `h=(1-mix)·dec_output + mix·LN(bmm(M,enc_hidden))` par un dot product entre `dec_output` et M. Justifier depuis la littérature avant d'implémenter.
+- 🔴 **Évaluation explicabilité quantitative ET qualitative** : H1.F/G insuffisants seuls. Ajouter activation precision/sensitivity, visualisations de M sur exemples concrets, interprétation expert métier.
+- 🔴 **Mesure de confiance en M** : comment quantifier la fiabilité de M ? Pistes : calibration (ECE/MCE), stabilité inter-runs, bootstrap sur M.
+- 🔴 **Seuil R² dans la littérature** : existe-t-il un seuil reconnu ("bon modèle" si R² > X) pour les séries temporelles ? À chercher.
+- 🔴 **Schémas visuels réels** : intégrer systématiquement les figures issues des notebooks dans les présentations (pas uniquement TikZ schématiques).
+
+## Retours présentation 2026-05-20 — questions soulevées (pré-présentation)
+
+- 🟢 **Définir "CAM en séries temporelles"** : CAM original = régions spatiales sur image. Ici = instants passés, pas de superposition, régression pas classification. À expliciter dans le mémoire.
+- 🔴 **Nom "SoftCAM-Transformer" bien choisi ?** : confirmé par les encadreurs le 2026-05-25 — renommage requis. Voir section ci-dessus.
+- 🟢 **7 hypothèses pas assez visibles** : présentées seulement au slide 26, sans annonce en amont. Résolu à l'oral pour cette session — à anticiper pour la soutenance.
+
 ## Méthodo — H1 (SoftCAM-Transformer)
 
 - 🔴 **Cible architecturale exacte** : quelle couche du `TimeSeriesTransformer` HuggingFace remplacer par l'équivalent de la *class-evidence layer* ? (Hypothèse de travail : la projection finale du décodeur, mais à valider en lisant le code source HF.)

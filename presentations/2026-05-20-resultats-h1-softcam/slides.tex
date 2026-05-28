@@ -1,3 +1,8 @@
+%% ============================================================
+%%  Validation H1 : SoftCAM-Transformer
+%%  Explication fidèle par construction pour la prédiction FaaS
+%%  Présentation des résultats — Encadreurs, 2026-05-20
+%% ============================================================
 \documentclass[10pt]{beamer}
 
 \usepackage[utf8]{inputenc}
@@ -6,80 +11,1597 @@
 \usepackage{lmodern}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{array}
+\usepackage[table]{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usepackage{pifont}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, decorations.pathreplacing, fit, backgrounds, calc}
 
 \usetheme{Madrid}
 \usecolortheme{seahorse}
+\setbeamercolor{title in head/foot}{fg=black,bg=white}
 
+\usepackage[most]{tcolorbox}
+\tcbset{colback=blue!5, colframe=blue!50!black, arc=3mm}
+
+%% --- Couleurs personnalisées (héritées des présentations précédentes) ---
+\definecolor{shap}{RGB}{52,120,200}
+\definecolor{cam}{RGB}{200,80,50}
+\definecolor{softcam}{RGB}{40,160,80}
+\definecolor{fayam}{RGB}{120,60,180}
+\definecolor{verrou}{RGB}{180,30,30}
+\definecolor{evidence}{RGB}{198,40,40}
+\definecolor{newcontrib}{RGB}{230,81,0}
+\definecolor{success}{RGB}{40,160,80}
+\definecolor{warning}{RGB}{230,150,0}
+\definecolor{failure}{RGB}{180,30,30}
+
+%% --- Boîtes thématiques ---
+\newtcolorbox{constatbox}{
+  colback=green!5, colframe=green!50!black, arc=3mm,
+  fonttitle=\bfseries, title=Constat, halign title=center, halign=center}
+
+\newtcolorbox{problembox}{
+  colback=red!5, colframe=red!70!black, arc=3mm,
+  fonttitle=\bfseries, title=Problème, halign title=center}
+
+\newtcolorbox{verdictbox}[1][]{
+  colback=newcontrib!5, colframe=newcontrib!70!black, arc=3mm, boxrule=0.8pt,
+  fonttitle=\bfseries, title=Verdict, #1}
+
+\newtcolorbox{interpbox}[1][]{
+  colback=softcam!5, colframe=softcam!70!black, arc=3mm,
+  fonttitle=\bfseries, title=Interprétation, #1}
+
+%% --- Commandes utilitaires ---
+\newcommand{\source}[1]{\vspace{4pt}\hfill{\textcolor{gray}{\textbf{\tiny #1}}}}
+\newcommand{\fail}{\textcolor{failure}{\textbf{\ding{55}}}}
+\newcommand{\ok}{\textcolor{success}{\textbf{\ding{51}}}}
+\newcommand{\warn}{\textcolor{warning}{\textbf{$\triangle$}}}
+
+%% --- Métadonnées ---
 \title{Validation H1 : SoftCAM-Transformer}
-\subtitle{Explication fidèle par construction pour la prédiction FaaS}
-\author{Cabrel Fosso}
+\subtitle{Explication fidèle par construction pour la prédiction de charge FaaS\\Présentation des résultats}
+\author{FOSSO Cabrel}
 \institute{Université de Dschang}
-\date{2026-05-20}
+\date{20 mai 2026}
 
+%% --- Slide de transition automatique avant chaque section ---
+\AtBeginSection[]{%
+  \begin{frame}[plain, noframenumbering]
+    \vfill
+    \centering
+    \begin{beamercolorbox}[sep=14pt, center, shadow=true, rounded=true]{title}
+      \usebeamerfont{title}\insertsectionhead\par
+    \end{beamercolorbox}
+    \vspace{0.2cm}
+    \tableofcontents[currentsection, hideallsubsections,
+                     sectionstyle=show/shaded]
+    \vfill
+  \end{frame}%
+}
+
+%% ============================================================
 \begin{document}
+%% ============================================================
 
+%% ------------------------------------------------------------------
+%%  TITRE + SOMMAIRE
+%% ------------------------------------------------------------------
 \frame{\titlepage}
 
-\begin{frame}{Plan}
-  \tableofcontents
+\begin{frame}{Plan de la présentation}
+  \tableofcontents[hideallsubsections]
 \end{frame}
 
-\section{Rappel du problème}
-\begin{frame}{Rappel du problème}
+
+%% ============================================================
+%% ACTE I — CONTEXTE, ÉTAT DE L'ART, ARCHITECTURE
+%% ============================================================
+\section{Contexte, état de l'art et architecture}
+
+%% Slide 2 — Problème métier FaaS
+\begin{frame}{Le problème métier : prédiction de charge FaaS}
+  \begin{columns}
+    \begin{column}{0.55\textwidth}
+      \begin{itemize}
+        \item Le \textbf{serverless} (FaaS) facture à l'invocation, sans gestion de serveurs.
+        \item Mais le \alert{cold-start} (démarrage à froid des containers) dégrade la latence.
+        \item Solution : \textbf{prédire la charge à venir} pour pré-chauffer les ressources.
+        \item FAYAM (2024) baseline : un \textbf{TimeSeriesTransformer} HuggingFace entraîné sur Azure Functions 2019.
+          \begin{itemize}
+            \item 33 clusters DBSCAN
+            \item Horizon : 120 min ; contexte : 240 min
+          \end{itemize}
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{constatbox}
+        FAYAM prédit\\[2pt]
+        \textbf{sans expliquer}.\\[6pt]
+        Or l'allocation de ressources\\
+        FaaS est une décision\\[2pt]
+        \textbf{à enjeu opérationnel}.
+      \end{constatbox}
+    \end{column}
+  \end{columns}
+  \source{Fayam et al., 2024 ; Azure Functions 2019 dataset}
+\end{frame}
+
+%% Slide 3 — Pourquoi expliquer
+\begin{frame}{Pourquoi expliquer la prédiction ?}
+	\vspace{-0.2cm}
+  \begin{block}{3 motivations universelles}
+    \begin{itemize}
+      \item \textbf{Confiance} --- \textit{Lipton (2018)} : un modèle opaque ne peut être déployé ; l'opérateur refuse de faire confiance à une boîte noire pour des décisions coûteuses.
+      \item \textbf{Diagnostic} --- \textit{Rudin (2019)} : sans explication, impossible de savoir si un pic prédit à 3h du matin reflète un vrai pattern (batch job récurrent) ou un artifact de données → ressources gaspillées sans possibilité de corriger.
+      \item \textbf{Conformité} --- \textit{EU AI Act (2024)} : la traçabilité des décisions automatisées est une obligation légale, pas un choix.
+    \end{itemize}
+  \end{block}
+	\vspace{-0.2cm}
+  \begin{exampleblock}{Stakeholders en jeu}
+    \begin{itemize}
+      \item \textbf{Opérateur cloud} $\rightarrow$ prédictions précises pour allouer les ressources.
+      \item \textbf{Développeur} $\rightarrow$ comprendre pourquoi son application ralentit.
+      \item \textbf{Auditeur} $\rightarrow$ vérifier que les décisions automatiques sont justifiables.
+      \item \textbf{Chercheur} $\rightarrow$ évaluer si l'explication reflète vraiment le calcul du modèle.
+    \end{itemize}
+  \end{exampleblock}
+	\vspace{-0.2cm}
+  \source{Lipton, 2018 ; Rudin, 2019 ; EU AI Act, 2024}
+\end{frame}
+
+%% Slide 4 — Panorama XAI temporel
+\begin{frame}{Panorama XAI temporel : trois familles}
+\vspace{-2pt}
+{\small
+  \begin{block}{Post-hoc gradient}
+    \vspace{-2pt}
+    Sensibilité via $\partial f / \partial x$ — Exemples : Vanilla Gradients (Simonyan 2014), SmoothGrad (Smilkov 2017), Integrated Gradients (Sundararajan 2017), Grad-CAM (Selvaraju 2017).\\[-2pt]
+    \emph{Fidélité} : locale, approximée.
+    \vspace{-2pt}
+  \end{block}
+
+\vspace{2pt}
+  \begin{block}{Post-hoc perturbation}
+    \vspace{-2pt}
+    Marginalisation Shapley sur features masquées — Exemples : TimeSHAP, WindowSHAP, TsSHAP, SHAPformer.\\[-2pt]
+    \emph{Fidélité} : statistique, coûteuse.
+    \vspace{-2pt}
+  \end{block}
+
+\vspace{2pt}
+  \begin{exampleblock}{Intrinsèque --- notre choix}
+    \vspace{-2pt}
+    Explication produite \emph{dans} le forward pass — Exemples : CAM (Zhou 2016), Concept Bottleneck Models (Koh 2020), SoftCAM (Djoumessi \& Berens 2025), \alert{SoftCAM-Transformer H1} (ce travail).\\[-2pt]
+    \emph{Fidélité} : par construction.
+    \vspace{-2pt}
+  \end{exampleblock}
+}
+  \source{Sundararajan 2017 ; Lundberg \& Lee 2017 ; Bento 2021 ; Nayebi 2023 ; Raykar 2023 ; Hertel 2025 ; Djoumessi \& Berens 2025}
+\end{frame}
+
+%% Slide 5 — Attention != explication
+\begin{frame}{Le problème central : attention $\neq$ explication}
+\vspace{-0.3cm}
+  \begin{problembox}
+    \centering Les poids d'attention d'un Transformer \textbf{ne sont pas} garantis fidèles à la prédiction.
+    Une attention différente peut produire \emph{exactement la même sortie}.
+  \end{problembox}
+
+  \vspace{4pt}
   \begin{itemize}
-    \item …
+    \item \textbf{Jain \& Wallace 2019} : on construit des distributions d'attention \emph{adversariales} sur LSTM+attention qui donnent la même prédiction.
+    \item \textbf{Wiegreffe \& Pinter 2019} : nuance --- l'attention peut être informative \emph{sous conditions}, mais la fidélité n'est pas garantie en général.
+    \item \textbf{Serrano \& Smith 2019} : étend la critique aux Transformers --- zéroter les poids d'attention dominants \emph{ne change souvent pas} la prédiction.
   \end{itemize}
+
+  \begin{verdictbox}
+    Toute approche d'explication basée sur la cross-attention brute (TFT, attention raw) reste exposée à cette critique.
+  \end{verdictbox}
+	\vspace{-0.4cm}
+  \source{Jain \& Wallace, 2019 (NAACL) ; Wiegreffe \& Pinter, 2019 (EMNLP) ; Serrano \& Smith, 2019 (ACL)}
 \end{frame}
 
-\section{Architecture SoftCAM-Transformer}
-\begin{frame}{Evidence Layer}
-  \begin{itemize}
-    \item …
-  \end{itemize}
+%% Slide 6 — Promesse intrinsèque
+\begin{frame}{La promesse de l'explication intrinsèque}
+  \begin{columns}
+    \begin{column}{0.485\textwidth}
+      \begin{block}{Post-hoc (SHAP, IG, GradCAM)}
+        \begin{itemize}
+          \item Modèle entraîné \emph{puis} expliqué après-coup.
+          \item Approximation de ce que le modèle a fait.
+          \item Pas de garantie de fidélité.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.455\textwidth}
+      \begin{exampleblock}{Intrinsèque (CAM, SoftCAM, H1)}
+        \begin{itemize}
+          \item Explication \emph{produite par} le modèle dans le forward pass.
+          \item Coefficient algébrique exact.
+          \item Fidélité \textbf{par construction}.
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+
+  \vspace{6pt}
+  \begin{verdictbox}
+    Notre H1 : adapter le principe SoftCAM (carte d'évidence intrinsèque + régularisation ElasticNet) au TimeSeriesTransformer HuggingFace de FAYAM.
+  \end{verdictbox}
+
+  \source{Rudin, 2019 ; Djoumessi \& Berens, 2025 ; Zhou et al., 2016 ; Selvaraju et al., 2017}
 \end{frame}
 
-\section{Résultats expérimentaux}
-\begin{frame}{Progression des runs A → B5}
-  \begin{itemize}
-    \item …
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Configuration finale : B5 + mix=0.25}
-  \begin{itemize}
-    \item …
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Trouvaille : dissociation entraînement / inférence}
-  \begin{itemize}
-    \item …
-  \end{itemize}
-\end{frame}
-
-\section{Validation des hypothèses H1.A--H1.G}
-\begin{frame}{Grille de validation}
-  \begin{itemize}
-    \item …
-  \end{itemize}
-\end{frame}
-
-\section{Limites et prochaines étapes}
-\begin{frame}{Limites honnêtes}
-  \begin{itemize}
-    \item …
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Prochaines étapes}
-  \begin{itemize}
-    \item …
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Merci}
+%% Slide 7 — Architecture SoftCAM-Transformer
+\begin{frame}{L'architecture SoftCAM-Transformer}
   \centering
-  \Large Questions ?
+  \begin{tikzpicture}[
+    stdbox/.style={draw=gray!45, fill=gray!8, rounded corners=2pt,
+                   minimum width=6.2cm, minimum height=0.62cm,
+                   align=center, font=\scriptsize},
+    newbox/.style={draw=softcam!80!black, fill=softcam!12, rounded corners=2pt,
+                   very thick, minimum width=6.2cm, minimum height=0.72cm,
+                   align=center, font=\scriptsize},
+    outbox/.style={draw=shap!55, fill=shap!8, rounded corners=2pt,
+                   minimum width=6.2cm, minimum height=0.62cm,
+                   align=center, font=\scriptsize},
+    arr/.style={->, thick, gray!55},
+  ]
+  \node[stdbox] (inp) at (0, 0)
+    {\textbf{Entrées} \quad {\tiny past\_values · time\_feat · static\_cat}};
+  \node[stdbox] (enc) at (0,-1.05)
+    {\textbf{Encodeur} \quad {\tiny 4 couches · (B,\,240,\,32) · inchangé}};
+  \node[stdbox] (dec) at (0,-2.10)
+    {\textbf{Décodeur} \quad {\tiny 4 couches · (B,\,120,\,32) · inchangé}};
+  \node[newbox] (ev)  at (0,-3.25)
+    {\textbf{Evidence Layer} \quad {\tiny Linear $\to$ Softmax $\to$ \textbf{M}\,(B,\,120,\,240)}};
+  \node[outbox] (pred)at (0,-4.30)
+    {\textbf{Prédiction} \quad {\tiny StudentT $\to$ médiane (B,\,120)}};
+
+  \draw[arr] (inp.south)--(enc.north);
+  \draw[arr] (enc.south)--(dec.north);
+  \draw[arr] (dec.south)--(ev.north)
+    node[midway,right,font=\tiny,gray!60]{dec\_output};
+  \draw[arr] (ev.south)--(pred.north)
+    node[midway,right,font=\tiny,gray!60]{$h$ combiné};
+
+  % enc_hidden → Evidence Layer (flèche latérale droite)
+  \draw[arr, softcam!65, dashed, thick]
+    (enc.east) -- ++(1.3,0) |- (ev.east)
+    node[pos=0.22, above, font=\tiny, softcam]{enc\_hidden};
+
+  % badge H1
+  \node[font=\scriptsize\bfseries, softcam!80!black, anchor=west]
+    at (4.5,-3.25) {\textbf{nouveauté H1}};
+  \end{tikzpicture}
+
+  \vspace{6pt}
+  \footnotesize
+  \begin{align*}
+    M &= \mathrm{softmax}\bigl(\mathrm{Linear}(\mathrm{dec\_output})\bigr) && \text{(carte d'évidence, } B \times 120 \times 240) \\
+    h_{ev} &= M \cdot \mathrm{enc\_hidden} && \text{(représentation pondérée)} \\
+    h &= (1-\mathrm{mix})\cdot \mathrm{dec\_output} + \mathrm{mix}\cdot \mathrm{LN}(h_{ev}) && \text{(mix calibré)}
+  \end{align*}
+  \normalsize
+
+  \source{Vaswani et al., 2017 ; Djoumessi \& Berens, 2025 ; Ba et al., 2016}
+\end{frame}
+
+%% Slide 8 — Loss régularisée
+\begin{frame}{La loss régularisée}
+  \begin{equation*}
+    \mathcal{L} \;=\; \underbrace{\mathcal{L}_{\text{forecast}}}_{\text{NLL Student-t}} \;+\; \alpha\|M\|_1 \;+\; \beta\|M\|_2^2 \;+\; \gamma\,H(M)
+  \end{equation*}
+
+  \begin{columns}
+    \begin{column}{0.29\textwidth}
+      \begin{block}{$\alpha\|M\|_1$ (Lasso)}
+        \footnotesize
+        Sparsité, sélection de positions.\\
+        $\rightarrow$ quelques pas dominants.
+      \end{block}
+    \end{column}
+    \begin{column}{0.37\textwidth}
+      \begin{block}{$\beta\|M\|_2^2$ (Ridge)}
+        \footnotesize
+        Stabilité face aux corrélations temporelles.\\
+        $\rightarrow$ évite l'effondrement sur 1 position.
+      \end{block}
+    \end{column}
+    \begin{column}{0.29\textwidth}
+      \begin{block}{$\gamma\,H(M)$ (entropie)}
+        \footnotesize
+        Pénalise l'uniformité de M.\\
+        $\rightarrow$ M se concentre.
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{6pt}
+  \begin{interpbox}
+    L'ElasticNet ($\alpha + \beta$) combinée à l'entropie ($\gamma$) façonne une carte d'évidence \textbf{sparse et stable} --- condition de l'interprétabilité.
+  \end{interpbox}
+
+  \source{Zou \& Hastie, 2005 ; Djoumessi \& Berens, 2025}
+\end{frame}
+
+
+%% ============================================================
+%% ACTE II — LA PREMIÈRE TENTATIVE QUI ÉCHOUE
+%% ============================================================
+\section{La première tentative : Run B}
+
+%% Slide 9 — Run B : 30% dès epoch 1
+\begin{frame}{Run B : Evidence Layer branchée à 30\% dès l'epoch 1}
+  \begin{columns}
+    \begin{column}{0.45\textwidth}
+      \begin{block}{Configuration}
+        \footnotesize
+        \begin{itemize}
+          \item \texttt{evidence\_mix = 0.3} constant
+          \item $\gamma = 10^{-3}$ constant
+          \item \alert{Aucun warm-up}
+          \item Reste : architecture v2 conforme
+        \end{itemize}
+      \end{block}
+
+      \begin{exampleblock}{Hypothèse de départ}
+        \footnotesize
+        Si l'architecture est correcte, l'optimisation devrait \emph{trouver l'équilibre} entre \texttt{dec\_output} et \texttt{h\_evidence}.
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.52\textwidth}
+
+      \vspace{6pt}
+      \begin{problembox}
+        \centering\small
+        $R^2 = -2.83$\\
+        Spearman $= 0.33$\\
+        \textbf{Échec total}
+      \end{problembox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% Slide 10 — Diagnostic
+\begin{frame}{Diagnostic : la tête de sortie n'a pas le temps d'apprendre}
+  \begin{block}{Le mécanisme du collapse}
+    \begin{itemize}
+      \item La tête \texttt{parameter\_projection} est initialisée pour traiter \texttt{dec\_output} \emph{seul}.
+      \item Lui imposer dès l'epoch 1 un mélange à 30\% avec \texttt{h\_evidence} non régularisé déstabilise toute la rétro-propagation.
+      \item Conséquence : M ne se structure jamais --- elle s'effondre sur une position arbitraire.
+    \end{itemize}
+  \end{block}
+
+  \begin{exampleblock}{Analogie connue dans la littérature}
+    Le même phénomène est documenté pour le \textbf{learning rate warm-up} : démarrer trop fort dégrade la convergence. La parade standard est d'introduire le signal \emph{progressivement} sur les premières époques.
+  \end{exampleblock}
+
+  \begin{verdictbox}
+    Il faut \textbf{chauffer progressivement} le mix au lieu de l'imposer en dur.
+  \end{verdictbox}
+	\vspace{-0.3cm}
+  \source{He et al., 2019 (\textit{Bag of Tricks}, CVPR) ; Smith, 2017 (cyclical learning rates)}
+\end{frame}
+
+%% Slide 11 — Stratégie : entraînement progressif (slide centrale méthodologie)
+\begin{frame}{Stratégie : entraînement progressif de la tête de sortie}
+  \centering
+  \begin{tikzpicture}[
+      every node/.style={font=\footnotesize},
+      arrow/.style={-{Stealth[length=2mm]}, thick}
+    ]
+    %% --- Axe Run B (rouge) ---
+    \node[anchor=east] at (-0.2, 1.6) {\textbf{\textcolor{failure}{Run B}}};
+    \draw[failure, very thick] (0, 1.6) -- (8.5, 1.6);
+    \node[failure, font=\bfseries] at (0.6, 2.0) {mix=0.3};
+    \node[failure] at (4.2, 2.0) {plat sur toutes les époques};
+    \node[failure, font=\bfseries] at (9.0, 1.6) {\Large $\boldsymbol{\times}$};
+
+    %% --- Axe Run B5 (vert) ---
+    \node[anchor=east] at (-0.2, 0.0) {\textbf{\textcolor{success}{Run B5}}};
+    \draw[success, very thick] (0, 0.0) -- (8.5, 0.0);
+    \node[success, font=\bfseries] at (0.6, 0.4) {mix=0};
+    \node[success, font=\bfseries] at (4.2, 0.4) {warm-up + anneal $\gamma$ + LN};
+    \node[success, font=\bfseries] at (7.5, 0.4) {mix=0.05};
+    \node[success, font=\bfseries] at (9.0, 0.0) {\Large $\boldsymbol{\checkmark}$};
+
+    %% --- Axe temps ---
+    \draw[->, gray, thick] (0, -0.8) -- (8.7, -0.8) node[anchor=north east] {époques};
+    \node[gray] at (0, -1.1) {0};
+    \node[gray] at (7.4, -1.1) {51};
+  \end{tikzpicture}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Les 4 ingrédients de la recette B5}
+    \footnotesize
+    \begin{enumerate}
+      \item \textbf{Warm-up mix} : $0 \to 0.05$ sur les premières époques.
+      \item \textbf{Anneal $\gamma$} : $0 \to 10^{-3}$ progressif (entropie pénalisée tard).
+      \item \textbf{LayerNorm} sur $h_{ev}$ avant le mix --- aligne les statistiques.
+      \item \textbf{Mix final petit} ($0.05$) --- \texttt{dec\_output} reste dominant.
+    \end{enumerate}
+  \end{exampleblock}
+
+  \source{Ba et al., 2016 (LayerNorm) ; He et al., 2019 (warm-up)}
+\end{frame}
+
+
+%% ============================================================
+%% ACTE III — CONSTRUCTION DE LA RECETTE
+%% ============================================================
+\section{Construction de la recette B5}
+
+%% Slide 12 — Run B2 : warm-up + anneal
+\begin{frame}{Run B2 : warm-up mix + anneal $\gamma$}
+  \begin{columns}
+    \begin{column}{0.50\textwidth}
+      \begin{block}{Changement introduit}
+        \footnotesize
+        Schedules au lieu de constantes :
+        \begin{itemize}
+          \item \texttt{mix} : $0 \to 0.3$ progressif
+          \item $\gamma$ : $0 \to 10^{-3}$ progressif
+        \end{itemize}
+      \end{block}
+
+      \begin{interpbox}
+        \footnotesize
+        Le décodeur est sauvé du collapse, mais $h_{ev}$ reste \emph{out-of-distribution} statistiquement vs \texttt{dec\_output}.
+      \end{interpbox}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \begin{tikzpicture}[scale=0.75]
+        % Zones de phase (fond)
+        \fill[gray!15]   (0,0) rectangle (1.2,2.6);
+        \fill[orange!15] (1.2,0) rectangle (2.8,2.6);
+        \fill[green!10]  (2.8,0) rectangle (4.0,2.6);
+        % Axes
+        \draw[->] (0,0) -- (4.3,0) node[right,font=\tiny] {époques};
+        \draw[->] (0,0) -- (0,2.8);
+        % mix (bleu) : 0 jusqu'à ep.15, ramp 15→35, plateau 0.3
+        \draw[thick, color=shap]
+          (0,0) -- (1.2,0) -- (2.8,2.0) -- (4.0,2.0);
+        \node[font=\tiny, color=shap, anchor=west] at (4.05,2.0) {\texttt{mix}};
+        % gamma (rouge) : 0 jusqu'à ep.25, ramp 25→40, plateau 1e-3
+        \draw[thick, color=cam, dashed]
+          (0,0) -- (2.0,0) -- (3.2,1.1) -- (4.0,1.1);
+        \node[font=\tiny, color=cam, anchor=west] at (4.05,1.1) {$\gamma$};
+        % Ticks époques
+        \foreach \x/\l in {0/0, 1.2/15, 2.0/25, 2.8/35, 3.2/40, 4.0/50} {
+          \draw (\x,0) -- (\x,-0.12) node[below,font=\tiny] {\l};
+        }
+        % Valeurs cibles
+        \draw[dotted,gray] (0,2.0) -- (4.0,2.0);
+        \draw (0,2.0) -- (-0.08,2.0) node[left,font=\tiny] {0.3};
+        \draw[dotted,gray] (0,1.1) -- (4.0,1.1);
+        \draw (0,1.1) -- (-0.08,1.1) node[left,font=\tiny] {$10^{-3}$};
+        % Légende phases
+        \node[font=\tiny, gray]   at (0.6,-0.55) {décodeur};
+        \node[font=\tiny, gray]   at (0.6,-0.75) {seul};
+        \node[font=\tiny, orange!80!black] at (2.0,-0.55) {ramp};
+        \node[font=\tiny, green!60!black]  at (3.4,-0.55) {plateau};
+      \end{tikzpicture}
+
+      \vspace{6pt}
+      \begin{verdictbox}
+        \centering\small
+        $R^2 = -1.97$ \quad (\textcolor{success}{+86 pp})\\
+        Spearman $= 0.80$\\
+        \textit{Progrès, mais insuffisant}
+      \end{verdictbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% Slide 13 — Run B3 : LayerNorm
+\begin{frame}{Run B3 : LayerNorm sur $h_{evidence}$}
+  \begin{columns}
+    \begin{column}{0.50\textwidth}
+      \begin{block}{Fix \#4 architectural}
+        \footnotesize
+        Avant le mix, on aligne les statistiques :
+        \begin{equation*}
+          \tilde h_{ev} = \mathrm{LayerNorm}(h_{ev})
+        \end{equation*}
+        Les distributions de $\tilde h_{ev}$ et de \texttt{dec\_output} deviennent compatibles.
+      \end{block}
+
+      \begin{interpbox}
+        \footnotesize
+        M cesse de s'effondrer --- \texttt{max\_weight} passe de \textbf{0.97} à \textbf{0.06}.
+      \end{interpbox}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \begin{tikzpicture}[scale=0.70]
+        %% === Avant LayerNorm (gauche) : collapse ===
+        \draw[->] (-0.1,0) -- (2.35,0);
+        \draw[->] (0,-0.1) -- (0,2.85);
+        \node[font=\tiny\bfseries, color=failure] at (1.09,2.78) {Avant LN};
+        % 8 barres, barre 4 = spike (max=0.97)
+        \foreach \x/\h in {
+          0.00/0.06, 0.28/0.06, 0.56/0.06, 0.84/0.06,
+          1.12/2.30, 1.40/0.06, 1.68/0.06, 1.96/0.06} {
+          \fill[failure!50] (\x,0) rectangle (\x+0.22,\h);
+          \draw[failure!80, thin] (\x,0) rectangle (\x+0.22,\h);
+        }
+        \node[font=\tiny\bfseries, color=failure] at (1.23,2.42) {0.97};
+        \node[font=\tiny, gray] at (1.09,-0.30) {positions $i$};
+
+        %% === Après LayerNorm (droite) : distribué ===
+        \draw[->] (2.55,0) -- (5.05,0);
+        \draw[->] (2.65,-0.1) -- (2.65,2.85);
+        \node[font=\tiny\bfseries, color=success] at (3.78,2.78) {Après LN};
+        % 8 barres uniformes (max~0.06 → hauteur 0.60)
+        \foreach \x/\h in {
+          2.74/0.35, 3.02/0.50, 3.30/0.55, 3.58/0.60,
+          3.86/0.55, 4.14/0.50, 4.42/0.44, 4.70/0.35} {
+          \fill[success!50] (\x,0) rectangle (\x+0.22,\h);
+          \draw[success!80, thin] (\x,0) rectangle (\x+0.22,\h);
+        }
+        \draw[dotted, success!70, thin] (2.65,0.60) -- (5.0,0.60);
+        \node[font=\tiny\bfseries, color=success] at (5.02,0.60) [right] {0.06};
+        \node[font=\tiny, gray] at (3.78,-0.30) {positions $i$};
+
+        %% Label axe y commun
+        \node[font=\tiny, gray, rotate=90] at (-0.38,1.40) {poids $w_i$};
+      \end{tikzpicture}
+
+      \vspace{6pt}
+      \begin{verdictbox}
+        \centering\small
+        $R^2 = -1.59$ \quad (\textcolor{success}{+38 pp})\\
+        Spearman $= 0.78$\\
+        \textit{Toujours négatif}
+      \end{verdictbox}
+    \end{column}
+  \end{columns}
+
+  \source{Ba et al., 2016 (LayerNorm)}
+\end{frame}
+
+%% Slide 14 — Run B4 : contre-expérience
+\begin{frame}{Run B4 : la contre-expérience décisive}
+  \begin{columns}
+    \begin{column}{0.50\textwidth}
+      \begin{block}{Test isolant le warm-up}
+        \footnotesize
+        On garde LayerNorm et anneal $\gamma$, mais on \alert{retire le warm-up} :
+        \begin{itemize}
+          \item \texttt{mix} = $0.10$ constant
+          \item LayerNorm activé
+          \item $\gamma$ schedule conservé
+        \end{itemize}
+      \end{block}
+
+      \begin{problembox}
+        \centering\small
+        $R^2 = -3.58$ \quad \textbf{(PIRE que B/B2/B3)}\\
+        Spearman $= 0.44$
+      \end{problembox}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \begin{tikzpicture}[scale=0.75]
+        % Axe y : |R²| (pire si haut), de 0 à 4
+        \draw[->] (0,0) -- (0,3.0) node[above,font=\tiny] {$|R^2|$};
+        \draw[->] (-0.1,0) -- (4.2,0);
+        % Ligne de tendance attendue (sans B4)
+        \draw[dashed, gray!60, thin] (0.6,1.98) -- (1.5,1.38) -- (2.4,1.11);
+        % Barres
+        % B : |R²|=2.83 → h=2.83*0.75=2.12  (rouge)
+        \fill[failure!60]  (0.15,0) rectangle (0.85,2.12);
+        \draw[failure!80,thin] (0.15,0) rectangle (0.85,2.12);
+        \node[font=\tiny,rotate=90,anchor=west] at (0.50,2.14) {\textcolor{failure}{$-2.83$}};
+        \node[font=\tiny\bfseries] at (0.50,-0.22) {B};
+        % B2 : |R²|=1.97 → h=1.48  (orange)
+        \fill[warning!60]  (1.05,0) rectangle (1.75,1.48);
+        \draw[warning!80,thin] (1.05,0) rectangle (1.75,1.48);
+        \node[font=\tiny,rotate=90,anchor=west] at (1.40,1.50) {\textcolor{warning!80!black}{$-1.97$}};
+        \node[font=\tiny\bfseries] at (1.40,-0.22) {B2};
+        % B3 : |R²|=1.59 → h=1.19  (orange clair)
+        \fill[warning!40]  (1.95,0) rectangle (2.65,1.19);
+        \draw[warning!70,thin] (1.95,0) rectangle (2.65,1.19);
+        \node[font=\tiny,rotate=90,anchor=west] at (2.30,1.21) {\textcolor{warning!80!black}{$-1.59$}};
+        \node[font=\tiny\bfseries] at (2.30,-0.22) {B3};
+        % B4 : |R²|=3.58 → h=2.69  (rouge foncé — régression)
+        \fill[failure!80]  (2.85,0) rectangle (3.55,2.69);
+        \draw[failure,thin] (2.85,0) rectangle (3.55,2.69);
+        \node[font=\tiny,rotate=90,anchor=west] at (3.20,2.71) {\textcolor{failure}{\textbf{$-3.58$}}};
+        \node[font=\tiny\bfseries,color=failure] at (3.20,-0.22) {B4};
+        % Flèche régression
+        \draw[->, failure, thick] (2.60,1.05) -- (3.10,2.55);
+        \node[font=\tiny,color=failure,anchor=west] at (3.58,2.30) {régression};
+        % Ticks y
+        \foreach \y/\l in {0.75/1, 1.50/2, 2.25/3} {
+          \draw (0,\y) -- (-0.08,\y) node[left,font=\tiny] {\l};
+        }
+      \end{tikzpicture}
+
+      \vspace{8pt}
+      \begin{verdictbox}
+        \centering\small
+        Le \textbf{warm-up} est l'ingrédient critique.\\
+        Ni LayerNorm seul, ni anneal seul ne suffisent.
+      \end{verdictbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% Slide 15 — Run B5 : recette complète
+\begin{frame}{Run B5 : la recette complète}
+  \centering
+  \begin{tikzpicture}[
+      every node/.style={font=\footnotesize, align=center, rounded corners=2pt},
+      ing/.style={draw, success, fill=success!5, very thick, minimum width=2.5cm, minimum height=1.1cm}
+    ]
+    \node[ing] (w) at (0, 0) {\textbf{Warm-up mix}\\$0 \to 0.05$};
+    \node[ing] (a) at (3.0, 0) {\textbf{Anneal $\gamma$}\\$0 \to 10^{-3}$};
+    \node[ing] (l) at (6.0, 0) {\textbf{LayerNorm}\\sur $h_{ev}$};
+    \node[ing] (m) at (9.0, 0) {\textbf{Mix final}\\$= 0.05$};
+  \end{tikzpicture}
+
+  \vspace{8pt}
+  \begin{exampleblock}{Résultat de l'addition des 4 ingrédients}
+    \centering
+    \footnotesize
+    $R^2 = 0.7130$ \quad Spearman $= 0.92$\\
+    \textbf{Les 5 fonctions du cluster ont $R^2 > 0$.}
+  \end{exampleblock}
+
+  \begin{verdictbox}
+    \centering Première recette qui converge --- gate H1.C dépassé largement.
+  \end{verdictbox}
+\end{frame}
+
+
+%% Slide 17 — Synthèse séquence
+\begin{frame}{Synthèse : la séquence expérimentale A $\to$ B5}
+  \centering
+  \begin{tikzpicture}[scale=0.90]
+    % Paramètres : zéro à y=2.0, échelle 0.50 par unité R²
+    % y_bottom=0 → R²=-4 ; y_top=2.5 → R²=+1
+
+    % Ligne zéro
+    \draw[thick, gray!60] (0,2.0) -- (5.1,2.0) node[right,font=\small] {$R^2=0$};
+
+    % Barres (largeur 0.55, gap 0.20)
+    % A : R²=+0.53 → barre de 2.0 à 2.265 (vert)
+    \fill[success!70]   (0.15,2.0) rectangle (0.70,2.265);
+    \draw[success,thin] (0.15,2.0) rectangle (0.70,2.265);
+    \node[font=\tiny,color=success] at (0.425,2.32) {\textbf{+0.53}};
+    \node[font=\small\bfseries] at (0.425,1.82) {A};
+
+    % B : R²=-2.83 → barre de 0.585 à 2.0 (rouge)
+    \fill[failure!65]   (0.90,0.585) rectangle (1.45,2.0);
+    \draw[failure,thin] (0.90,0.585) rectangle (1.45,2.0);
+    \node[font=\tiny,color=failure] at (1.175,0.50) {\textbf{-2.83}};
+    \node[font=\small\bfseries] at (1.175,1.82) {B};
+
+    % B2 : R²=-1.97 → barre de 1.015 à 2.0 (orange)
+    \fill[warning!65]   (1.65,1.015) rectangle (2.20,2.0);
+    \draw[warning!80,thin] (1.65,1.015) rectangle (2.20,2.0);
+    \node[font=\tiny,color=warning!80!black] at (1.925,0.93) {\textbf{-1.97}};
+    \node[font=\small\bfseries] at (1.925,1.82) {B2};
+
+    % B3 : R²=-1.59 → barre de 1.205 à 2.0 (orange clair)
+    \fill[warning!45]   (2.40,1.205) rectangle (2.95,2.0);
+    \draw[warning!70,thin] (2.40,1.205) rectangle (2.95,2.0);
+    \node[font=\tiny,color=warning!80!black] at (2.675,1.12) {\textbf{-1.59}};
+    \node[font=\small\bfseries] at (2.675,1.82) {B3};
+
+    % B4 : R²=-3.58 → barre de 0.21 à 2.0 (rouge foncé)
+    \fill[failure!90]   (3.15,0.210) rectangle (3.70,2.0);
+    \draw[failure,thin] (3.15,0.210) rectangle (3.70,2.0);
+    \node[font=\tiny,color=failure] at (3.425,0.12) {\textbf{-3.58}};
+    \node[font=\small\bfseries,color=failure] at (3.425,1.82) {B4};
+
+    % B5 : R²=+0.71 → barre de 2.0 à 2.355 (vert vif)
+    \fill[success!90]   (3.90,2.0) rectangle (4.45,2.355);
+    \draw[success,thin] (3.90,2.0) rectangle (4.45,2.355);
+    \node[font=\tiny,color=success] at (4.175,2.41) {\textbf{+0.71}};
+    \node[font=\small\bfseries,color=success] at (4.175,1.82) {B5};
+
+    % Axe y
+    \draw[->] (0,0) -- (0,2.65) node[above,font=\tiny] {$R^2$};
+    \foreach \y/\l in {0.5/{-3}, 1.0/{-2}, 1.5/{-1}, 2.0/{0}, 2.5/{+1}} {
+      \draw (0,\y) -- (-0.08,\y) node[left,font=\tiny] {\l};
+    }
+    % Axe x
+    \draw[->] (0,0) -- (5.1,0);
+  \end{tikzpicture}
+
+  \vspace{6pt}
+  \begin{exampleblock}{Lecture en une phrase}
+    \footnotesize
+    Run A ($R^2{=}0.53$, baseline FAYAM pur) $\to$ Run B ($-2.83$, collapse) $\to$ B2 ($-1.97$, warm-up sauve le décodeur) $\to$ B3 ($-1.59$, LayerNorm stabilise M) $\to$ B4 ($-3.58$, contre-preuve) $\to$ \textbf{B5 ($+0.71$, recette complète)}.
+  \end{exampleblock}
+
+  \source{Smith, 2017 ; He et al., 2019 ; Ba et al., 2016}
+\end{frame}
+
+
+%% ============================================================
+%% ACTE IV — LA CRISE MÉTHODOLOGIQUE FIX \#5
+%% ============================================================
+\section{La crise méthodologique : Fix \#5}
+
+%% Slide 18 — L'anomalie
+\begin{frame}{L'anomalie : 9 valeurs de mix, le même $R^2$}
+  \begin{columns}
+    \begin{column}{0.45\textwidth}
+      \begin{block}{Le test conduit}
+        \footnotesize
+        Sur le checkpoint B5, on lance un sweep \texttt{evidence\_mix} à l'inférence sur 9 valeurs $\in [0.0, 1.0]$.
+
+        \vspace{4pt}
+        Attendu : courbe en cloche ou monotone.
+      \end{block}
+
+      \begin{problembox}
+        \centering\small
+        Les 9 valeurs donnent \\ \textbf{strictement le même $R^2 = 0.6646$}.
+      \end{problembox}
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \begin{tikzpicture}[scale=0.78]
+        % y : R² de 0 à 1, TikZ 0 à 2.5 (scale 2.5)
+        % R²=0.6646 → y = 1.661
+        \def\flatY{1.661}
+        % Courbe attendue (cloche grise, dashed) — ce qu'on espérait
+        \draw[gray!50, dashed, thick]
+          plot[smooth] coordinates {
+            (0.29,1.2)(0.77,1.6)(1.25,2.1)(1.73,2.4)
+            (2.21,2.35)(2.69,1.9)(3.17,1.55)(3.65,1.3)(4.13,1.15)};
+        \node[font=\tiny, gray] at (1.73,2.55) {attendu};
+        % 9 barres plates à R²=0.6646 (warning = anomalie)
+        \foreach \x in {0.10, 0.58, 1.06, 1.54, 2.02, 2.50, 2.98, 3.46, 3.94}{
+          \fill[warning!55] (\x,0) rectangle (\x+0.38,\flatY);
+          \draw[warning!80,thin] (\x,0) rectangle (\x+0.38,\flatY);
+        }
+        % Ligne rouge plate — smoking gun
+        \draw[failure, thick, dashed] (0.0,\flatY) -- (4.5,\flatY);
+        \node[font=\tiny\bfseries, color=failure, anchor=west] at (4.52,\flatY)
+          {$0.6646$};
+        % Annotation smoking gun
+        \draw[->, failure, thick] (2.21,\flatY+0.55) -- (2.21,\flatY+0.08);
+        \node[font=\tiny\bfseries, color=failure] at (2.21,\flatY+0.72)
+          {\alert{aucune variation !}};
+        % Axes
+        \draw[->] (0,0) -- (4.7,0) node[right,font=\tiny] {\texttt{mix}};
+        \draw[->] (0,0) -- (0,2.7) node[above,font=\tiny] {$R^2$};
+        % Ticks x (mix values)
+        \foreach \x/\l in {0.29/0.0, 0.77/0.1, 1.25/0.2, 1.73/0.3,
+                           2.21/0.5, 2.69/0.7, 3.17/0.8, 3.65/0.9, 4.13/1.0}{
+          \draw (\x,0) -- (\x,-0.08) node[below,font=\tiny] {\l};
+        }
+        % Ticks y
+        \foreach \y/\l in {0.0/0, 0.625/0.25, 1.25/0.5, 1.875/0.75, 2.5/1.0}{
+          \draw (0,\y) -- (-0.08,\y) node[left,font=\tiny] {\l};
+        }
+        \draw[dotted,gray!40] (0,1.25) -- (4.5,1.25);
+      \end{tikzpicture}
+
+      \vspace{4pt}
+      \begin{verdictbox}
+        \centering\footnotesize
+        Un seul scénario explique cette platitude :\\
+        \textbf{l'Evidence Layer est inactive à l'inférence}.
+      \end{verdictbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% Slide 19 — Diagnostic code HuggingFace
+\begin{frame}[fragile]{Diagnostic dans le code HuggingFace}
+  \begin{block}{Localisation du bug}
+    \footnotesize
+    Dans \texttt{TimeSeriesTransformerForPrediction.generate()}, ligne 1679 (\textit{transformers v4}) :
+
+    \vspace{4pt}
+    \begin{semiverbatim}
+      \footnotesize
+      params = self.\textcolor{failure}{parameter\_projection}(dec\_last\_hidden[:, -1:])
+    \end{semiverbatim}
+
+    \vspace{4pt}
+    L'appel \emph{contourne} notre override \texttt{output\_params} --- la sortie est issue de \texttt{dec\_output} \textbf{sans} mélange avec $h_{ev}$.
+  \end{block}
+
+  \begin{exampleblock}{Le patch : Fix \#5}
+    \footnotesize
+    Override de \texttt{generate()} dans la classe enfant. \alert{Une seule ligne changée} :
+
+    \vspace{4pt}
+    \begin{semiverbatim}
+      \footnotesize
+      params = self.\textcolor{success}{output\_params}(dec\_last\_hidden[:, -1:])
+    \end{semiverbatim}
+  \end{exampleblock}
+\end{frame}
+
+%% Slide 20 — Implications validité
+\begin{frame}{Implications pour la validité scientifique}
+\vspace{-0.15cm}
+  \begin{block}{Ce qui n'était pas affecté}
+    \begin{itemize}
+      \item \texttt{forward()} (entraînement) appelle \emph{bien} \texttt{output\_params} $\to$ tous les checkpoints sont valides.
+      \item La loss régularisée et la convergence n'ont jamais utilisé la branche buggée.
+      \item Les hypothèses validées en teacher-forced (H1.A, H1.D, H1.E) restent intactes.
+    \end{itemize}
+  \end{block}
+  \vspace{-0.15cm}
+
+  \begin{block}{Ce qui était affecté}
+    \begin{itemize}
+      \item Toutes les métriques finales rapportées (R², Spearman) jusqu'à la session 60 mesuraient \texttt{dec\_output} seul, pas la branche $h_{ev}$.
+      \item Les conclusions sur le choix de mix d'entraînement (B5 vs B6 vs B7) étaient prises sur des chiffres tronqués.
+    \end{itemize}
+  \end{block}
+  \vspace{-0.15cm}
+
+  \begin{verdictbox}
+    Le bug est un \textbf{contrôle méthodologique a posteriori} qui renforce, plutôt qu'il n'invalide, la rigueur du protocole.
+  \end{verdictbox}
+\end{frame}
+
+
+%% ============================================================
+%% ACTE V — LA TROUVAILLE EMPIRIQUE ORIGINALE
+%% ============================================================
+\section{La trouvaille : dissociation entraînement / inférence}
+
+%% Slide 21 — Sweep mix B5 post Fix #5
+\begin{frame}{Sweep mix d'inférence post Fix \#5 --- B5}
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \begin{tikzpicture}[scale=0.82]
+        % x : mix 0→0.55, TikZ 0→4.2 (scale 7.636)
+        % y : R² 0→0.80, TikZ 0→2.5 (scale 3.125)
+
+        % Ligne de référence R²=0.6646 (M neutre)
+        \draw[dotted, gray!60] (0,2.077) -- (4.3,2.077);
+        \node[font=\tiny,gray,anchor=west] at (4.32,2.077) {0.6646};
+
+        % Courbe R² vs mix (smooth)
+        \draw[thick, shap]
+          plot[smooth] coordinates {
+            (0,2.077)(0.382,2.228)(0.764,2.31)(1.145,2.345)
+            (1.527,2.360)(1.909,2.363)(2.291,2.24)(3.055,1.72)
+            (3.818,1.375)(4.20,1.08)};
+
+        % Point mix=0.05 (entraîné)
+        \draw[dashed, fayam!70, thin] (0.382,0) -- (0.382,2.228);
+        \fill[fayam] (0.382,2.228) circle (2.2pt);
+        \node[font=\tiny,color=fayam,anchor=south] at (0.382,2.24)
+          {0.71};
+
+        % Point mix=0.25 (PIC)
+        \draw[dashed, success!70, thin] (1.909,0) -- (1.909,2.363);
+        \fill[success] (1.909,2.363) circle (2.5pt);
+        \node[font=\tiny\bfseries,color=success,anchor=south] at (1.909,2.375)
+          {\textbf{PIC} 0.756};
+
+        % Point mix=0.50 (cassure)
+        \draw[dashed, failure!70, thin] (3.818,0) -- (3.818,1.375);
+        \fill[failure] (3.818,1.375) circle (2.2pt);
+        \node[font=\tiny,color=failure,anchor=north] at (3.818,1.36)
+          {cassure};
+
+        % Axes
+        \draw[->] (0,0) -- (4.5,0) node[right,font=\tiny] {\texttt{mix}};
+        \draw[->] (0,0) -- (0,2.7) node[above,font=\tiny] {$R^2$};
+
+        % Ticks x
+        \foreach \x/\l in {0/0, 0.382/0.05, 1.145/0.15,
+                           1.909/0.25, 3.055/0.40, 3.818/0.50}{
+          \draw (\x,0) -- (\x,-0.09) node[below,font=\tiny] {\l};
+        }
+        % Ticks y
+        \foreach \y/\l in {0/0, 0.938/0.3, 1.563/0.5,
+                           2.0/0.64, 2.188/0.7, 2.5/0.8}{
+          \draw (0,\y) -- (-0.09,\y) node[left,font=\tiny] {\l};
+        }
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \begin{block}{Observations}
+        \footnotesize
+        \begin{itemize}
+          \item $R^2(\mathrm{mix}{=}0) = 0.6646$ \hfill (M neutralisée)
+          \item $R^2(\mathrm{mix}{=}0.05) = 0.7130$ \hfill (mix entraîné)
+          \item $R^2(\mathrm{mix}{=}0.25) = \textbf{0.7563}$ \hfill (\alert{pic})
+          \item $R^2(\mathrm{mix}{=}0.50) = 0.44$ \hfill (cassure)
+        \end{itemize}
+      \end{block}
+
+      \begin{verdictbox}
+        \centering\footnotesize
+        Le pic $R^2$ n'est pas au mix d'entraînement.\\
+        Le modèle est \emph{mieux} avec plus de M.
+      \end{verdictbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% Slide 22 — Généralisation B6/B7
+\begin{frame}{Généralisation à B6 et B7 --- un pattern empirique}
+  \centering
+  \begin{tikzpicture}[scale=0.75]
+    % x: mix 0→0.65, TikZ 0→9 (scale=12.8)
+    % y: R² 0→0.80, TikZ 0→2.7 (scale=3.375)
+    % mix→x : 0.05→0.64, 0.10→1.28, 0.15→1.92, 0.25→3.20, 0.50→6.40, 0.65→8.32
+
+    % Axes
+    \draw[->] (0,0) -- (9,0) node[right,font=\small] {\texttt{mix inférence}};
+    \draw[->] (0,0) -- (0,2.7)  node[above,font=\small] {$R^2$};
+    % Ticks x
+    \foreach \x/\l in {0/0, 0.64/0.05, 1.28/0.10, 1.92/0.15, 3.2/0.25, 6.4/0.50, 8.32/0.65}{
+      \draw (\x,0)--(\x,-0.09) node[below,font=\tiny]{\l};
+    }
+    % Ticks y
+    \foreach \y/\l in {0/0, 0.78/0.25, 1.56/0.50, 1.86/0.60, 2.11/0.68, 2.36/0.75}{
+      \draw (0,\y)--(-0.09,\y) node[left,font=\tiny]{\l};
+    }
+    % Ligne R²=0 reference
+    \draw[dotted,gray!40] (0,0) -- (9,0);
+
+    %% --- B5 (bleu/shap) : train=0.05, pic=0.25, R²=0.7563 ---
+    \draw[thick, shap]
+      plot[smooth] coordinates {
+        (0,2.08)(0.64,2.23)(1.28,2.31)(2.00,2.34)
+        (3.20,2.36)(4.50,2.10)(5.50,1.85)(6.40,1.44)(8.00,1.05)};
+    % ★ training mix B5
+    \draw[dashed,shap!50,thin](0.64,0)--(0.64,2.23);
+    \fill[shap](0.64,2.23) circle(2pt);
+    \node[font=\tiny,shap,anchor=south east] at (0.64,2.24){};
+    % PIC B5
+    \fill[shap](3.20,2.36) circle(2.5pt);
+    \node[font=\tiny\bfseries,shap,anchor=south] at (3.20,2.37){\textbf{0.756}};
+    \draw[dashed,shap!40,thin](3.20,0)--(3.20,2.36);
+    % Label B5
+    \node[font=\small\bfseries,shap] at (1.28,2.55){B5};
+
+    %% --- B6 (violet/fayam) : train=0.10, pic=0.50, R²=0.5975 ---
+    \draw[thick, fayam]
+      plot[smooth] coordinates {
+        (0,1.98)(0.64,1.85)(1.28,1.49)(2.00,1.55)
+        (3.20,1.72)(4.60,1.85)(5.60,1.86)(6.40,1.87)(7.50,1.65)(8.20,1.30)};
+    % ★ training mix B6
+    \draw[dashed,fayam!50,thin](1.28,0)--(1.28,1.49);
+    \fill[fayam](1.28,1.49) circle(2pt);
+    \node[font=\tiny,fayam,anchor=north] at (1.28,1.47){};
+    % PIC B6
+    \fill[fayam](6.40,1.87) circle(2.5pt);
+    \node[font=\tiny\bfseries,fayam,anchor=south] at (6.40,1.88){\textbf{0.598}};
+    \draw[dashed,fayam!40,thin](6.40,0)--(6.40,1.87);
+    % Label B6
+    \node[font=\small\bfseries,fayam] at (2.50,2.10){B6};
+
+    %% --- B7 (rouge/failure) : train=0.15, pic=0.50, R²=0.4684 ---
+    \draw[thick, failure]
+      plot[smooth] coordinates {
+        (0,1.90)(0.64,1.60)(1.28,1.10)(1.92,0.55)
+        (2.50,0.65)(3.20,1.05)(4.50,1.30)(5.80,1.45)(6.40,1.46)(7.50,1.25)(8.20,0.95)};
+    % ★ training mix B7
+    \draw[dashed,failure!50,thin](1.92,0)--(1.92,0.55);
+    \fill[failure](1.92,0.55) circle(2pt);
+    \node[font=\tiny,failure,anchor=north] at (1.92,0.53){};
+    % PIC B7
+    \fill[failure](6.40,1.46) circle(2.5pt);
+    \node[font=\tiny\bfseries,failure,anchor=north] at (6.40,1.44){\textbf{0.468}};
+    % Label B7
+    \node[font=\small\bfseries,failure] at (3.50,0.38){B7};
+
+    %% Annotation pattern ×5
+    \draw[<->,gray,thin](0.64,-0.5)--(3.20,-0.5)
+      node[midway,below,font=\tiny,gray]{$\times 5$};
+    \draw[<->,gray,thin](1.28,-0.8)--(6.40,-0.8)
+      node[midway,below,font=\tiny,gray]{$\times 5$};
+  \end{tikzpicture}
+
+  \vspace{4pt}
+  \begin{exampleblock}{Pattern empirique}
+    \footnotesize
+    \centering
+    \begin{tabular}{c c c c}
+      \textbf{Run} & \textbf{Mix entraîné} & \textbf{Mix optimal inférence} & \textbf{Ratio} \\
+      B5 & 0.05 & 0.25 & $\times 5$ \\
+      B6 & 0.10 & 0.50 & $\times 5$ \\
+      B7 & 0.15 & 0.50 & $\times 3.3$ \\
+    \end{tabular}
+  \end{exampleblock}
+
+  \begin{verdictbox}
+    \centering\footnotesize
+    L'optimum d'inférence est systématiquement $\approx 5 \times$ le mix d'entraînement.
+  \end{verdictbox}
+\end{frame}
+
+%% Slide 23 — Interprétation
+\begin{frame}{Interprétation : pourquoi cette dissociation ?}
+	\vspace{-0.2cm}
+  \begin{block}{Pendant l'entraînement à $\mathrm{mix} = 0.05$}
+    \footnotesize
+    \begin{itemize}
+      \item 95\% du signal prédictif passe par \texttt{dec\_output} --- la tête se calibre principalement sur cette branche.
+      \item $h_{ev}$ apprend \emph{sous contrainte} ElasticNet + entropie --- elle ne peut pas se permettre de patterns qui ne correspondent qu'à une seule fonction du cluster.
+      \item Résultat : $h_{ev}$ encode des patterns \textbf{sparses, stables, cluster-level} (cf. H1.D, Pearson $= 0.992$).
+    \end{itemize}
+  \end{block}
+\vspace{-0.2cm}
+  \begin{block}{À l'inférence}
+    \footnotesize
+    \begin{itemize}
+      \item Donner plus de poids ($\mathrm{mix} = 0.25$) à un signal \textbf{stable cluster-level} améliore la prédiction.
+      \item Au-delà de $\mathrm{mix} = 0.25$ : le compromis casse, \texttt{dec\_output} perd trop d'influence.
+    \end{itemize}
+  \end{block}
+\vspace{-0.2cm}
+  \begin{interpbox}
+    Trouvaille originale : la \alert{dissociation entraînement / inférence} est une propriété de la régularisation, pas un artefact.
+  \end{interpbox}
+	\vspace{-0.2cm}
+  \source{Djoumessi \& Berens, 2025 (rôle de la régularisation dans la stabilité des cartes)}
+\end{frame}
+
+%% Slide 24 — Décomposition gain
+\begin{frame}{Décomposition du gain final}
+  \centering
+  \begin{tikzpicture}[scale=0.65]
+    % y: R²×5.29  (R²=0.75→3.968, R²=0.7563→4.001)
+    % bars: width=0.9, gap=0.55 → {0–0.9, 1.45–2.35, 2.90–3.80, 4.35–5.25}
+
+    % y-axis + grid
+    \draw[->] (-0.2,0) -- (-0.2,4.4) node[above,font=\small]{$R^2$};
+    \foreach \yv/\yl in {0/0, 1.32/0.25, 2.65/0.50, 3.97/0.75}{
+      \draw (-0.2,\yv)--(-0.35,\yv) node[left,font=\tiny]{\yl};
+      \draw[gray!20,thin] (-0.2,\yv)--(5.55,\yv);
+    }
+
+    %% FAYAM baseline : 0 → 1.958
+    \fill[fayam!75] (0,0) rectangle (0.9,1.958);
+    \draw[fayam!90,thin] (0,0) rectangle (0.9,1.958);
+    \node[font=\tiny\bfseries,white] at (0.45,0.98){0.3701};
+    \draw[dashed,gray!50,thin](0.9,1.958)--(1.45,1.958);
+
+    %% Run A : 1.958 → 2.803 (Δ = 0.845)
+    \fill[shap!75] (1.45,1.958) rectangle (2.35,2.803);
+    \draw[shap!90,thin] (1.45,1.958) rectangle (2.35,2.803);
+    \node[font=\tiny\bfseries,white] at (1.90,2.38){\textbf{+15.98 pp}};
+    \node[font=\tiny,shap!70!black,anchor=south] at (1.90,2.82){0.5299};
+    \draw[dashed,gray!50,thin](2.35,2.803)--(2.90,2.803);
+
+    %% B5 mix=0 : 2.803 → 3.516 (Δ = 0.713)
+    \fill[cam!75] (2.90,2.803) rectangle (3.80,3.516);
+    \draw[cam!90,thin] (2.90,2.803) rectangle (3.80,3.516);
+    \node[font=\tiny\bfseries,white] at (3.35,3.16){\textbf{+13.46 pp}};
+    \node[font=\tiny,cam!70!black,anchor=south] at (3.35,3.53){0.6646};
+    \draw[dashed,gray!50,thin](3.80,3.516)--(4.35,3.516);
+
+    %% B5 mix=0.25 : 3.516 → 4.001 (Δ = 0.485)
+    \fill[softcam!75] (4.35,3.516) rectangle (5.25,4.001);
+    \draw[softcam!90,thin] (4.35,3.516) rectangle (5.25,4.001);
+    \node[font=\tiny\bfseries,white] at (4.80,3.76){+9.17 pp};
+    \node[font=\tiny\bfseries,softcam!50!black,anchor=south] at (4.80,4.02){\textbf{0.7563}};
+
+    %% x-axis labels
+    \node[font=\tiny,fayam!80!black] at (0.45,-0.28){FAYAM};
+    \node[font=\tiny,shap!80!black] at (1.90,-0.28){Run A};
+    \node[font=\tiny,cam!80!black,align=center] at (3.35,-0.28){B5, mix=0};
+    \node[font=\tiny,softcam!80!black,align=center] at (4.80,-0.28){B5, mix=0.25};
+  \end{tikzpicture}
+
+  \vspace{-6pt}
+  \begin{exampleblock}{Quatre paliers de la contribution H1}
+    \footnotesize
+    \begin{itemize}
+      \item \textcolor{fayam}{\textbf{FAYAM original}} : $R^2 = 0.3701$ --- baseline mémoire.
+      \item \textcolor{shap}{\textbf{Run A}} (notre repro pure) : $R^2 = 0.5299$ --- \textbf{+15.98 pp}.
+      \item \textcolor{cam}{\textbf{B5, mix=0 inférence}} : $R^2 = 0.6646$ --- \textbf{+13.46 pp régularisation seule}.
+      \item \textcolor{softcam}{\textbf{B5, mix=0.25 inférence}} : $\boxed{R^2 = 0.7563}$ --- \textbf{+9.17 pp utilisation effective de M}.
+    \end{itemize}
+  \end{exampleblock}
+
+	\vspace{-6pt}
+  \begin{verdictbox}
+    \centering
+    Total : \textbf{+38.62 pp absolu} vs FAYAM original.
+  \end{verdictbox}
+\end{frame}
+
+%% Slide 25 — Comparaison FAYAM/TFT
+\begin{frame}{Comparaison à la baseline et au TFT}
+  \begin{columns}
+    \begin{column}{0.50\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.70]
+        % y: R²×5  (R²=0.75→3.75)
+        % bars: width=1.0 — FAYAM x=0–1.0, B5 x=2.0–3.0
+
+        % y-axis + grid
+        \draw[->] (-0.2,0) -- (-0.2,4.1) node[above,font=\scriptsize]{$R^2$};
+        \foreach \yv/\yl in {0/0, 1.25/0.25, 2.50/0.50, 3.75/0.75}{
+          \draw (-0.2,\yv)--(-0.35,\yv) node[left,font=\tiny]{\yl};
+          \draw[gray!18,thin] (-0.2,\yv)--(3.3,\yv);
+        }
+
+        %% FAYAM: R²=0.3701 → y=1.851
+        \fill[fayam!75] (0,0) rectangle (1.0,1.851);
+        \draw[fayam!90,thin] (0,0) rectangle (1.0,1.851);
+        \node[font=\tiny\bfseries,white] at (0.5,0.93){0.3701};
+
+        %% TFT — ligne de référence pointillée (non mesuré sur nos données)
+        \draw[cam!55,dashed,thin] (-0.1,2.30) -- (3.2,2.30);
+        \node[font=\tiny,cam!65!black,anchor=west] at (3.2,2.30){TFT~?};
+        \node[font=\tiny,cam!50!black,anchor=west] at (3.2,2.05){\textit{(Lim 2019)}};
+
+        %% B5+mix=0.25: R²=0.7563 → y=3.782
+        \fill[softcam!75] (1.8,0) rectangle (2.8,3.782);
+        \draw[softcam!90,thin] (1.8,0) rectangle (2.8,3.782);
+        \node[font=\tiny\bfseries,white] at (2.3,1.89){0.7563};
+
+        %% Delta bracket
+        \draw[<->,gray!60,thin] (1.0,1.851) -- (1.0,3.782)
+          node[midway,right,font=\tiny,gray!60]{$+$\textbf{38.6 pp}};
+
+        %% x-axis labels
+        \node[font=\tiny,fayam!80!black] at (0.5,-0.25){FAYAM};
+        \node[font=\tiny,softcam!80!black,align=center] at (2.3,-0.25){B5\\mix=0.25};
+      \end{tikzpicture}
+
+      \vspace{2pt}
+      {\tiny\textcolor{gray!70}{* TFT non mesuré sur nos données — comparaison architecturale}}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \begin{block}{Positionnement}
+        \footnotesize
+        \begin{itemize}
+          \item \textbf{FAYAM} ($R^2 = 0.37$) --- baseline mémoire, opaque.
+          \item \textbf{TFT} (Lim 2019) --- Transformer interprétable, mais attention non garantie fidèle (Jain \& Wallace).
+          \item \textbf{B5 + mix=0.25} ($R^2 = 0.7563$) --- explication fidèle \emph{par construction} et précision supérieure.
+        \end{itemize}
+      \end{block}
+
+      \begin{verdictbox}
+        \centering\footnotesize
+        Notre architecture explique \alert{fidèlement} et \alert{dépasse} la baseline.
+      \end{verdictbox}
+    \end{column}
+  \end{columns}
+
+  \source{Lim et al., 2019 (TFT) ; Jain \& Wallace, 2019}
+\end{frame}
+
+
+%% ============================================================
+%% ACTE VI — VALIDATION DES 7 HYPOTHÈSES
+%% ============================================================
+\section{Validation des hypothèses H1.A--H1.G}
+
+%% Slide 26 — Méthodologie
+\begin{frame}{Méthodologie de validation}
+  \vspace{-3pt}
+  {\footnotesize\textcolor{gray!70}{\textit{7 hypothèses formulées \textbf{avant} exécution (pré-enregistrement).}}}
+  \vspace{2pt}
+
+  \begin{minipage}{\linewidth}
+  {\footnotesize\setlength{\tabcolsep}{5pt}
+  \begin{tabular}{@{}l l l@{}}
+    \toprule
+    \textbf{ID} & \textbf{Hypothèse} & \textbf{Critère} \\
+    \midrule
+    H1.A & Maxima de M au pic horaire cohérent & corr. temporelle \\[2pt]
+    H1.B & M corrèle aux cross-attentions du décodeur & Pearson $> 0$ \\[2pt]
+    H1.C & Précision conservée malgré l'Evidence Layer & $R^2 \geq 0.30$~; Sp $\geq 0.85$ \\[2pt]
+    H1.D & M cohérente intra-cluster (5 fonctions) & Pearson moyen \\[2pt]
+    H1.E & M plus piquée pour les bonnes prédictions & entropie de M \\[2pt]
+    H1.F & Masquer top-$k$ de M dégrade $R^2$ \emph{(comp.)} & $\Delta R^2 < 0$ \\[2pt]
+    H1.G & Garder top-$k$ de M préserve $R^2$ \emph{(suff.)} & $\Delta R^2 \approx 0$ \\
+    \bottomrule
+  \end{tabular}
+  }
+  \end{minipage}
+
+  \vspace{3pt}
+  \begin{exampleblock}{Référence métrique}
+    \footnotesize
+    H1.F/G : définitions \textbf{comprehensiveness/sufficiency} d'ERASER (DeYoung 2020). Distinction fidélité / plausibilité : Jacovi \& Goldberg 2020.
+  \end{exampleblock}
+
+  \source{DeYoung et al., 2020 (ERASER, ACL) ; Jacovi \& Goldberg, 2020 (ACL)}
+\end{frame}
+
+%% Slide 27 — H1.C performance
+\begin{frame}{H1.C : non-dégradation de la précision}
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.82]
+        % y: score×4  (0.75→3.0, 1.0→4.0)
+
+        \draw[->] (-0.2,0) -- (-0.2,4.2) node[above,font=\scriptsize]{score};
+        \foreach \yv/\yl in {0/0, 1.0/0.25, 2.0/0.50, 3.0/0.75, 4.0/1.0}{
+          \draw (-0.2,\yv)--(-0.35,\yv) node[left,font=\tiny]{\yl};
+          \draw[gray!15,thin] (-0.2,\yv)--(3.5,\yv);
+        }
+
+        %% R² bar: 0.7563 → y=3.025
+        \fill[softcam!75] (0,0) rectangle (1.2,3.025);
+        \draw[softcam!90,thin] (0,0) rectangle (1.2,3.025);
+        \draw[white,dashed,semithick] (0,1.20)--(1.2,1.20);
+        \node[font=\tiny,white,anchor=west] at (0.06,1.10){\textit{seuil 0.30}};
+        \node[font=\tiny\bfseries,white] at (0.6,2.12){\textbf{0.7563}};
+        \node[font=\tiny\bfseries,success!60!black,anchor=south] at (0.6,3.04){\ok~\textbf{+0.456}};
+
+        %% Spearman bar: 0.9169 → y=3.668
+        \fill[shap!75] (2.0,0) rectangle (3.2,3.668);
+        \draw[shap!90,thin] (2.0,0) rectangle (3.2,3.668);
+        \draw[white,dashed,semithick] (2.0,3.40)--(3.2,3.40);
+        \node[font=\tiny,white,anchor=east] at (3.14,3.30){\textit{0.85}};
+        \node[font=\tiny\bfseries,white] at (2.6,1.83){\textbf{0.9169}};
+        \node[font=\tiny\bfseries,success!60!black,anchor=south] at (2.6,3.69){\ok~\textbf{+0.067}};
+
+        %% x labels
+        \node[font=\small\bfseries,softcam!80!black] at (0.6,-0.25){$R^2$};
+        \node[font=\small\bfseries,shap!80!black] at (2.6,-0.25){Spearman};
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \begin{block}{Seuils pré-enregistrés}
+        \footnotesize
+        \begin{itemize}
+          \item $R^2 \geq 0.30$
+          \item Spearman $\geq 0.85$
+        \end{itemize}
+      \end{block}
+
+      \begin{exampleblock}{Résultats B5 + mix=0.25}
+        \footnotesize
+        \begin{itemize}
+          \item $R^2 = \textbf{0.7563}$ \hfill (\textcolor{success}{+0.4563})
+          \item Spearman $= \textbf{0.9169}$ \hfill (\textcolor{success}{+0.0669})
+        \end{itemize}
+      \end{exampleblock}
+
+      \begin{verdictbox}
+        \centering\footnotesize
+        Marge très large sur les deux gates.
+      \end{verdictbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% Slide 28 — H1.D cohérence cluster
+\begin{frame}{H1.D : cohérence intra-cluster}
+  \begin{block}{Pearson hors-diagonale (5 fonctions, Cluster 4)}
+    \centering\footnotesize
+    Entre les 5 matrices M :
+    \quad
+    $\displaystyle\boxed{\text{Pearson} = 0.992}$
+  \end{block}
+
+  \begin{interpbox}
+    \footnotesize
+    Les 5 fonctions produisent des M quasi-identiques --- M capture le pattern \emph{cluster-level}, pas des idiosyncrasies individuelles.
+  \end{interpbox}
+
+  \vspace{4pt}
+  \begin{problembox}
+    \centering\footnotesize
+    \textbf{Nuance honnête} : confondant partiel --- paramètres partagés + inputs similaires par construction du clustering. Test inter-clusters non réalisé.
+  \end{problembox}
+\end{frame}
+
+%% Slide 29 — H1.E sparsité-précision
+\begin{frame}{H1.E : sparsité $\leftrightarrow$ précision}
+  \begin{columns}
+    \begin{column}{0.50\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.78]
+        % x: entropy×2  y: R²×4
+        % 5 points (ρ=-0.80) :
+        %   F1(0.9,0.72) F2(1.3,0.75) F3(1.8,0.60) F4(2.0,0.65) F5(2.5,0.40)
+        % Régression : y_tikz = 3.825 - 0.391·x_tikz
+
+        % Axes
+        \draw[->] (-0.2,0) -- (5.6,0) node[right,font=\scriptsize]{entropy(M)};
+        \draw[->] (0,-0.2) -- (0,3.6) node[above,font=\scriptsize]{$R^2$};
+        % x ticks
+        \foreach \xv/\xl in {1.0/0.5, 2.0/1.0, 3.0/1.5, 4.0/2.0, 5.0/2.5}{
+          \draw (\xv,0)--(\xv,-0.09) node[below,font=\tiny]{\xl};
+          \draw[gray!12,thin](\xv,0)--(\xv,3.4);
+        }
+        % y ticks
+        \foreach \yv/\yl in {1.20/0.30, 2.00/0.50, 2.80/0.70}{
+          \draw (0,\yv)--(-0.09,\yv) node[left,font=\tiny]{\yl};
+          \draw[gray!12,thin](0,\yv)--(5.5,\yv);
+        }
+
+        % Regression line
+        \draw[gray!60,dashed,thick] (1.0,3.43) -- (5.5,1.68);
+
+        % Data points
+        \fill[shap](1.8,2.88) circle(2.8pt);
+        \node[font=\tiny,shap!80!black,anchor=south west]at(1.85,2.90){F1};
+        \fill[shap](2.6,3.00) circle(2.8pt);
+        \node[font=\tiny,shap!80!black,anchor=south]at(2.6,3.02){F2};
+        \fill[shap](3.6,2.40) circle(2.8pt);
+        \node[font=\tiny,shap!80!black,anchor=north]at(3.6,2.38){F3};
+        \fill[shap](4.0,2.60) circle(2.8pt);
+        \node[font=\tiny,shap!80!black,anchor=north west]at(4.02,2.58){F4};
+        \fill[shap](5.0,1.60) circle(2.8pt);
+        \node[font=\tiny,shap!80!black,anchor=north]at(5.0,1.58){F5};
+
+        % ρ annotation
+        \node[font=\footnotesize\bfseries,fayam,anchor=north east]at(5.4,3.5){$\rho = -0.80$};
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \begin{block}{Corrélation Spearman}
+        \footnotesize
+        Entre le $R^2$ par fonction et l'entropie moyenne des lignes de M :
+        \begin{equation*}
+          \boxed{\rho = -0.80}
+        \end{equation*}
+      \end{block}
+
+      \begin{interpbox}
+        \footnotesize
+        Plus M est \textbf{concentrée} (entropie basse), \textbf{meilleure} la prédiction. La régularisation ElasticNet + entropie pousse exactement dans ce sens.
+      \end{interpbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% Slide 30 — H1.F comprehensiveness
+\begin{frame}{H1.F : comprehensiveness \quad\small (à mix=0.25)}
+  \begin{columns}
+    \begin{column}{0.50\textwidth}
+      \begin{tikzpicture}[scale=0.75]
+        % grid
+        \foreach \yv in {0.5,1.0,1.5,2.0,2.5}{
+          \draw[gray!12,thin](0,\yv)--(4.9,\yv);
+        }
+        % axes
+        \draw[->,thick](-0.1,0)--(5.1,0) node[right,font=\tiny]{$k$};
+        \draw[->,thick](0,-0.2)--(0,3.1) node[above,font=\tiny]{$\Delta$MAE (\%)};
+        % shaded area under curve
+        \fill[softcam!15]
+          plot[smooth,tension=0.4] coordinates
+            {(0,0)(0.6,0.05)(1.2,0.113)(1.8,0.21)(2.4,0.327)(3.0,0.42)(3.6,0.497)(4.2,0.527)(4.5,0.537)}
+          --(4.5,0)--cycle;
+        % theoretical ceiling
+        \draw[warning!90!black,dashed,thick](0,2.5)--(4.9,2.5);
+        \node[font=\tiny,warning!90!black,anchor=south west]at(0.05,2.52){\textbf{plafond 25\%}};
+        % gap bracket (max → ceiling)
+        \draw[<->,thin,fayam!60](4.70,0.537)--(4.70,2.5);
+        \node[font=\tiny,fayam!55,anchor=west,align=left]at(4.76,1.52){79\%\\restant};
+        % curve
+        \draw[softcam,line width=1.5pt]
+          plot[smooth,tension=0.4] coordinates
+            {(0,0)(0.6,0.05)(1.2,0.113)(1.8,0.21)(2.4,0.327)(3.0,0.42)(3.6,0.497)(4.2,0.527)(4.5,0.537)};
+        % max point + label
+        \fill[softcam!80!black](4.5,0.537) circle(2.5pt);
+        \node[font=\tiny\bfseries,softcam!80!black,anchor=south]at(3.55,0.57){\textbf{+5.37\%}};
+        \draw[->,softcam!50,very thin](3.93,0.59)--(4.47,0.55);
+        % x-axis ticks/labels
+        \node[below,font=\tiny]at(0,-0.09){0};
+        \foreach \xv/\xl in {1.2/1,2.4/10,3.6/100,4.5/max}{
+          \draw(\xv,0)--(\xv,-0.09) node[below,font=\tiny]{\xl};
+        }
+        % y-axis ticks/labels
+        \foreach \yv/\yl in {0.5/5,1.0/10,1.5/15,2.0/20,2.5/25}{
+          \draw(0,\yv)--(-0.09,\yv) node[left,font=\tiny]{\yl\%};
+        }
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \begin{block}{Protocole}
+        \footnotesize
+        On cache les cases les plus importantes de M, une par une, et on observe si la précision se dégrade.
+      \end{block}
+
+      \begin{exampleblock}{Résultats}
+        \footnotesize
+        \begin{itemize}\setlength{\itemsep}{0pt}
+          \item Cacher 1 case : $-1.13\%$ de précision
+          \item Cacher 10 cases : $-3.27\%$
+          \item Tout cacher : $-5.37\%$ au maximum
+        \end{itemize}
+      \end{exampleblock}
+
+      \begin{verdictbox}
+        \centering\footnotesize
+        M ne pèse que 25\% dans le calcul final~:\\
+        perdre 5.37\% sur 25\% possibles $=$ \textbf{21\%}.\\[2pt]
+        M guide bien la prédiction --- \alert{son rôle est réel}.
+      \end{verdictbox}
+    \end{column}
+  \end{columns}
+
+  \source{DeYoung et al., 2020}
+\end{frame}
+
+%% Slide 31 — H1.G sufficiency
+\begin{frame}{H1.G : sufficiency \quad\small (à mix=0.25)}
+  \begin{columns}
+    \begin{column}{0.50\textwidth}
+      \begin{tikzpicture}[scale=0.75]
+        % grid
+        \foreach \yv in {1.0,2.0}{
+          \draw[gray!12,thin](0,\yv)--(5.3,\yv);
+        }
+        % axes
+        \draw[->,thick](-0.1,0)--(5.5,0) node[right,font=\tiny]{$k$};
+        \draw[->,thick](0,-0.2)--(0,3.3) node[above,font=\tiny]{\%\,préserv.};
+        % broken-axis marks (zoomed: y=0 represents 90%)
+        \draw[thick](-0.18,-0.14)--(-0.06,0.14);
+        \draw[thick](-0.06,-0.14)--(0.06,0.14);
+        % y-axis ticks/labels
+        \foreach \yv/\yl in {0/90,1/95,2/100,3/105}{
+          \draw(0,\yv)--(-0.09,\yv) node[left,font=\tiny]{\yl\%};
+        }
+        % 100% reference line
+        \draw[success!75!black,dashed,thin](0,2.0)--(5.3,2.0);
+        \node[font=\tiny,success!75!black,anchor=south west]at(0.1,2.02){100\% (idéal)};
+        % 97% floor (k=1 level)
+        \draw[softcam!50,dotted,thin](0,1.426)--(5.3,1.426);
+        % bars (scale: tikz y = (pres%-90)/5)
+        \fill[softcam!70](0.3,0) rectangle (1.1,1.426);
+        \fill[softcam!70](1.6,0) rectangle (2.4,1.426);
+        \fill[softcam!70](2.9,0) rectangle (3.7,1.578);
+        \fill[softcam!85](4.2,0) rectangle (5.0,2.046);
+        % bar labels
+        \node[font=\tiny\bfseries,softcam!80!black,anchor=south]at(0.7,1.45){\textbf{97.1\%}};
+        \node[font=\tiny\bfseries,softcam!80!black,anchor=south]at(2.0,1.45){\textbf{97.1\%}};
+        \node[font=\tiny\bfseries,softcam!80!black,anchor=south]at(3.3,1.60){\textbf{97.9\%}};
+        \node[font=\tiny\bfseries,softcam!85!black,anchor=south]at(4.6,2.07){\textbf{100.2\%}};
+        % x labels
+        \foreach \xv/\xl in {0.7/1,2.0/5,3.3/10,4.6/50}{
+          \node[below,font=\tiny]at(\xv,-0.09){\xl};
+        }
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \begin{block}{Test}
+        \footnotesize
+        On garde seulement les top-k positions de M (renormalisées), on masque le reste, et on mesure la préservation de la qualité.
+      \end{block}
+
+      \begin{exampleblock}{Résultats}
+        \footnotesize
+        \begin{itemize}
+          \item Préservation @ k=1 : \textbf{97.13\%}
+          \item Préservation @ k=5 : 97.13\%
+          \item Préservation @ k=10 : 97.89\%
+          \item Préservation @ k=50 : 100.23\%
+        \end{itemize}
+      \end{exampleblock}
+
+      \begin{verdictbox}
+        \centering\footnotesize
+        Une seule position suffit à 97\% --- M est \alert{extrêmement sparse}.
+      \end{verdictbox}
+    \end{column}
+  \end{columns}
+
+  \source{DeYoung et al., 2020}
+\end{frame}
+
+%% Slide 32 — H1.A et H1.B nuancés
+\begin{frame}{H1.A et H1.B : résultats nuancés}
+  \begin{block}{H1.A \quad\ok\ indicatif --- M pointe le pic 17-19h ?}
+    \footnotesize
+    37\% des $\mathrm{argmax}(M)$ tombent dans la fenêtre 17-19h vs 25\% baseline uniforme.
+
+    \vspace{2pt}
+    \textbf{Limite honnête} : ce test ne vérifie pas l'alignement diagonal complet (M pour prédire 03h devrait pointer vers 03h historique). Test non réalisé.
+  \end{block}
+
+  \begin{block}{H1.B \quad\warn\ reframé --- M $\leftrightarrow$ cross-attention ?}
+    \footnotesize
+    Spearman moyen $(\mathrm{argmax}\,M, \mathrm{argmax}\,\mathrm{CA}) = 0.16$ --- hétérogène par fonction.
+
+    \vspace{2pt}
+    \textbf{Lecture} : comparer M à la cross-attention est circulaire --- la cross-attention n'est pas une référence fiable (Jain \& Wallace). La divergence est \alert{attendue} et \alert{souhaitable}.
+  \end{block}
+
+  \begin{verdictbox}
+    \centering\footnotesize
+    Ces deux hypothèses sont à présenter comme \textbf{compléments d'analyse}, pas comme tests centraux.
+  \end{verdictbox}
+
+  \source{Jain \& Wallace, 2019 ; Serrano \& Smith, 2019}
+\end{frame}
+
+
+%% ============================================================
+%% ACTE VII — POSITION SCIENTIFIQUE, LIMITES, PERSPECTIVES
+%% ============================================================
+\section{Position, limites et perspectives}
+
+%% Slide 33 — Self-explainability
+\begin{frame}{La question que vous pourrez me poser}
+  \begin{block}{Critique anticipée}
+    \footnotesize
+    \emph{« Vous avez réglé mix après l'entraînement. N'est-ce pas une explication post-hoc déguisée ? »}
+  \end{block}
+
+  \begin{exampleblock}{Ma réponse}
+    \footnotesize
+    \begin{itemize}
+      \item Mix est un réglage \textbf{global et unique} --- comme la température d'un LLM, il ne change pas d'une prédiction à l'autre.
+      \item La fidélité de M au calcul tient dès que mix $> 0$, quelle que soit la valeur choisie.
+      \item Une fois mix$=0.25$ fixé, le modèle est \textbf{entièrement déterministe} à l'inférence.
+      \item La dissociation entraînement/inférence est une \textbf{observation empirique documentée}, pas une correction de dernière minute.
+    \end{itemize}
+  \end{exampleblock}
+
+  \begin{verdictbox}
+    \centering\footnotesize
+    Je parlerai de \alert{self-explainability calibrée} dans le mémoire ---\\
+    honnête sur la dissociation, mais pas post-hoc.
+  \end{verdictbox}
+
+  \source{Rudin, 2019 ; Lipton, 2018}
+\end{frame}
+
+%% Slide 34 — Limites honnêtes
+\begin{frame}{Ce que ce travail ne fait pas encore}
+  \footnotesize
+  \begin{itemize}\setlength{\itemsep}{3pt}
+    \item \textbf{Un seul run (seed 998)} --- je n'ai pas relancé plusieurs fois, donc je ne connais pas la variance de mes résultats.
+    \item \textbf{Un seul cluster testé (C4)} --- les autres ne convergent pas même en baseline~; les comparer aurait introduit un biais.
+    \item \textbf{H1.A incomplet} --- j'ai vérifié les pics 17h--19h, mais pas l'alignement heure par heure sur les 24h.
+    \item \textbf{H1.D : corrélation attendue} --- les fonctions du même cluster partagent des paramètres et des profils proches~; la cohérence était en partie prévisible.
+    \item \textbf{H1.F avec renormalisation} --- après masquage, j'ai renormalisé M, ce qui atténue l'effet mesuré. Le test brut reste à faire.
+  \end{itemize}
+
+  \begin{interpbox}
+    \footnotesize
+    Ces points ne remettent pas H1 en cause --- ils balisent honnêtement ce qui reste ouvert.
+  \end{interpbox}
+\end{frame}
+
+%% Slide 35 — Prochaines étapes + Q&A
+\begin{frame}{Ce que j'attends de vous aujourd'hui}
+  \begin{block}{Ce que je propose — vos avis ?}
+    \footnotesize
+    \begin{enumerate}\setlength{\itemsep}{2pt}
+      \item \textbf{Configuration B5 + mix=0.25} : est-ce que vous la validez comme version finale ?
+      \item \textbf{H1.A incomplet} : le test diagonal (heure par heure sur 24h) manque --- est-ce bloquant pour la soutenance ?
+      \item \textbf{\emph{« Calibrated self-explainability »}} : ce terme vous semble-t-il défendable dans le mémoire ?
+    \end{enumerate}
+  \end{block}
+
+  \begin{exampleblock}{Ce qu'il me reste à décider avec vous}
+    \footnotesize
+    \begin{enumerate}\setlength{\itemsep}{2pt}
+      \item Faut-il ajouter une comparaison post-hoc (TimeSHAP / IG) ou H1 se suffit-il ?
+      \item Quand pouvez-vous me donner un retour sur le premier draft du chapitre H1 ?
+    \end{enumerate}
+  \end{exampleblock}
+
+  \source{Bento et al., 2021 (TimeSHAP) ; Sundararajan et al., 2017 (Integrated Gradients)}
+\end{frame}
+
+
+%% ------------------------------------------------------------------
+%%  FRAME DE CLÔTURE
+%% ------------------------------------------------------------------
+\begin{frame}[plain, noframenumbering]
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=14pt, center, shadow=true, rounded=true]{title}
+    \usebeamerfont{title}\Large Merci de votre attention\par
+    \vspace{6pt}
+    \normalsize Questions ?
+  \end{beamercolorbox}
+  \vfill
 \end{frame}
 
 \end{document}
