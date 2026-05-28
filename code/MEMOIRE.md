@@ -1,5 +1,21 @@
 # Mémoire — code
 
+## 2026-05-28 — Architecture v4 complète + notebook RunC1 from scratch (session 89)
+
+- `softcam_transformer_v4.py` + `__init__.py` mis à jour ; `evidence-layer-v4-sanity.ipynb` (10 sections) et `softcam-cluster4-v4-runC1.ipynb` (16 sections) créés.
+- RunC1 corrigé : **entraînement from scratch** (SEED=998, LR=6e-4, 51 epochs) — pas de fine-tune depuis B5 ; warm-up mix supprimé (gate_proj ~ N(0,0.01) → gate≈1 à l'init par construction).
+- Suite → uploader RunC1 sur Colab T4 (~1h), comparer R² v4 vs B5 (0.7563), puis H1.F/G sur v4.
+
+## 2026-05-28 — Evidence Layer v4 : notebook sanity check créé (session 87)
+
+- `EvidenceLayerV4` (gating par produit, 1+tanh) implémentée dans `code/src/models/evidence_layer_v4.py` (session précédente).
+- Notebook `code/notebooks/evidence-layer-v4-sanity.ipynb` créé (10 sections, compatible Colab et local) :
+  - Vérification formes (B=4, P=120, C=240, D=32), assertions softmax M, identité à l'init (gate≈1→h_ev≈dec_output).
+  - Mesure `gate_deviation()`, régularisation ElasticNet détaillée, comparaison v3 (additif) vs v4 (gate) côte à côte.
+  - 6 sous-figures : carte M, heatmap gate, distribution gate, argmax M, h_ev vs dec_output, déviation v3 vs v4.
+  - Test gradient (10 steps Adam) + récapitulatif checks ✅/❌.
+- Suite → intégrer v4 dans `SoftCAMTransformerV4ForPrediction`, fine-tuner depuis checkpoint B5.
+
 ## 2026-05-20 — H1.F/G revisités exécutés : les deux ⚠️ deviennent ✅ (session 67)
 
 - Notebook `softcam-cluster4-v3-h1fg-revisited` exécuté sur Colab T4 (~5 min). HTML archivé dans `code/experiments/runs/2026-05-20_softcam-cluster4-v3-h1fg-revisited/`.

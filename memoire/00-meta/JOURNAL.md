@@ -2,6 +2,24 @@
 
 > Une entrée par session significative. Format : date, durée, contenu, blocages, prochaine étape.
 
+## 2026-05-28 — Architecture v4 complète + RunC1 from scratch (session 89)
+
+- **Durée** : ~10 min (continuation session 88)
+- **Fait** : Vérification que `softcam-cluster4-v4-runC1.ipynb` est bien **from scratch** (correction de la session 88 qui avait d'abord créé un notebook fine-tune). Notebook confirmé : SEED=998, LR=6e-4, 51 epochs, NO mix_schedule — warm-up intégré par construction (gate_proj ~ N(0,0.01)). `code/MEMOIRE.md` et `memoire/00-meta/ROADMAP.md` mis à jour (état courant session 89).
+- **Prochaine étape** : uploader RunC1 sur Colab T4 (~1h), comparer R² v4 vs B5 (0.7563).
+
+## 2026-05-28 — SoftCAMTransformerV4 + notebook fine-tune RunC1 (session 88)
+
+- **Durée** : ~20 min
+- **Fait** : `softcam_transformer_v4.py` créé — `SoftCAMTransformerV4ForPrediction` hérite de v3, `output_params` branche `EvidenceLayerV4` (gate = 1+tanh, h_ev = dec⊙gate), `_M_override` fonctionnel pour H1.F/G, `gate_deviation()` comme métrique diagnostique, Fix #5 et `predict_with_M_override()` hérités. `__init__.py` mis à jour. Notebook `softcam-cluster4-v4-runC1.ipynb` créé (17 sections) : charge B5 avec `strict=False`, fine-tune 20 epochs LR=1e-4, évalue R²/Spearman vs B5, mesure gate_deviation, extrait cartes M, sauvegarde JSON.
+- **Prochaine étape** : uploader RunC1 sur Colab T4 (~10 min) → comparer R² v4 vs B5 (0.7563).
+
+## 2026-05-28 — Evidence Layer v4 : module PyTorch + SVG + notebook sanity check (session 87)
+
+- **Durée** : ~30 min
+- **Fait** : Architecture v4 complète livrée — `evidence_layer_v4.py` (gate = 1+tanh, h_ev = dec⊙gate, identité à l'init grâce à std=0.01), SVG `redaction/figures/architecture-evidence-layer-v4.svg` (720×920 px, justifications Vaswani/SE-Net/GLU/Ba/Srivastava), notebook `evidence-layer-v4-sanity.ipynb` (10 sections : shapes, identité, gate_deviation, ElasticNet, comparaison v3 vs v4, 6 figures, test gradient). Fichiers `code/MEMOIRE.md` et `redaction/MEMOIRE.md` mis à jour.
+- **Prochaine étape** : intégrer v4 dans `SoftCAMTransformerV4ForPrediction` ; fine-tuner depuis checkpoint B5 ; soumettre `PLAN-MEMOIRE.md` aux encadreurs.
+
 ## 2026-05-23 — Q&A Run B collapse vulgarisé (session 86)
 
 - **Durée** : ~5 min

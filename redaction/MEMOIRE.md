@@ -1,5 +1,11 @@
 # Mémoire — redaction
 
+## 2026-05-28 — SVG architecture v4 + notebook sanity check (session 87)
+
+- `redaction/figures/architecture-evidence-layer-v4.svg` créé (720×920 px) : diagramme complet du forward pass Evidence Layer v4 (enc_hidden + dec_output → Linear → M=softmax → bmm → LayerNorm → 1+tanh gate → ⊙ → h_ev → output_projection → Prédiction). Skip connection dec_output → ⊙ visible. Badges NEW sur gate et ⊙.
+- Justifications théoriques dans le SVG : Vaswani 2017, SE-Net Hu 2018, GLU Dauphin 2017, Ba 2016, Srivastava 2015.
+- Suite → insérer le SVG dans §3.3 du mémoire (Architecture — couche d'évidence).
+
 ## 2026-05-28 — PLAN-MEMOIRE.md enrichi avec retours encadreurs + plus-value (session 85)
 
 - `PLAN-MEMOIRE.md` mis à jour : section "Plus-value" (tableau 3 axes vs FAYAM/TimeSHAP/TFT), tableau comparatif XAI §2.7, pattern théorie→application→résultats rendu obligatoire (§3.1.4), §4.2.4 seuil R², §4.3.7 confiance en M (3 pistes), §4.4 évaluation qualitative renforcée (3 exemples typés), checklist 8 points retours encadreurs.

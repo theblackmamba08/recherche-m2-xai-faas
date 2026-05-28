@@ -63,15 +63,22 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
 
 > 📍 **Première chose à lire en début de session.** Mis à jour à chaque fin de session par le hook Stop.
 
-### Dernière session : 2026-05-23 (session 86 — Q&A Run B collapse vulgarisé)
+### Dernière session : 2026-05-28 (session 89 — SoftCAMTransformerV4 from scratch + RunC1)
 
-- **Phase actuelle** : Phase 2 — préparation orale, consolidation des explications pédagogiques.
-- **Avancée** : Explication Run B collapse reformulée en français simple (analogie conduite/rétroviseur). Argument dissociation entraînement/inférence consolidé pédagogiquement.
+- **Phase actuelle** : Phase 2 — architecture v4 complète, prêt pour le run Colab T4.
+- **Avancée** :
+  - `evidence_layer_v4.py` + `softcam_transformer_v4.py` créés et intégrés dans `__init__.py`.
+  - `evidence-layer-v4-sanity.ipynb` (10 sections, assertions gate=1 à l'init, gate_deviation, comparaison v3 vs v4).
+  - `softcam-cluster4-v4-runC1.ipynb` créé : entraînement **from scratch** (SEED=998, LR=6e-4, 51 epochs, NO mix_schedule — warmup intégré par construction dans gate_proj ~ N(0,0.01)).
+  - SVG architecture v4 dans `redaction/figures/`.
+  - Retours encadreurs (2026-05-25) intégrés : dot product requis → v4, renommage, évaluation explicabilité, théorie-avant-application.
 - **Prochain pas** :
-  1. 🔴 Reformuler H1.A (test diagonal `argmax(M[t]) ≈ heure(t)`) dans le tableau slide 26.
-  2. 🔴 Confirmer le nombre de fonctions FAYAM → corriger slide 3.
-  3. 🟡 Débriefer après la présentation réelle aux encadreurs.
-  4. 🟡 Trancher : garder "SoftCAM-Transformer" ou renommer "Temporal Evidence Map".
+  1. 🔴 Uploader `code/notebooks/softcam-cluster4-v4-runC1.ipynb` sur Colab T4 et lancer (~1h).
+  2. 🔴 Comparer R² v4 vs B5 (0.7563) — si v4 ≥ B5 → v4 devient référence ; si v4 << B5 → inspecter loss curves.
+  3. 🔴 Soumettre `redaction/PLAN-MEMOIRE.md` aux encadreurs.
+  4. 🟡 Reproduire H1.F/G sur v4 (une fois RunC1 PASS).
+  5. 🟡 Trancher nom modèle ("SoftCAM-Transformer" vs "Temporal Evidence Map").
+  6. 🟡 Commencer rédaction Chapitre 4 (résultats déjà disponibles).
 
 ### Dernière session : 2026-05-23 (session 85 — Q&A perturbation + TFT)
 
@@ -113,16 +120,19 @@ Si à la fin de S6 (≈ 2 semaines de prototypage) l'adaptation SoftCAM→Transf
   3. 🟡 Débriefer après la présentation réelle aux encadreurs.
   4. 🟡 Trancher : garder "SoftCAM-Transformer" ou renommer "Temporal Evidence Map".
 
-### Dernière session : 2026-05-28 (session 85 — PLAN-MEMOIRE.md enrichi)
+### Dernière session : 2026-05-28 (session 88 — SoftCAMTransformerV4 + notebook RunC1)
 
-- **Phase actuelle** : Phase 5 (rédaction) — plan finalisé, prêt à soumettre aux encadreurs.
-- **Avancée** : `PLAN-MEMOIRE.md` enrichi avec retours encadreurs : plus-value 3 axes, tableau comparatif XAI, pattern théorie→application obligatoire, §4.2.4 seuil R², §4.3.7 confiance en M, évaluation qualitative renforcée, checklist 8 points.
+- **Phase actuelle** : Phase 2 — architecture v4 complète, prête pour le run Colab.
+- **Avancée** :
+  - `code/src/models/softcam_transformer_v4.py` créé : modèle complet v4 (gate = 1+tanh, hérite v3, `_M_override` fonctionnel, Fix #5 hérité).
+  - `code/src/models/__init__.py` mis à jour (v4 exposé).
+  - `code/notebooks/softcam-cluster4-v4-runC1.ipynb` créé : fine-tune depuis B5, 20 epochs, LR=1e-4, éval R²+gate_deviation+M.
 - **Prochain pas** :
-  1. 🔴 Soumettre `PLAN-MEMOIRE.md` aux encadreurs pour validation.
-  2. 🔴 Trancher : nom du modèle + dot product vs mélange.
-  3. 🔴 Commencer rédaction Chap4 (résultats disponibles).
-  4. 🟡 Exporter figures notebooks (§4.4 évaluation qualitative).
-  5. 🟡 Documenter seuil R² dans la littérature (§4.2.4).
+  1. 🔴 Uploader `softcam-cluster4-v4-runC1.ipynb` sur Colab T4 → Run All (~10 min).
+  2. 🔴 Comparer R² v4 vs B5 (0.7563) — si ≥ : v4 devient référence mémoire.
+  3. 🔴 Soumettre `PLAN-MEMOIRE.md` aux encadreurs pour validation.
+  4. 🟡 Reproduire H1.F/G sur v4 si RunC1 PASS.
+  5. 🟡 Commencer rédaction Chap4 (résultats disponibles).
 
 ### Dernière session : 2026-05-28 (session 84 — Template Dschang + PLAN-MEMOIRE.md)
 

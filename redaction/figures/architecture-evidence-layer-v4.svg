@@ -1,0 +1,166 @@
+<svg width="720" height="920" xmlns="http://www.w3.org/2000/svg" font-family="Arial, Helvetica, sans-serif">
+
+  <defs>
+    <marker id="arr"        markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#555"/></marker>
+    <marker id="arr-green"  markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#15803D"/></marker>
+    <marker id="arr-blue"   markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#1565C0"/></marker>
+    <marker id="arr-orange" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#BF5600"/></marker>
+    <marker id="arr-red"    markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#BE185D"/></marker>
+    <marker id="arr-amber"  markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#D97706"/></marker>
+    <marker id="arr-purple" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4C1D95"/></marker>
+  </defs>
+
+  <!-- Fond -->
+  <rect width="720" height="920" fill="#F8F9FA" rx="10"/>
+
+  <!-- Titre -->
+  <text x="360" y="28" text-anchor="middle" font-size="13" font-weight="bold" fill="#1E293B">
+    [NOM-MODÈLE] — Evidence Layer v4 : Gating par produit (dot product)
+  </text>
+
+  <!-- ══════════════════════════════════════════════
+       ROW 1 — ENTRÉES
+  ══════════════════════════════════════════════ -->
+
+  <!-- enc_hidden -->
+  <rect x="40" y="50" width="170" height="42" rx="6" fill="#DBEAFE" stroke="#1565C0" stroke-width="2"/>
+  <text x="125" y="67"  text-anchor="middle" font-size="12" font-weight="bold" fill="#1565C0">enc_hidden</text>
+  <text x="125" y="83"  text-anchor="middle" font-size="10" fill="#555" font-style="italic">[B, C, D]</text>
+
+  <!-- dec_output -->
+  <rect x="510" y="50" width="170" height="42" rx="6" fill="#DCFCE7" stroke="#15803D" stroke-width="2"/>
+  <text x="595" y="67"  text-anchor="middle" font-size="12" font-weight="bold" fill="#15803D">dec_output</text>
+  <text x="595" y="83"  text-anchor="middle" font-size="10" fill="#555" font-style="italic">[B, P, D]</text>
+
+  <!-- ══════════════════════════════════════════════
+       ROW 2 — Linear D→C
+  ══════════════════════════════════════════════ -->
+
+  <line x1="595" y1="92" x2="595" y2="140" stroke="#15803D" stroke-width="1.5" marker-end="url(#arr-green)"/>
+
+  <rect x="510" y="142" width="170" height="38" rx="5" fill="#DCFCE7" stroke="#15803D" stroke-width="1.5"/>
+  <text x="595" y="157" text-anchor="middle" font-size="11" font-weight="bold" fill="#15803D">Linear</text>
+  <text x="595" y="172" text-anchor="middle" font-size="9"  fill="#777"  font-style="italic">D → C  (context_length)</text>
+
+  <!-- ══════════════════════════════════════════════
+       ROW 3 — M = softmax
+  ══════════════════════════════════════════════ -->
+
+  <line x1="595" y1="180" x2="595" y2="222" stroke="#15803D" stroke-width="1.5" marker-end="url(#arr-green)"/>
+
+  <rect x="510" y="224" width="170" height="42" rx="5" fill="#BBF7D0" stroke="#166534" stroke-width="2"/>
+  <text x="595" y="241" text-anchor="middle" font-size="11" font-weight="bold" fill="#166534">M = softmax( · )</text>
+  <text x="595" y="257" text-anchor="middle" font-size="9"  fill="#555"  font-style="italic">[B, P, C]  — Evidence Map</text>
+
+  <!-- ══════════════════════════════════════════════
+       ROW 4 — bmm(M, enc_hidden)
+  ══════════════════════════════════════════════ -->
+
+  <!-- enc_hidden → bmm  (chemin bleu pointillé) -->
+  <path d="M 125 92 L 125 340 L 272 340"
+        stroke="#1565C0" stroke-width="1.5" fill="none"
+        stroke-dasharray="5,3" marker-end="url(#arr-blue)"/>
+  <text x="102" y="280" text-anchor="middle" font-size="9" fill="#1565C0" font-style="italic"
+        transform="rotate(-90,102,280)">enc_hidden</text>
+
+  <!-- M → bmm -->
+  <path d="M 595 266 L 595 340 L 448 340"
+        stroke="#166534" stroke-width="1.5" fill="none" marker-end="url(#arr-green)"/>
+
+  <!-- bmm box -->
+  <rect x="272" y="318" width="176" height="44" rx="6" fill="#FEF3C7" stroke="#BF5600" stroke-width="2"/>
+  <text x="360" y="336" text-anchor="middle" font-size="11" font-weight="bold" fill="#92400E">bmm(M, enc_hidden)</text>
+  <text x="360" y="353" text-anchor="middle" font-size="9"  fill="#555"  font-style="italic">[B,P,C] × [B,C,D] → [B,P,D]</text>
+
+  <!-- ══════════════════════════════════════════════
+       ROW 5 — LayerNorm
+  ══════════════════════════════════════════════ -->
+
+  <line x1="360" y1="362" x2="360" y2="402" stroke="#BF5600" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+
+  <rect x="272" y="404" width="176" height="38" rx="5" fill="#FEF3C7" stroke="#BF5600" stroke-width="1.5"/>
+  <text x="360" y="419" text-anchor="middle" font-size="11" font-weight="bold" fill="#92400E">LayerNorm</text>
+  <text x="360" y="434" text-anchor="middle" font-size="9"  fill="#777"  font-style="italic">h_context  [B, P, D]</text>
+
+  <!-- ══════════════════════════════════════════════
+       ROW 6 — sigmoid(Linear)  ← NEW
+  ══════════════════════════════════════════════ -->
+
+  <!-- Badge NEW -->
+  <rect x="456" y="449" width="38" height="16" rx="3" fill="#EF4444"/>
+  <text x="475" y="461" text-anchor="middle" font-size="9" font-weight="bold" fill="white">NEW</text>
+
+  <line x1="360" y1="442" x2="360" y2="482" stroke="#BF5600" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+
+  <rect x="272" y="484" width="176" height="44" rx="6" fill="#FCE7F3" stroke="#BE185D" stroke-width="2"/>
+  <text x="360" y="502" text-anchor="middle" font-size="11" font-weight="bold" fill="#9D174D">1 + tanh(Linear( · ))</text>
+  <text x="360" y="518" text-anchor="middle" font-size="9"  fill="#555"  font-style="italic">gate  [B, P, D]  ∈ (0, 2)  — centré sur 1</text>
+
+  <!-- ══════════════════════════════════════════════
+       ROW 7 — ⊙  produit élément-par-élément  ← NEW
+  ══════════════════════════════════════════════ -->
+
+  <!-- gate → ⊙ -->
+  <line x1="360" y1="528" x2="360" y2="566" stroke="#BE185D" stroke-width="1.5" marker-end="url(#arr-red)"/>
+
+  <!-- connexion skip dec_output →  droite → bas → gauche → ⊙ -->
+  <path d="M 680 71 L 703 71 L 703 590 L 386 590"
+        stroke="#15803D" stroke-width="1.5" fill="none"
+        stroke-dasharray="6,3" marker-end="url(#arr-green)"/>
+  <text x="714" y="340" text-anchor="middle" font-size="9" fill="#15803D" font-style="italic"
+        transform="rotate(-90,714,340)">skip — dec_output</text>
+
+  <!-- cercle ⊙ -->
+  <circle cx="360" cy="590" r="24" fill="#FFFBEB" stroke="#D97706" stroke-width="2.5"/>
+  <text x="360" y="599" text-anchor="middle" font-size="22" fill="#D97706" font-weight="bold">⊙</text>
+
+  <!-- annotation -->
+  <text x="398" y="584" font-size="9" fill="#888" font-style="italic">produit</text>
+  <text x="398" y="596" font-size="9" fill="#888" font-style="italic">élément-par-élément</text>
+
+  <!-- ══════════════════════════════════════════════
+       ROW 8 — h_ev  ← NEW
+  ══════════════════════════════════════════════ -->
+
+  <line x1="360" y1="614" x2="360" y2="652" stroke="#D97706" stroke-width="1.5" marker-end="url(#arr-amber)"/>
+
+  <rect x="258" y="654" width="204" height="44" rx="6" fill="#FEF9C3" stroke="#D97706" stroke-width="2.5"/>
+  <text x="360" y="672" text-anchor="middle" font-size="12" font-weight="bold" fill="#92400E">h_ev = dec_output ⊙ gate</text>
+  <text x="360" y="688" text-anchor="middle" font-size="9"  fill="#555"  font-style="italic">[B, P, D]</text>
+
+  <!-- ══════════════════════════════════════════════
+       ROW 9 — output_projection  (inchangé)
+  ══════════════════════════════════════════════ -->
+
+  <line x1="360" y1="698" x2="360" y2="736" stroke="#D97706" stroke-width="1.5" marker-end="url(#arr-amber)"/>
+
+  <rect x="272" y="738" width="176" height="40" rx="5" fill="#EDE9FE" stroke="#6D28D9" stroke-width="2"/>
+  <text x="360" y="754" text-anchor="middle" font-size="11" font-weight="bold" fill="#4C1D95">output_projection</text>
+  <text x="360" y="770" text-anchor="middle" font-size="9"  fill="#777"  font-style="italic">loc, scale  (Student-t)</text>
+
+  <!-- ══════════════════════════════════════════════
+       ROW 10 — Prédiction finale
+  ══════════════════════════════════════════════ -->
+
+  <line x1="360" y1="778" x2="360" y2="816" stroke="#6D28D9" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+
+  <rect x="258" y="818" width="204" height="44" rx="6" fill="#EDE9FE" stroke="#4C1D95" stroke-width="2.5"/>
+  <text x="360" y="836" text-anchor="middle" font-size="12" font-weight="bold" fill="#4C1D95">Prédiction finale</text>
+  <text x="360" y="852" text-anchor="middle" font-size="9"  fill="#555"  font-style="italic">[B, P, 1]  — 120 timesteps</text>
+
+  <!-- ══════════════════════════════════════════════
+       LÉGENDE
+  ══════════════════════════════════════════════ -->
+  <rect x="20" y="874" width="680" height="38" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
+  <text x="32"  y="889" font-size="9" fill="#1565C0" font-weight="bold">■ Encodeur</text>
+  <text x="105" y="889" font-size="9" fill="#166534" font-weight="bold">■ dec_output / M</text>
+  <text x="218" y="889" font-size="9" fill="#92400E" font-weight="bold">■ bmm + LN</text>
+  <text x="300" y="889" font-size="9" fill="#9D174D" font-weight="bold">■ gate</text>
+  <text x="340" y="889" font-size="9" fill="#D97706" font-weight="bold">■ h_ev (⊙)</text>
+  <text x="400" y="889" font-size="9" fill="#4C1D95" font-weight="bold">■ projection / prédiction</text>
+  <rect x="558" y="879" width="30" height="14" rx="3" fill="#EF4444"/>
+  <text x="573" y="890" text-anchor="middle" font-size="8" font-weight="bold" fill="white">NEW</text>
+  <text x="594" y="890" font-size="9" fill="#555"> = gate + ⊙</text>
+  <text x="32"  y="904" font-size="8" fill="#888">B = batch  ·  P = pred_len (120)  ·  C = context_len (240)  ·  D = d_model (32)   |   --- connexion skip</text>
+
+</svg>
