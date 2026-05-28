@@ -3,7 +3,7 @@ Evidence Layer v4 — Gating par produit (dot product).
 
 Remplace le mélange additif de v3 :
     v3 : h_ev = (1 - mix) * dec_output + mix * LN(bmm(M, enc_hidden))
-    v4 : gate = 1 + tanh(Linear(LN(bmm(M, enc_hidden))))
+    v4 : gate = 1 + gate_strength * tanh(Linear(LN(bmm(M, enc_hidden))))
          h_ev = dec_output * gate
 
 Justifications théoriques :
@@ -16,6 +16,14 @@ Justifications théoriques :
 Pourquoi 1 + tanh plutôt que sigmoid :
     - sigmoid(0) = 0.5 → h_ev ≈ 0.5 * dec_output à l'init → brise le checkpoint B5
     - 1 + tanh(0) = 1  → h_ev = dec_output à l'init → préserve le signal pré-entraîné
+
+Paramètre dynamique ``gate_strength`` (analogue de ``evidence_mix`` en v3) :
+    - ∈ [0, 1], défaut 1.0 (v4 complet à l'inférence)
+    - gate = 1 + gate_strength * tanh(...)  →  ∈ (1 - gate_strength, 1 + gate_strength)
+    - gate_strength = 0 : gate = 1 strict (warm-up dur, décodeur s'entraîne seul)
+    - gate_strength = 1 : amplitude maximale (∈ (0, 2), v4 d'origine)
+    - Réglable epoch par epoch depuis le notebook (cf. RunC2)
+    - Le RunC1 (FAIL R²=-5.29) a montré que gate_strength=1 dès epoch 0 déstabilise.
 """
 
 import torch
@@ -49,6 +57,10 @@ class EvidenceLayerV4(nn.Module):
         nn.init.normal_(self.gate_proj.weight, mean=0.0, std=0.01)
         nn.init.zeros_(self.gate_proj.bias)
 
+        # Amplitude du gate. 1.0 = comportement v4 d'origine.
+        # Réglable dynamiquement depuis le notebook (warm-up RunC2).
+        self.gate_strength: float = 1.0
+
     def forward(
         self,
         dec_output: torch.Tensor,   # [B, P, D]
@@ -75,12 +87,13 @@ class EvidenceLayerV4(nn.Module):
         # ── Étape 3 : Normalisation (Ba et al. 2016) ──────────────────────
         h_context = self.layer_norm(h_context)
 
-        # ── Étape 4 : Gate centré sur 1 ───────────────────────────────────
-        # 1 + tanh(x) ∈ (0, 2), centré sur 1 quand x → 0
-        # À l'init (gate_proj ≈ 0) : gate ≈ 1 → h_ev ≈ dec_output (identité)
+        # ── Étape 4 : Gate centré sur 1 (amplitude gate_strength) ─────────
+        # gate = 1 + gate_strength * tanh(x)  ∈ (1-s, 1+s)
+        # gate_strength = 1.0  →  ∈ (0, 2)   : v4 d'origine
+        # gate_strength = 0.0  →  = 1 strict : h_ev = dec_output (warm-up)
         # Justification : residual gating — Highway Networks (Srivastava 2015)
-        gate = 1.0 + torch.tanh(self.gate_proj(h_context))
-        # gate : [B, P, D],  ∈ (0, 2)
+        gate = 1.0 + self.gate_strength * torch.tanh(self.gate_proj(h_context))
+        # gate : [B, P, D]
 
         # ── Étape 5 : Produit élément-par-élément ─────────────────────────
         # h_ev = dec_output ⊙ gate
@@ -106,7 +119,7 @@ class EvidenceLayerV4(nn.Module):
         with torch.no_grad():
             _, M = self.forward(dec_output, enc_hidden)
             h_context = self.layer_norm(torch.bmm(M, enc_hidden))
-            gate = 1.0 + torch.tanh(self.gate_proj(h_context))
+            gate = 1.0 + self.gate_strength * torch.tanh(self.gate_proj(h_context))
             return (gate - 1.0).abs().mean().item()
 
 

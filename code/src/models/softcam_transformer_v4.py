@@ -131,9 +131,12 @@ class SoftCAMTransformerV4ForPrediction(SoftCAMTransformerV3ForPrediction):
         if self._M_override is not None:
             # H1.F / H1.G : M arbitraire injectée par predict_with_M_override()
             # On recalcule h_context et gate avec la M fournie.
+            # gate_strength miroite la valeur courante d'ev_layer_v4 (warm-up).
             M = self._M_override
             h_context = self.ev_layer_v4.layer_norm(torch.bmm(M, enc_hidden))
-            gate = 1.0 + torch.tanh(self.ev_layer_v4.gate_proj(h_context))
+            gate = 1.0 + self.ev_layer_v4.gate_strength * torch.tanh(
+                self.ev_layer_v4.gate_proj(h_context)
+            )
             h_ev = dec_output * gate
         else:
             h_ev, M = self.ev_layer_v4(dec_output, enc_hidden)
@@ -181,5 +184,7 @@ class SoftCAMTransformerV4ForPrediction(SoftCAMTransformerV3ForPrediction):
             repeat_factor = M.shape[0] // enc_hidden.shape[0]
             enc_hidden = enc_hidden.repeat_interleave(repeat_factor, dim=0)
         h_context = self.ev_layer_v4.layer_norm(torch.bmm(M, enc_hidden))
-        gate = 1.0 + torch.tanh(self.ev_layer_v4.gate_proj(h_context))
+        gate = 1.0 + self.ev_layer_v4.gate_strength * torch.tanh(
+            self.ev_layer_v4.gate_proj(h_context)
+        )
         return (gate - 1.0).abs().mean().item()
